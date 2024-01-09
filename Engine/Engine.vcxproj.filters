@@ -90,19 +90,10 @@
     <ClCompile Include="Graphics\ImGuiManager.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ModelLoader.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\PostEffect.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderManager.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ToonModel.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ToonRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp">
@@ -305,19 +296,10 @@
     <ClInclude Include="Graphics\ImGuiManager.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ModelLoader.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\PostEffect.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RenderManager.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ToonModel.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ToonRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Core\ColorBuffer.h">
@@ -535,22 +517,10 @@
     <None Include="Graphics\Shader\LuminanceExtractionrPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\OutlinePS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\OutlineVS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\PostEffectPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\ToonPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\ToonVS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\VerticalGaussianBlurVS.hlsl">

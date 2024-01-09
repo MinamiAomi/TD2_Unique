@@ -160,7 +160,6 @@
     <ClCompile Include="Graphics\LightManager.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
-    <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="Graphics\ModelRenderer.cpp" />
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
@@ -176,8 +175,6 @@
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Graphics\SpriteRenderer.cpp" />
     <ClCompile Include="Graphics\Timer.cpp" />
-    <ClCompile Include="Graphics\ToonModel.cpp" />
-    <ClCompile Include="Graphics\ToonRenderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Math\Camera.cpp" />
     <ClCompile Include="Math\Color.cpp" />
@@ -260,7 +257,6 @@
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Model.h" />
-    <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="Graphics\ModelRenderer.h" />
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
@@ -276,8 +272,6 @@
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Graphics\SpriteRenderer.h" />
     <ClInclude Include="Graphics\Timer.h" />
-    <ClInclude Include="Graphics\ToonModel.h" />
-    <ClInclude Include="Graphics\ToonRenderer.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Math\Camera.h" />
     <ClInclude Include="Math\Color.h" />
@@ -314,16 +308,6 @@
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="Graphics\Shader\OutlinePS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Graphics\Shader\OutlineVS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
     <None Include="Graphics\Shader\PostEffectPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
@@ -340,16 +324,6 @@
     </None>
     <None Include="Graphics\Shader\Standard\StandardModel.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Graphics\Shader\ToonPS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Graphics\Shader\ToonVS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Graphics\Shader\VerticalGaussianBlurVS.hlsl">
       <FileType>Document</FileType>

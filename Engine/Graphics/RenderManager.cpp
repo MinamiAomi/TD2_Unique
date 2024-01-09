@@ -34,7 +34,6 @@ void RenderManager::Initialize() {
     mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
     mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
 
-    toonRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
@@ -71,7 +70,6 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     if (camera_ && sunLight_) {
-        //toonRenderer_.Render(commandContext_, *camera_);
         particleRenderer_.Render(commandContext_, *camera_);
         
         //if (raymarching_) {
