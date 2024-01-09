@@ -167,6 +167,7 @@
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp" />
     <ClCompile Include="Graphics\Raytracing\BLAS.cpp" />
     <ClCompile Include="Graphics\Raytracing\RaytracingRenderer.cpp" />
+    <ClCompile Include="Graphics\Raytracing\RTShadowRenderer.cpp" />
     <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp" />
     <ClCompile Include="Graphics\Raytracing\StateObject.cpp" />
     <ClCompile Include="Graphics\Raytracing\TLAS.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="Graphics\RaymarchingRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\BLAS.h" />
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
+    <ClInclude Include="Graphics\Raytracing\RTShadowRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\ShaderTable.h" />
     <ClInclude Include="Graphics\Raytracing\StateObject.h" />
     <ClInclude Include="Graphics\Raytracing\TLAS.h" />
@@ -424,6 +426,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\Raytracing\RTShadow.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\PostEffectTwoPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

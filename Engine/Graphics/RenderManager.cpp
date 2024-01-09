@@ -38,9 +38,11 @@ void RenderManager::Initialize() {
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
 
-    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
-    raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-    raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    modelRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    rtShadowRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+
+    //raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     timer_.Initialize();
 
@@ -71,18 +73,11 @@ void RenderManager::Render() {
 
     if (camera_ && sunLight_) {
         particleRenderer_.Render(commandContext_, *camera_);
-        
-        //if (raymarching_) {
-        //    raymarchingRenderer_.Render(commandContext_, *camera_);
-        //    raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        //}
-        // else {
+
         // モデル描画     
-        modelRenderer.Render(commandContext_, *camera_, *sunLight_);
-        // レイトレ     
-        raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        // }
-    
+        modelRenderer_.Render(commandContext_, *camera_, *sunLight_);
+        // 影
+        rtShadowRenderer_.Render(commandContext_, *camera_, *sunLight_);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -91,8 +86,9 @@ void RenderManager::Render() {
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
-    //postEffect_.Render(commandContext_, raymarchingRenderer_.GetResult());
+    //postEffect_.Render(commandContext_, mainColorBuffer_);
+    postEffect_.Render(commandContext_, mainColorBuffer_, rtShadowRenderer_.GetShadow());
+    //postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 

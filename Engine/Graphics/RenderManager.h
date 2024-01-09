@@ -9,6 +9,7 @@
 #include "Raytracing/RaytracingRenderer.h"
 #include "RaymarchingRenderer.h"
 #include "ModelRenderer.h"
+#include "Raytracing/RTShadowRenderer.h"
 #include "Bloom.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
@@ -48,9 +49,10 @@ private:
 
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
-    RaytracingRenderer raytracingRenderer_;
-    RaymarchingRenderer raymarchingRenderer_;
-    ModelRenderer modelRenderer;
+    //RaytracingRenderer raytracingRenderer_;
+    //RaymarchingRenderer raymarchingRenderer_;
+    ModelRenderer modelRenderer_;
+    RTShadowRenderer rtShadowRenderer_;
     //Bloom bloom_;
     PostEffect postEffect_;
     

@@ -7,6 +7,7 @@
 const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
 const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
 const wchar_t kPostEffectOtherPixelShader[] = L"PostEffectOtherPS.hlsl";
+const wchar_t kPostEffectTwoPixelShader[] = L"PostEffectTwoPS.hlsl";
 
 void PostEffect::Initialize(const ColorBuffer& target) {
     CD3DX12_DESCRIPTOR_RANGE srvRange[3]{};
@@ -50,9 +51,13 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 
     pipelineState_.Create(L"PostEffect PipelineState", pipelineStateDesc);
 
-     ps = shaderManager->Compile(kPostEffectOtherPixelShader, ShaderManager::kPixel);
+    ps = shaderManager->Compile(kPostEffectOtherPixelShader, ShaderManager::kPixel);
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
     pipelineStateOther_.Create(L"PostEffect PipelineState", pipelineStateDesc);
+
+    ps = shaderManager->Compile(kPostEffectTwoPixelShader, ShaderManager::kPixel);
+    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+    pipelineStateTwo_.Create(L"PostEffect PipelineState", pipelineStateDesc);
 }
 
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow, ColorBuffer& reflection) {
@@ -65,6 +70,17 @@ void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, Co
     commandContext.SetDescriptorTable(1, texture.GetSRV());
     commandContext.SetDescriptorTable(2, shadow.GetSRV());
     commandContext.SetDescriptorTable(3, reflection.GetSRV());
+    commandContext.Draw(3);
+}
+
+void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow) {
+    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.TransitionResource(shadow, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.SetRootSignature(rootSignature_);
+    commandContext.SetPipelineState(pipelineStateTwo_);
+    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    commandContext.SetDescriptorTable(1, texture.GetSRV());
+    commandContext.SetDescriptorTable(2, shadow.GetSRV());
     commandContext.Draw(3);
 }
 

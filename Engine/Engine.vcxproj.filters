@@ -255,6 +255,9 @@
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
       <Filter>Graphics\Raymarching</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\RTShadowRenderer.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -503,6 +506,9 @@
     <ClInclude Include="Graphics\RaymarchingRenderer.h">
       <Filter>Graphics\Raymarching</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\RTShadowRenderer.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -575,6 +581,12 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\RTShadow.hlsl">
+      <Filter>Graphics\Shader\Raytracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\PostEffectTwoPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>
