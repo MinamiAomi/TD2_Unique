@@ -1,11 +1,11 @@
 #include <Windows.h>
 
 #include "Framework/Engine.h"
-#include "Test.h"
+#include "Unique.h"
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
-    Game* game = new Test;
+    Game* game = new Unique;
     Engine::Run(game);
     delete game;
 

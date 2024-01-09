@@ -73,14 +73,18 @@ void RenderManager::Render() {
     if (camera_ && sunLight_) {
         //toonRenderer_.Render(commandContext_, *camera_);
         particleRenderer_.Render(commandContext_, *camera_);
-        if (raymarching_) {
-            //raymarchingRenderer_.Render(commandContext_, *camera_);
-            //raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        }
-        else {
-            modelRenderer.Render(commandContext_, *camera_, *sunLight_);
-            raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        }
+        
+        //if (raymarching_) {
+        //    raymarchingRenderer_.Render(commandContext_, *camera_);
+        //    raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+        //}
+        // else {
+        // モデル描画     
+        modelRenderer.Render(commandContext_, *camera_, *sunLight_);
+        // レイトレ     
+        raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+        // }
+    
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -90,7 +94,7 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
-    
+    //postEffect_.Render(commandContext_, raymarchingRenderer_.GetResult());
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
@@ -98,7 +102,6 @@ void RenderManager::Render() {
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
 #endif // _DEBUG
 

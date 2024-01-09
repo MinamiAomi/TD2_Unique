@@ -59,7 +59,4 @@ private:
     Timer timer_;
     std::shared_ptr<const Camera> camera_;
     std::shared_ptr<const DirectionalLight> sunLight_;
-
-
-    bool raymarching_ = false;
 };
