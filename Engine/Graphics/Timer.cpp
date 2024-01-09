@@ -1,5 +1,7 @@
 #include "Timer.h"
 
+#include <thread>
+
 using namespace std::chrono;
 
 void Timer::Initialize() {

@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <filesystem>
+#include <list>
 
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"
