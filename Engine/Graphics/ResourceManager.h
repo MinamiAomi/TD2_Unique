@@ -11,7 +11,7 @@ class ResourceManager {
 public:
     static ResourceManager* GetInstance();
 
-    void AddToonModel(const std::string& name, const std::shared_ptr<Model>& model) { modelMap_.emplace(std::make_pair(name, model)); }
+    void AddModel(const std::string& name, const std::shared_ptr<Model>& model) { modelMap_.emplace(std::make_pair(name, model)); }
     std::shared_ptr<Model> FindModel(const std::string& name) const { return modelMap_.at(name); }
     
     void AddTexture(const std::string& name, const std::shared_ptr<Texture>& texture) {
