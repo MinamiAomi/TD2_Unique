@@ -4,15 +4,15 @@
 #include <memory>
 #include <string>
 
-class ToonModel;
-class Texture;
+#include "Model.h"
+#include "Sprite.h"
 
 class ResourceManager {
 public:
     static ResourceManager* GetInstance();
 
-    void AddToonModel(const std::string& name, const std::shared_ptr<ToonModel>& model) { toonModelMap_.emplace(std::make_pair(name, model)); }
-    std::shared_ptr<ToonModel> FindModel(const std::string& name) const { return toonModelMap_.at(name); }
+    void AddToonModel(const std::string& name, const std::shared_ptr<Model>& model) { modelMap_.emplace(std::make_pair(name, model)); }
+    std::shared_ptr<Model> FindModel(const std::string& name) const { return modelMap_.at(name); }
     
     void AddTexture(const std::string& name, const std::shared_ptr<Texture>& texture) {
         textureMap_.emplace(std::make_pair(name, texture));
@@ -25,6 +25,6 @@ private:
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
 
-    std::map<std::string, std::shared_ptr<ToonModel>> toonModelMap_;
+    std::map<std::string, std::shared_ptr<Model>> modelMap_;
     std::map<std::string, std::shared_ptr<Texture>> textureMap_;
 };
