@@ -4,6 +4,21 @@
     <Filter Include="Game">
       <UniqueIdentifier>{f36aec4f-fb6d-4c5e-ad63-b4ec29307422}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\block">
+      <UniqueIdentifier>{3cbdc0d6-7082-4329-8162-ad993fe9c62e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\enemy">
+      <UniqueIdentifier>{e0d5e5a1-a28f-4354-a770-481db8cf26c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\player">
+      <UniqueIdentifier>{2e430f46-3a07-4224-99c5-bf29c5fc6cc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\stage">
+      <UniqueIdentifier>{6d235d90-cbdd-40b5-951b-b688b0bfe6f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\followCamera">
+      <UniqueIdentifier>{1e287115-be46-48f6-a7c4-4536e216f1eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -13,6 +28,30 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Game\block\block.cpp">
+      <Filter>Game\block</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\Enemy.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\EnemyBullet.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\stage\Stage.cpp">
+      <Filter>Game\stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\player\Player.cpp">
+      <Filter>Game\player</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\player\Weapon.cpp">
+      <Filter>Game\player</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\followCamera\FollowCamera.cpp">
+      <Filter>Game\followCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\EnemyCore.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -20,6 +59,30 @@
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\block\block.h">
+      <Filter>Game\block</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\Enemy.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\EnemyBullet.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player\Player.h">
+      <Filter>Game\player</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player\Weapon.h">
+      <Filter>Game\player</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\followCamera\FollowCamera.h">
+      <Filter>Game\followCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\stage\Stage.h">
+      <Filter>Game\stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\EnemyCore.h">
+      <Filter>Game\enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
