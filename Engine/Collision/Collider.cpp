@@ -146,6 +146,12 @@ bool SphereCollider::RayCast(const Vector3& origin, const Vector3& diff, uint32_
     return true;
 }
 
+BoxCollider::BoxCollider() {
+    obb_.center = {};
+    SetOrientation(Quaternion::identity);
+    obb_.size = Vector3::one;
+}
+
 bool BoxCollider::IsCollision(Collider* other, CollisionInfo& collisionInfo) {
     if (CanCollision(other)) {
         return  other->IsCollision(this, collisionInfo);
