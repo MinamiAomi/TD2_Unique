@@ -6,8 +6,8 @@ static Random::RandomNumberGenerator randomNumberGenerator;
 
 Enemy::Enemy()
 {
-	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	/*model_ = std::make_shared<ModelInstance>();
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));*/
 
 	for (uint32_t i = 0; i < 10; i++) {
 		attackModels_[i] = std::make_shared<ModelInstance>();
@@ -15,12 +15,30 @@ Enemy::Enemy()
 		attackModels_[i]->SetIsActive(false);
 	}
 
+	for (uint32_t i = 0; i < 8; i++) {
+		enemyCores_[i] = std::make_shared<EnemyCore>();
+	}
+
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("enemy_hp");
 
 	hpSprite_ = std::make_unique<Sprite>();
 	hpSprite_->SetTexture(hpTex_);
 
-	collider_ = std::make_unique<BoxCollider>();
+	/*collider_ = std::make_unique<BoxCollider>();*/
+
+	crossAttack_.models_[0] = std::make_shared<ModelInstance>();
+	crossAttack_.models_[0]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	crossAttack_.models_[0]->SetIsActive(false);
+	crossAttack_.models_[1] = std::make_shared<ModelInstance>();
+	crossAttack_.models_[1]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	crossAttack_.models_[1]->SetIsActive(false);
+
+	crossAttack_.colliders_[0] = std::make_unique<BoxCollider>();
+	crossAttack_.colliders_[0]->SetName("Enemy_Bullet");
+	crossAttack_.colliders_[0]->SetIsActive(false);
+	crossAttack_.colliders_[1] = std::make_unique<BoxCollider>();
+	crossAttack_.colliders_[1]->SetName("Enemy_Bullet");
+	crossAttack_.colliders_[1]->SetIsActive(false);
 
 }
 
@@ -36,13 +54,26 @@ void Enemy::Initialize() {
 	transform.scale = { 10.0f,10.0f,10.0f };
 	transform.rotate = Quaternion::identity;
 
-	collider_->SetCenter(transform.translate);
-	collider_->SetSize(transform.scale * 2.0f);
-	collider_->SetOrientation(transform.rotate);
-	collider_->SetName("Enemy");
-	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	//collider_->SetCenter(transform.translate);
+	////コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
+	//collider_->SetSize(transform.scale * 2.0f);
+	//collider_->SetOrientation(transform.rotate);
+	//collider_->SetName("Enemy");
+	//collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 
-	hp_ = kMaxHp_;
+	ResetCores();
+
+	kMaxHp_ = CalcAllHp();
+
+	hp_ = CalcAllHp();
+
+	if (kMaxHp_ > 0) {
+		hpWidth_ = float(300.0f / kMaxHp_);
+	}
+	else {
+		hpWidth_ = 0;
+	}
+
 	isDead_ = false;
 
 	attackInterval_ = 150;
@@ -67,6 +98,36 @@ void Enemy::Initialize() {
 
 }
 
+void Enemy::ResetCores() {
+
+	Transform tmpTransform = transform;
+	tmpTransform.scale = { 5.0f,5.0f,5.0f };
+	//左下前
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,-7.5f };
+	enemyCores_[kLeftDownFront]->Initialize(tmpTransform, 0);
+	//左下奥
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,7.5f };
+	enemyCores_[kLeftDownBack]->Initialize(tmpTransform, 1);
+	//左上前
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
+	enemyCores_[kLeftTopFront]->Initialize(tmpTransform, 2);
+	//左上奥
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,7.5f };
+	enemyCores_[kLeftTopBack]->Initialize(tmpTransform, 3);
+	//右下前
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,-7.5f };
+	enemyCores_[kRightDownFront]->Initialize(tmpTransform, 4);
+	//右下奥
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,7.5f };
+	enemyCores_[kRightDownBack]->Initialize(tmpTransform, 5);
+	//右上前
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
+	enemyCores_[kRightTopFront]->Initialize(tmpTransform, 6);
+	//右上奥
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,7.5f };
+	enemyCores_[kRightTopBack]->Initialize(tmpTransform, 7);
+}
+
 void Enemy::Update() {
 
 	bullets_.remove_if([](auto& bullet) {
@@ -89,8 +150,14 @@ void Enemy::Update() {
 			//タイマー0で攻撃時の変数初期化、攻撃開始
 			if (--attackTimer_ <= 0) {
 				
-				//壁生やし以外の攻撃だったら壁生やしを行う
-				attackNumber_ = 1;
+				if (attackNumber_ == 1) {
+					/*attackNumber_ = 1 + randomNumberGenerator.NextIntRange(0, 1);*/
+					attackNumber_ = 2;
+				}
+				else {
+					attackNumber_ = 1;
+				}
+				
 
 				AttackInitialize();
 				attackTimer_ = attackInterval_;
@@ -100,12 +167,23 @@ void Enemy::Update() {
 
 		}
 
+		for (auto& core : enemyCores_) {
+			core->Update();
+		}
+
 		for (auto& bullet : bullets_) {
 			bullet->Update();
 		}
 
+		hp_ = CalcAllHp();
+
 		if (hp_ <= 0) {
 			isDead_ = true;
+
+			for (auto& core : enemyCores_) {
+				core->SetIsActiveModel(false);
+			}
+
 			Audio::GetInstance()->SoundPlayWave(deathSE_);
 		}
 
@@ -113,36 +191,37 @@ void Enemy::Update() {
 
 	}
 
+
 	hpSprite_->SetScale({ hpWidth_ * hp_, 64.0f });
 
 	transform.UpdateMatrix();
-	model_->SetWorldMatrix(transform.worldMatrix);
+	/*model_->SetWorldMatrix(transform.worldMatrix);
 
 	collider_->SetCenter(transform.translate);
 	collider_->SetSize(transform.scale * 2.0f);
-	collider_->SetOrientation(transform.rotate);
+	collider_->SetOrientation(transform.rotate);*/
 
 	if (hitCoolTime_ > 0) {
 		hitCoolTime_--;
 	}
 
 	//死んだとき
-	if (isDead_) {
+	//if (isDead_) {
 
-		model_->SetIsActive(false);
+	//	model_->SetIsActive(false);
 
-	}
-	//生きている時
-	else {
+	//}
+	////生きている時
+	//else {
 
-		if (hitCoolTime_ % 2 == 0) {
-			model_->SetIsActive(true);
-		}
-		else {
-			model_->SetIsActive(false);
-		}
-		
-	}
+	//	if (hitCoolTime_ % 2 == 0) {
+	//		model_->SetIsActive(true);
+	//	}
+	//	else {
+	//		model_->SetIsActive(false);
+	//	}
+	//	
+	//}
 
 	//地面攻撃中
 	if (isStartAttack_ && attackNumber_ == 0) {
@@ -166,7 +245,7 @@ void Enemy::Attack() {
 
 	switch (attackNumber_)
 	{
-	default:
+	//使用しない
 	case 0:
 
 		//カウントが30を切ったら攻撃開始
@@ -187,7 +266,7 @@ void Enemy::Attack() {
 
 			if (workAttack_.startAttackTimer <= 0) {
 
-				if (blocksPtr_ && isStartAttack_) {
+				/*if (blocksPtr_ && isStartAttack_) {
 
 					for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
 						std::shared_ptr<Block> block = std::make_shared<Block>();
@@ -196,7 +275,7 @@ void Enemy::Attack() {
 						blocksPtr_->push_back(block);
 					}
 
-				}
+				}*/
 
 				isStartAttack_ = false;
 
@@ -212,6 +291,7 @@ void Enemy::Attack() {
 		}
 
 		break;
+	default:
 	case 1:
 
 		for (auto& bullet : bullets_) {
@@ -229,6 +309,14 @@ void Enemy::Attack() {
 		}
 
 		break;
+	case 2:
+
+		if (--crossAttack_.attackTimer <= 0) {
+			isStartAttack_ = false;
+			SetCoresToRoot();
+		}
+
+		break;
 	}
 
 }
@@ -237,7 +325,6 @@ void Enemy::AttackInitialize() {
 
 	switch (attackNumber_)
 	{
-	default:
 	case 0:
 
 		workAttack_.attackCount = randomNumberGenerator.NextIntRange(3, 6);
@@ -261,10 +348,20 @@ void Enemy::AttackInitialize() {
 		workAttack_.startAttackTimer = workAttack_.startAttackInterval;
 
 		break;
+	default:
 	case 1:
 
 		AddBullet();
 		workShot_.shotTimer = workShot_.shotInterval;
+
+		break;
+	case 2:
+
+		crossAttack_.attackTimer = crossAttack_.maxAttackTime;
+		crossAttack_.shotPosition[0] = { -30.0f,0.0f,40.0f };
+		crossAttack_.shotPosition[1] = { 30.0f,0.0f,40.0f };
+		enemyCores_[kLeftTopFront]->transform.translate = crossAttack_.shotPosition[0];
+		enemyCores_[kRightTopFront]->transform.translate = crossAttack_.shotPosition[1];
 
 		break;
 	}
@@ -282,7 +379,7 @@ void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
 		}
 
 	}
-	else if (collisionInfo.collider->GetName() == "Block") {
+	else if (collisionInfo.collider->GetName() == "Block_Shot") {
 
 		if (hitCoolTime_ == 0) {
 			hp_ -= 3;
@@ -318,5 +415,49 @@ void Enemy::AddBullet() {
 		bullets_.push_back(newBullet);
 
 	}
+
+}
+
+int32_t Enemy::CalcAllHp() {
+
+	int32_t totalHp = 0;
+
+	for (auto& core : enemyCores_) {
+
+		totalHp += core->GetHp();
+
+	}
+
+	return totalHp;
+
+}
+
+void Enemy::SetCoresToRoot() {
+
+	Transform tmpTransform = transform;
+	//左下前
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,-7.5f };
+	enemyCores_[kLeftDownFront]->transform.translate = tmpTransform.translate;
+	//左下奥
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,7.5f };
+	enemyCores_[kLeftDownBack]->transform.translate = tmpTransform.translate;
+	//左上前
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
+	enemyCores_[kLeftTopFront]->transform.translate = tmpTransform.translate;
+	//左上奥
+	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,7.5f };
+	enemyCores_[kLeftTopBack]->transform.translate = tmpTransform.translate;
+	//右下前
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,-7.5f };
+	enemyCores_[kRightDownFront]->transform.translate = tmpTransform.translate;
+	//右下奥
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,7.5f };
+	enemyCores_[kRightDownBack]->transform.translate = tmpTransform.translate;
+	//右上前
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
+	enemyCores_[kRightTopFront]->transform.translate = tmpTransform.translate;
+	//右上奥
+	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,7.5f };
+	enemyCores_[kRightTopBack]->transform.translate = tmpTransform.translate;
 
 }

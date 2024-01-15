@@ -16,6 +16,8 @@ enum class Behavior {
 	kDash, //ダッシュ
 };
 
+class Block;
+
 class Player : public GameObject
 {
 public:
@@ -24,7 +26,8 @@ public:
 
 	enum AttackType {
 		kVertical, //縦攻撃
-		kHorizontal //横攻撃
+		kHorizontal, //横攻撃
+		kAddBlock, //壁追加
 	};
 
 	void Initialize();
@@ -87,6 +90,8 @@ private:
 	std::shared_ptr<FollowCamera> camera_;
 
 	std::unique_ptr<Weapon> weapon_;
+
+	std::list<std::shared_ptr<Block>> blocks_;
 
 	//前フレームの位置
 	Vector3 prePosition_{};
@@ -157,6 +162,9 @@ private:
 
 	//ブロック破壊フラグ
 	bool isBreak_ = false;
+
+	//ボタンの長押し時間
+	uint32_t inputTime_ = 0;
 
 	//通常行動更新
 	void BehaviorRootUpdate();

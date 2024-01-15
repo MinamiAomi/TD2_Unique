@@ -35,7 +35,7 @@ void FollowCamera::Update() {
         // 左右振り向き
         if (std::abs(xinputState.Gamepad.sThumbRX) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
             std::abs(xinputState.Gamepad.sThumbRY) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-            const float rotateSpeed = 3.0f * Math::ToRadian;
+            const float rotateSpeed = 4.0f * Math::ToRadian;
             destinationRotate_ = Quaternion::MakeForYAxis(float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed) * destinationRotate_;
         }
     }

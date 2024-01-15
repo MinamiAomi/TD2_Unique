@@ -9,6 +9,7 @@
 #include "EnemyBullet.h"
 #include "Audio/Audio.h"
 #include <array>
+#include "EnemyCore.h"
 
 class Enemy : public GameObject
 {
@@ -20,7 +21,7 @@ public:
 
 	void Update();
 
-	void SetBlockList(std::list<std::shared_ptr<Block>>* ptr) { blocksPtr_ = ptr; }
+	/*void SetBlockList(std::list<std::shared_ptr<Block>>* ptr) { blocksPtr_ = ptr; }*/
 
 	void SetPlayer(Player* player) { player_ = player; }
 
@@ -42,7 +43,25 @@ private:
 
 	void OnBlockAttackCollision(const CollisionInfo& collisionInfo);
 
+	void ResetCores();
+
+	//初期位置に戻す
+	void SetCoresToRoot();
+
+	int32_t CalcAllHp();
+
 private:
+
+	enum CorePosition {
+		kLeftDownFront,//左下前
+		kLeftDownBack,//左下奥
+		kLeftTopFront,//左上前
+		kLeftTopBack,//左上奥
+		kRightDownFront,//右下前
+		kRightDownBack,//右下奥
+		kRightTopFront,//右上前
+		kRightTopBack,//右上奥
+	};
 
 	struct WorkAttack
 	{
@@ -58,23 +77,38 @@ private:
 		int32_t shotTimer; //弾の発射管理をするタイマー
 	};
 
+	struct CrossAttack {
+		std::array<std::shared_ptr<ModelInstance>, 2> models_; //攻撃モデル
+		std::array<std::unique_ptr<BoxCollider>, 2> colliders_; //攻撃コライダー
+		uint32_t attackInterval = 60; //発射までの猶予
+		Vector3 shotPosition[2]; //発射する位置
+		uint32_t maxAttackTime = 180; //攻撃に使う時間
+		int32_t attackTimer; //攻撃管理タイマー
+	};
+
 	uint32_t attackInterval_; //攻撃間隔
 	int32_t attackTimer_; //攻撃するまでのカウント
 	bool isStartAttack_; //攻撃開始フラグ
 
 	uint32_t attackNumber_ = 0;
 
-	std::shared_ptr<ModelInstance> model_;
+	//当たり判定
+	/*std::unique_ptr<BoxCollider> collider_;*/
+
+	/*std::shared_ptr<ModelInstance> model_;*/
 
 	//攻撃場所を表示する用のモデル
 	std::array<std::shared_ptr<ModelInstance>, 10> attackModels_;
 
 	std::array<Transform, 10> attackTransforms_;
 
+	//敵のコア
+	std::array<std::shared_ptr<EnemyCore>, 8> enemyCores_;
+
 	Player* player_ = nullptr;
 
 	//ブロックリストのポインタ。ブロックを追加するのに使用
-	std::list<std::shared_ptr<Block>>* blocksPtr_ = nullptr;
+	/*std::list<std::shared_ptr<Block>>* blocksPtr_ = nullptr;*/
 
 	//敵弾
 	std::list<std::shared_ptr<EnemyBullet>> bullets_;
@@ -83,10 +117,12 @@ private:
 
 	WorkShot workShot_;
 
+	CrossAttack crossAttack_;
+
 	//速度
 	Vector3 velocity_{};
 
-	uint32_t kMaxHp_ = 20;
+	uint32_t kMaxHp_ = 40;
 
 	int32_t hp_ = kMaxHp_;
 
@@ -97,9 +133,6 @@ private:
 
 	//移動先の位置
 	Vector3 movePosition_{};
-
-	//当たり判定
-	std::unique_ptr<BoxCollider> collider_;
 
 	//攻撃する位置を格納する配列
 	std::array<Vector3, 10> attackPositions_;

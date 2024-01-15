@@ -3,17 +3,19 @@
 
 Block::Block()
 {
+	model_ = std::make_shared<ModelInstance>();
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
 }
 
 Block::~Block()
 {
-	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
 }
 
 void Block::Initialize(const Vector3& pos, Player* player, const Vector3& blockSize) {
 
 	SetName("Block");
+
+	player_ = player;
 
 	blockSize_ = blockSize;
 
@@ -25,14 +27,15 @@ void Block::Initialize(const Vector3& pos, Player* player, const Vector3& blockS
 
 	transform.translate = pos;
 	transform.scale = blockSize_;
+	transform.rotate = player->transform.rotate;
 
 	collider_ = std::make_unique<BoxCollider>();
 	collider_->SetCenter(transform.translate);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
-	collider_->SetName("Block");
+	collider_->SetOrientation(transform.rotate);
+	collider_->SetName("Block_Stay");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
-
-	player_ = player;
 
 }
 
@@ -45,19 +48,24 @@ void Block::Update() {
 		isDead_ = true;
 	}*/
 
-	if (!isShot_) {
+	if (!isDead_) {
 
-		if (--liveTimer_ <= 0) {
-			isDead_ = true;
+		if (!isShot_) {
+
+			if (--liveTimer_ <= 0) {
+				isDead_ = true;
+			}
+
 		}
+		else {
 
-	}
-	else {
+			transform.translate += velocity_;
+			transform.rotate = Quaternion::MakeForYAxis(0.1f) * transform.rotate;
 
-		transform.translate += velocity_;
+			if (--shotLiveTimer_ <= 0) {
+				isDead_ = true;
+			}
 
-		if (--shotLiveTimer_ <= 0) {
-			isDead_ = true;
 		}
 
 	}
@@ -65,7 +73,10 @@ void Block::Update() {
 	transform.UpdateMatrix();
 
 	collider_->SetCenter(transform.translate);
-	
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
+	collider_->SetSize(transform.scale * 2.0f);
+	collider_->SetOrientation(transform.rotate);
+
 	model_->SetWorldMatrix(transform.worldMatrix);
 
 }
@@ -73,17 +84,36 @@ void Block::Update() {
 void Block::Shot(const Vector3& velocity) {
 
 	velocity_ = velocity;
+	velocity_.Normalize();
+	velocity_ = player_->transform.rotate * velocity_;
 	velocity_ *= 3.0f;
 	isShot_ = true;
+	collider_->SetName("Block_Shot");
+	collider_->SetIsActive(true);
 
 }
 
 void Block::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Enemy") {
+	if (collisionInfo.collider->GetName() == "Enemy" ||
+		collisionInfo.collider->GetName() == "Enemy_Core") {
 
 		isDead_ = true;
+		collider_->SetIsActive(false);
 		
+	}
+	else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
+
+		canShot_ = true;
+		model_->SetColor({ 1.0f,1.0f,0.0f });
+
+	}
+	else if (collisionInfo.collider->GetName() == "Weapon") {
+
+		if (canShot_ && !isShot_) {
+			Shot({ 0.0f,0.2f,1.0f });
+		}
+
 	}
 
 }

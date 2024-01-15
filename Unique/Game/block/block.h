@@ -69,6 +69,9 @@ private:
 	//打たれたかどうか
 	bool isShot_ = false;
 
+	//打てる状態(強化された状態)かどうか
+	bool canShot_ = false;
+
 	//発射後の生存時間
 	int32_t shotLiveTimer_ = 180;
 

@@ -42,8 +42,6 @@ private:
 
     std::shared_ptr<Enemy> enemy_;
 
-    std::list<std::shared_ptr<Block>> blocks_;
-
     Vector3 reticlePos_{};
 
    /* std::shared_ptr<Model> floor_;

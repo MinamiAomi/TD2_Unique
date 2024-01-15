@@ -20,6 +20,7 @@ void Weapon::Initialize() {
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 	collider_->SetCenter(transform.translate);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Weapon");

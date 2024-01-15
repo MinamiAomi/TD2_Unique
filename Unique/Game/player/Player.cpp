@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Engine/input/Input.h"
 #include "Graphics/ResourceManager.h"
+#include "Game/block/block.h"
 
 Player::Player()
 {
@@ -19,15 +20,21 @@ Player::Player()
 
 	ui_A_ = std::make_unique<Sprite>();
 	ui_A_->SetTexture(ui_A_Tex_);
-	ui_A_->SetPosition({ 1000.0f,450.0f });
+	ui_A_->SetPosition({ 1100.0f,150.0f });
+	ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+	ui_A_->SetScale({ 256.0f,64.0f });
 
 	ui_RB_ = std::make_unique<Sprite>();
 	ui_RB_->SetTexture(ui_RB_Tex_);
-	ui_RB_->SetPosition({ 1000.0f,550.0f });
+	ui_RB_->SetPosition({ 1000.0f,50.0f });
+	ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+	ui_RB_->SetScale({ 512.0f,64.0f });
 
 	ui_LB_ = std::make_unique<Sprite>();
 	ui_LB_->SetTexture(ui_LB_Tex_);
-	ui_LB_->SetPosition({ 1000.0f,650.0f });
+	ui_LB_->SetPosition({ 1100.0f,250.0f });
+	ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+	ui_LB_->SetScale({ 256.0f,64.0f });
 
 	collider_ = std::make_unique<BoxCollider>();
 
@@ -62,9 +69,11 @@ void Player::Initialize() {
 	hp_ = kMaxHp_;
 
 	collider_->SetCenter(transform.translate);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetName("Player");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	collider_->SetIsActive(true);
 
 	velocity_ = { 0.0f,0.0f,1.0f };
 
@@ -89,9 +98,21 @@ void Player::Initialize() {
 	shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/shoot.wav");
 	crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
 
+	blocks_.clear();
+
 }
 
 void Player::Update() {
+
+	blocks_.remove_if([](auto& block) {
+
+		if (block->GetIsDead()) {
+			return true;
+		}
+
+		return false;
+
+	});
 
 	prePosition_ = Vector3{
 			transform.worldMatrix.m[3][0],
@@ -157,6 +178,10 @@ void Player::Update() {
 	}
 
 	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
+
+	for (auto& block : blocks_) {
+		block->Update();
+	}
 
 	weapon_->Update();
 
@@ -231,13 +256,36 @@ void Player::BehaviorRootUpdate() {
 	auto& xinputState = input->GetXInputState();
 
 	auto& preXInputState = input->GetPreXInputState();
-	// 攻撃に遷移
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
-		workAttack_.attackType = kVertical;
+
+	//ボタンを押している時
+	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+
+		if (inputTime_ < 30) {
+			inputTime_++;
+		}
+		
+	}
+
+	// 攻撃に遷移(離した時、または既定の時間長押しした時)
+	if ((!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) ||
+		inputTime_ >= 30) {
+
+
+		//単押しなら通常振り
+		if (inputTime_ < 30) {
+			workAttack_.attackType = kHorizontal;
+		}
+		//長押しなら壁生成
+		else {
+			workAttack_.attackType = kAddBlock;
+		}
+
 		behaviorRequest_ = Behavior::kAttack;
+		inputTime_ = 0;
+
 	}
 	// ダッシュに遷移
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+	else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
 		behaviorRequest_ = Behavior::kDash;
 		Audio::GetInstance()->SoundPlayWave(dashSE_);
 	}
@@ -272,6 +320,18 @@ void Player::BehaviorAttackUpdate() {
 		}
 
 		break;
+	case AttackType::kAddBlock:
+
+		if (workAttack_.attackTimer == 0) {
+			blocks_.clear();
+
+			std::shared_ptr<Block> block = std::make_shared<Block>();
+			block->Initialize(this->GetNewBlockPosition(),
+				this, { 4.0f,5.0f,2.0f });
+			blocks_.push_back(block);
+		}
+
+		break;
 	}
 
 	if (++workAttack_.attackTimer == workAttack_.attackFrame) {
@@ -284,6 +344,11 @@ void Player::BehaviorAttackUpdate() {
 
 void Player::BehaviorAttackInitialize() {
 	
+	workAttack_.attackTimer = 0;
+	workAttack_.isAttack = true;
+	workAttack_.isHit = false;
+	weapon_->isHit_ = false;
+
 	switch (workAttack_.attackType)
 	{
 	default:
@@ -299,12 +364,12 @@ void Player::BehaviorAttackInitialize() {
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
 		break;
+	case AttackType::kAddBlock:
+		workAttack_.isAttack = false;
+		break;
 	}
 
-	workAttack_.attackTimer = 0;
-	workAttack_.isAttack = true;
-	workAttack_.isHit = false;
-	weapon_->isHit_ = false;
+	
 
 }
 

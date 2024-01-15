@@ -22,9 +22,11 @@ void Stage::Initialize() {
 	
 	model_->SetIsActive(true);
 	model_->SetWorldMatrix(transform.worldMatrix);
+	model_->SetColor({ 0.0f,0.0f,0.0f });
 
 	collider_->SetCenter(transform.translate);
-	collider_->SetSize(transform.scale);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
+	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Stage");
 

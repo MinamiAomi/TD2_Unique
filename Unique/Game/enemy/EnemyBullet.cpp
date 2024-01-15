@@ -25,6 +25,7 @@ void EnemyBullet::Initialize(const Vector3& position) {
 	transform.rotate = Quaternion::identity;
 
 	collider_->SetCenter(transform.translate);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetName("Enemy_Bullet");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
@@ -66,6 +67,7 @@ void EnemyBullet::Update() {
 	transform.UpdateMatrix();
 
 	collider_->SetCenter(transform.translate);
+	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 
 	model_->SetWorldMatrix(transform.worldMatrix);
@@ -89,7 +91,9 @@ void EnemyBullet::Charge(const Vector3& position) {
 
 void EnemyBullet::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Player") {
+	if (collisionInfo.collider->GetName() == "Player" ||
+		collisionInfo.collider->GetName() == "Block_Stay" ||
+		collisionInfo.collider->GetName() == "Block_Shot") {
 
 		isDead_ = true;
 

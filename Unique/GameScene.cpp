@@ -28,7 +28,7 @@ void GameScene::OnInitialize() {
     player_->SetCamera(followCamera_);
     followCamera_->SetTarget(&player_->transform);
     enemy_->SetPlayer(player_.get());
-    enemy_->SetBlockList(&blocks_);
+    /*enemy_->SetBlockList(&blocks_);*/
 
 }
 
