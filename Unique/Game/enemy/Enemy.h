@@ -41,8 +41,6 @@ private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
 
-	void OnBlockAttackCollision(const CollisionInfo& collisionInfo);
-
 	void ResetCores();
 
 	//初期位置に戻す
@@ -78,8 +76,9 @@ private:
 	};
 
 	struct CrossAttack {
-		std::array<std::shared_ptr<ModelInstance>, 2> models_; //攻撃モデル
-		std::array<std::unique_ptr<BoxCollider>, 2> colliders_; //攻撃コライダー
+		//std::array<std::shared_ptr<ModelInstance>, 2> models_; //攻撃モデル
+		//std::array<std::unique_ptr<BoxCollider>, 2> colliders_; //攻撃コライダー
+		//Transform transforms[2]; //トランスフォーム
 		uint32_t attackInterval = 60; //発射までの猶予
 		Vector3 shotPosition[2]; //発射する位置
 		uint32_t maxAttackTime = 180; //攻撃に使う時間
@@ -112,6 +111,8 @@ private:
 
 	//敵弾
 	std::list<std::shared_ptr<EnemyBullet>> bullets_;
+
+	std::list<std::shared_ptr<EnemyBullet>> bigBullets_;
 
 	WorkAttack workAttack_;
 

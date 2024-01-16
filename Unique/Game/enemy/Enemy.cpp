@@ -26,7 +26,7 @@ Enemy::Enemy()
 
 	/*collider_ = std::make_unique<BoxCollider>();*/
 
-	crossAttack_.models_[0] = std::make_shared<ModelInstance>();
+	/*crossAttack_.models_[0] = std::make_shared<ModelInstance>();
 	crossAttack_.models_[0]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
 	crossAttack_.models_[0]->SetIsActive(false);
 	crossAttack_.models_[1] = std::make_shared<ModelInstance>();
@@ -38,7 +38,9 @@ Enemy::Enemy()
 	crossAttack_.colliders_[0]->SetIsActive(false);
 	crossAttack_.colliders_[1] = std::make_unique<BoxCollider>();
 	crossAttack_.colliders_[1]->SetName("Enemy_Bullet");
-	crossAttack_.colliders_[1]->SetIsActive(false);
+	crossAttack_.colliders_[1]->SetIsActive(false);*/
+
+	
 
 }
 
@@ -76,6 +78,14 @@ void Enemy::Initialize() {
 
 	isDead_ = false;
 
+	/*for (uint32_t i = 0; i < 2; i++) {
+		crossAttack_.models_[i]->SetIsActive(false);
+		crossAttack_.colliders_[i]->SetIsActive(false);
+		crossAttack_.transforms[i].translate = { 0.0f,-1000.0f,0.0f };
+		crossAttack_.transforms[i].scale = { 1.0f,1.0f,1.0f };
+		crossAttack_.transforms[i].rotate = Quaternion::identity;
+	}*/
+
 	attackInterval_ = 150;
 	workAttack_.attackCount = 3;
 	attackTimer_ = attackInterval_;
@@ -91,6 +101,7 @@ void Enemy::Initialize() {
 	hpSprite_->SetScale({ hpWidth_ * hp_, 64.0f });
 
 	bullets_.clear();
+	bigBullets_.clear();
 
 	groundAttackSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/boss_groundAttack.wav");
 	shotSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/boss_shot.wav");
@@ -140,6 +151,16 @@ void Enemy::Update() {
 
 		});
 
+	bigBullets_.remove_if([](auto& bullet) {
+
+		if (bullet->GetIsDead()) {
+			return true;
+		}
+
+		return false;
+
+		});
+
 	if (!isDead_) {
 
 		if (isStartAttack_) {
@@ -173,6 +194,10 @@ void Enemy::Update() {
 
 		for (auto& bullet : bullets_) {
 			bullet->Update();
+		}
+
+		for (auto& bigBullet : bigBullets_) {
+			bigBullet->Update();
 		}
 
 		hp_ = CalcAllHp();
@@ -311,6 +336,30 @@ void Enemy::Attack() {
 		break;
 	case 2:
 
+		for (auto& bigBullet : bigBullets_) {
+
+			if (crossAttack_.attackTimer >= 90) {
+
+				if (crossAttack_.attackTimer == 90) {
+					bigBullet->Shot({ 0.0f,0.0f,0.0f });
+					Audio::GetInstance()->SoundPlayWave(shotSE_);
+				}
+				else {
+					bigBullet->transform.scale += {0.05f, 0.05f, 0.05f};
+				}
+
+			}
+
+		}
+
+		/*for (uint32_t i = 0; i < 2; i++) {
+			crossAttack_.transforms[i].UpdateMatrix();
+			crossAttack_.models_[i]->SetWorldMatrix(crossAttack_.transforms[i].worldMatrix);
+			crossAttack_.colliders_[i]->SetCenter(crossAttack_.transforms[i].translate);
+			crossAttack_.colliders_[i]->SetSize(crossAttack_.transforms[i].scale);
+			crossAttack_.colliders_[i]->SetOrientation(crossAttack_.transforms[i].rotate);
+		}*/
+
 		if (--crossAttack_.attackTimer <= 0) {
 			isStartAttack_ = false;
 			SetCoresToRoot();
@@ -360,6 +409,18 @@ void Enemy::AttackInitialize() {
 		crossAttack_.attackTimer = crossAttack_.maxAttackTime;
 		crossAttack_.shotPosition[0] = { -30.0f,0.0f,40.0f };
 		crossAttack_.shotPosition[1] = { 30.0f,0.0f,40.0f };
+
+		for (uint32_t i = 0; i < 2; i++) {
+			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
+
+			newBullet->Initialize(crossAttack_.shotPosition[i]);
+
+			bigBullets_.push_back(newBullet);
+
+		}
+
+		/*crossAttack_.transforms[0].translate = crossAttack_.shotPosition[0];
+		crossAttack_.transforms[1].translate = crossAttack_.shotPosition[1];*/
 		enemyCores_[kLeftTopFront]->transform.translate = crossAttack_.shotPosition[0];
 		enemyCores_[kRightTopFront]->transform.translate = crossAttack_.shotPosition[1];
 
@@ -387,13 +448,6 @@ void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
 		}
 
 	}
-
-}
-
-//ブロック攻撃のヒット処理
-void Enemy::OnBlockAttackCollision(const CollisionInfo& collisionInfo) {
-
-	collisionInfo;
 
 }
 
