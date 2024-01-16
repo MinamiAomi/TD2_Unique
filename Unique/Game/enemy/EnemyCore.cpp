@@ -23,6 +23,9 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	number_ = number;
 	hp_ = kMaxHp_;
 
+	startPosition_ = transform.translate;
+	endPosition_ = transform.translate;
+
 	collider_->SetName("Enemy_Core");
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
@@ -36,6 +39,18 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 }
 
 void EnemyCore::Update() {
+
+	if (lerpT_ < 1.0f) {
+		
+		lerpT_ += lerpValue_;
+
+		if (lerpT_ > 1.0f) {
+			lerpT_ = 1.0f;
+		}
+
+	}
+
+	transform.translate = Vector3::Lerp(lerpT_, startPosition_, endPosition_);
 
 	transform.UpdateMatrix();
 

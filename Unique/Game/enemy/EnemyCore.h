@@ -19,6 +19,16 @@ public:
 
 	void SetIsActiveModel(bool flag) { model_->SetIsActive(flag); }
 
+	//移動開始前のポジション
+	Vector3 startPosition_;
+
+	//移動開始後のポジション
+	Vector3 endPosition_;
+
+	float lerpT_ = 0.0f;
+
+	float lerpValue_ = 0.05f;
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);

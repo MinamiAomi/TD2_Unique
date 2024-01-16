@@ -43,11 +43,6 @@ void FollowCamera::Update() {
 
     if (target_) {
         interTarget_ = Vector3::Lerp(1.0f - followDelay_, interTarget_, target_->worldMatrix.GetTranslate());
-
-        // カメラリセット
-        if (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
-            destinationRotate_ = target_->worldMatrix.GetRotate();
-        }
     }
     transform_->translate = interTarget_ + CalcOffset();
 

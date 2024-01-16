@@ -336,33 +336,47 @@ void Enemy::Attack() {
 		break;
 	case 2:
 
-		for (auto& bigBullet : bigBullets_) {
+		//移動が完了したら攻撃行動開始
+		if (enemyCores_[kLeftTopFront]->lerpT_ > 0.99f &&
+			enemyCores_[kRightTopFront]->lerpT_ > 0.99f) {
 
-			if (crossAttack_.attackTimer >= 90) {
+			for (auto& bigBullet : bigBullets_) {
 
-				if (crossAttack_.attackTimer == 90) {
-					bigBullet->Shot({ 0.0f,0.0f,0.0f });
-					Audio::GetInstance()->SoundPlayWave(shotSE_);
-				}
-				else {
-					bigBullet->transform.scale += {0.05f, 0.05f, 0.05f};
+				bigBullet->SetIsActive(true);
+
+				if (crossAttack_.attackTimer >= 90) {
+
+					if (crossAttack_.attackTimer == 90) {
+						bigBullet->Shot({ 0.0f,0.0f,-20.0f });
+						Audio::GetInstance()->SoundPlayWave(shotSE_);
+					}
+					else {
+						bigBullet->transform.scale += {0.05f, 0.05f, 0.05f};
+					}
+
 				}
 
 			}
 
-		}
+			/*for (uint32_t i = 0; i < 2; i++) {
+				crossAttack_.transforms[i].UpdateMatrix();
+				crossAttack_.models_[i]->SetWorldMatrix(crossAttack_.transforms[i].worldMatrix);
+				crossAttack_.colliders_[i]->SetCenter(crossAttack_.transforms[i].translate);
+				crossAttack_.colliders_[i]->SetSize(crossAttack_.transforms[i].scale);
+				crossAttack_.colliders_[i]->SetOrientation(crossAttack_.transforms[i].rotate);
+			}*/
 
-		/*for (uint32_t i = 0; i < 2; i++) {
-			crossAttack_.transforms[i].UpdateMatrix();
-			crossAttack_.models_[i]->SetWorldMatrix(crossAttack_.transforms[i].worldMatrix);
-			crossAttack_.colliders_[i]->SetCenter(crossAttack_.transforms[i].translate);
-			crossAttack_.colliders_[i]->SetSize(crossAttack_.transforms[i].scale);
-			crossAttack_.colliders_[i]->SetOrientation(crossAttack_.transforms[i].rotate);
-		}*/
+			if (--crossAttack_.attackTimer <= 0) {
+				isStartAttack_ = false;
+				enemyCores_[kLeftTopFront]->startPosition_ = crossAttack_.shotPosition[0];
+				enemyCores_[kLeftTopFront]->endPosition_ = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
+				enemyCores_[kLeftTopFront]->lerpT_ = 0.0f;
+				enemyCores_[kRightTopFront]->startPosition_ = crossAttack_.shotPosition[1];
+				enemyCores_[kRightTopFront]->endPosition_ = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
+				enemyCores_[kRightTopFront]->lerpT_ = 0.0f;
+				/*SetCoresToRoot();*/
+			}
 
-		if (--crossAttack_.attackTimer <= 0) {
-			isStartAttack_ = false;
-			SetCoresToRoot();
 		}
 
 		break;
@@ -414,6 +428,7 @@ void Enemy::AttackInitialize() {
 			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
 
 			newBullet->Initialize(crossAttack_.shotPosition[i]);
+			newBullet->SetIsActive(false);
 
 			bigBullets_.push_back(newBullet);
 
@@ -421,8 +436,12 @@ void Enemy::AttackInitialize() {
 
 		/*crossAttack_.transforms[0].translate = crossAttack_.shotPosition[0];
 		crossAttack_.transforms[1].translate = crossAttack_.shotPosition[1];*/
-		enemyCores_[kLeftTopFront]->transform.translate = crossAttack_.shotPosition[0];
-		enemyCores_[kRightTopFront]->transform.translate = crossAttack_.shotPosition[1];
+		enemyCores_[kLeftTopFront]->startPosition_ = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
+		enemyCores_[kLeftTopFront]->endPosition_ = crossAttack_.shotPosition[0];
+		enemyCores_[kLeftTopFront]->lerpT_ = 0.0f;
+		enemyCores_[kRightTopFront]->startPosition_ = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
+		enemyCores_[kRightTopFront]->endPosition_ = crossAttack_.shotPosition[1];
+		enemyCores_[kRightTopFront]->lerpT_ = 0.0f;
 
 		break;
 	}

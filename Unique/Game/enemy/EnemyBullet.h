@@ -26,6 +26,11 @@ public:
 
 	void Charge(const Vector3& position);
 
+	void SetIsActive(bool flag) {
+		model_->SetIsActive(flag);
+		collider_->SetIsActive(flag);
+	}
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
