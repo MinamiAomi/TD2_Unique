@@ -248,7 +248,7 @@ void Player::BehaviorRootUpdate() {
 
 			move = transform.rotate.Conjugate() * move;
 			Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-			transform.rotate = Quaternion::Slerp(0.2f, Quaternion::identity, diff) * transform.rotate;
+			transform.rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * transform.rotate;
 		}
 	}
 

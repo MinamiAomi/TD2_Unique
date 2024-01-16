@@ -40,6 +40,7 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 
 void EnemyCore::Update() {
 
+	//線形補間の媒介変数更新
 	if (lerpT_ < 1.0f) {
 		
 		lerpT_ += lerpValue_;
@@ -50,7 +51,15 @@ void EnemyCore::Update() {
 
 	}
 
+	if (hitCoolTime_ > 0) {
+		hitCoolTime_--;
+	}
+
 	transform.translate = Vector3::Lerp(lerpT_, startPosition_, endPosition_);
+
+	Vector3 rotateSpeed = { 0.01f + float(hitCoolTime_ * 0.005f),0.01f + float(hitCoolTime_ * 0.005f),
+		0.01f + float(hitCoolTime_ * 0.005f) };
+	transform.rotate = Quaternion::MakeFromEulerAngle(rotateSpeed) * transform.rotate;
 
 	transform.UpdateMatrix();
 
@@ -60,10 +69,6 @@ void EnemyCore::Update() {
 	collider_->SetOrientation(transform.rotate);
 
 	model_->SetWorldMatrix(transform.worldMatrix);
-
-	if (hitCoolTime_ > 0) {
-		hitCoolTime_--;
-	}
 
 	if (hitCoolTime_ % 2 == 0) {
 		model_->SetIsActive(true);
