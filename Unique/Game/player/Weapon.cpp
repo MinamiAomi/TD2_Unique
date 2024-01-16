@@ -25,6 +25,7 @@ void Weapon::Initialize() {
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Weapon");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	collider_->SetGameObject(this);
 
 }
 

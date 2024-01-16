@@ -4,6 +4,7 @@
 #include "Graphics/RenderManager.h"
 #include "Graphics/ResourceManager.h"
 #include "Collision/CollisionManager.h"
+#include "Game/enemy/EnemyCoreManager.h"
 
 void GameScene::OnInitialize() {
 
@@ -14,11 +15,12 @@ void GameScene::OnInitialize() {
     reticle_ = std::make_unique<Sprite>();
     enemy_ = std::make_shared<Enemy>();
 
+    EnemyCoreManager::GetInstance()->Clear();
+
     followCamera_->Initialize();
     player_->Initialize();
     stage_->Initialize();
     enemy_->Initialize();
-
 
     RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
     sunLight_ = std::make_shared<DirectionalLight>();

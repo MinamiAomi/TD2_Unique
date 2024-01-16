@@ -13,7 +13,7 @@ public:
 
 	void Update();
 
-	void Damage(int32_t val) { hp_ -= val; }
+	void Damage(uint32_t val);
 
 	const int32_t& GetHp() { return hp_; }
 

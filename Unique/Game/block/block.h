@@ -6,6 +6,8 @@
 #include "Math/Camera.h"
 #include "Collision/GameObject.h"
 
+class EnemyCore;
+
 class Block : public GameObject
 {
 public:

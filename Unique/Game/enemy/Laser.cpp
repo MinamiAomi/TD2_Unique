@@ -28,6 +28,7 @@ void Laser::Initialize() {
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Enemy_Bullet");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	collider_->SetGameObject(this);
 
 }
 
@@ -43,6 +44,20 @@ void Laser::Update() {
 	}*/
 
 	if (isShot_) {
+
+
+		if (liveTime_ > liveTime_ / 2) {
+			transform.translate += velocity_;
+			transform.scale.z += speed_;
+		}
+		else {
+			transform.translate += velocity_;
+			transform.scale.z -= speed_;
+		}
+
+		if (--liveTime_ <= 0) {
+			isDead_ = true;
+		}
 
 	}
 	else {
@@ -61,8 +76,8 @@ void Laser::Update() {
 
 void Laser::Shot(const Vector3& position) {
 
-	velocity_ = Vector3(position - transform.translate).Normalize();
-	velocity_ = velocity_.Normalized();
+	velocity_ = Vector3(position - transform.translate).Normalized();
+	velocity_ *= speed_;
 	isShot_ = true;
 }
 

@@ -33,6 +33,7 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
+	collider_->SetGameObject(this);
 	model_->SetWorldMatrix(transform.worldMatrix);
 	model_->SetColor({ 1.0f,1.0f,1.0f });
 
@@ -104,28 +105,53 @@ void EnemyCore::OnCollision(const CollisionInfo& collisionInfo) {
 		}
 
 	}
-	else if (collisionInfo.collider->GetName() == "Block_Shot") {
+	//else if (collisionInfo.collider->GetName() == "Block_Shot") {
 
 
-		if (hitCoolTime_ == 0) {
+	//	if (hitCoolTime_ == 0) {
 
-			if (hp_ > 0) {
+	//		if (hp_ > 0) {
 
-				hp_ -= 3;
+	//			hp_ -= 3;
 
-				//死んだら判定消失
-				if (hp_ <= 0) {
-					hp_ = 0;
-					model_->SetColor({ 1.0f,0.0f,0.0f });
-					collider_->SetIsActive(false);
-				}
+	//			//死んだら判定消失
+	//			if (hp_ <= 0) {
+	//				hp_ = 0;
+	//				model_->SetColor({ 1.0f,0.0f,0.0f });
+	//				collider_->SetIsActive(false);
+	//			}
 
-				hitCoolTime_ = invincibleTime_;
+	//			hitCoolTime_ = invincibleTime_;
+	//		}
+	//		else {
+	//			hitCoolTime_ = invincibleTime_;
+	//		}
+
+	//	}
+
+	//}
+
+}
+
+void EnemyCore::Damage(uint32_t damage) {
+
+	if (hitCoolTime_ == 0) {
+
+		if (hp_ > 0) {
+
+			hp_ -= damage;
+
+			//死んだら判定消失
+			if (hp_ <= 0) {
+				hp_ = 0;
+				model_->SetColor({ 1.0f,0.0f,0.0f });
+				collider_->SetIsActive(false);
 			}
-			else {
-				hitCoolTime_ = invincibleTime_;
-			}
 
+			hitCoolTime_ = invincibleTime_;
+		}
+		else {
+			hitCoolTime_ = invincibleTime_;
 		}
 
 	}

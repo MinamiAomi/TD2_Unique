@@ -29,6 +29,7 @@ void EnemyBullet::Initialize(const Vector3& position) {
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetName("Enemy_Bullet");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	collider_->SetGameObject(this);
 
 	Vector3 EulerRotate = { randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f,
 		randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f, randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f };
@@ -54,9 +55,7 @@ void EnemyBullet::Update() {
 		transform.translate += velocity_;
 		transform.rotate = Quaternion::MakeForZAxis(0.6f) * transform.rotate;
 
-		liveTime_--;
-
-		if (liveTime_ <= 0) {
+		if (--liveTime_ <= 0) {
 			isDead_ = true;
 		}
 

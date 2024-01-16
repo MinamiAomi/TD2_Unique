@@ -1,5 +1,8 @@
-#include "block.h"
+#include "Block.h"
 #include "Graphics/ResourceManager.h"
+#include "Game/enemy/Enemy.h"
+#include <unordered_map>
+#include "Game/enemy/EnemyCoreManager.h"
 
 Block::Block()
 {
@@ -36,6 +39,7 @@ void Block::Initialize(const Vector3& pos, Player* player, const Vector3& blockS
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Block_Stay");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	collider_->SetGameObject(this);
 
 }
 
@@ -97,6 +101,11 @@ void Block::OnCollision(const CollisionInfo& collisionInfo) {
 
 	if (collisionInfo.collider->GetName() == "Enemy" ||
 		collisionInfo.collider->GetName() == "Enemy_Core") {
+
+		auto go = collisionInfo.collider->GetGameObject();
+		std::shared_ptr<EnemyCore> enemy = EnemyCoreManager::GetInstance()->GetCore(go);
+
+		enemy->Damage(3);
 
 		isDead_ = true;
 		collider_->SetIsActive(false);

@@ -31,6 +31,8 @@ public:
 
 	const std::list<std::shared_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
 
+	const std::array<std::shared_ptr<EnemyCore>, 8>& GetCores() { return enemyCores_; }
+
 private:
 
 	void Attack();

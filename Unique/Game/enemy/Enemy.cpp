@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "Math/Random.h"
 #include "Graphics/ResourceManager.h"
+#include "EnemyCoreManager.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
@@ -111,32 +112,42 @@ void Enemy::Initialize() {
 
 void Enemy::ResetCores() {
 
+	EnemyCoreManager::GetInstance()->Clear();
+
 	Transform tmpTransform = transform;
 	tmpTransform.scale = { 5.0f,5.0f,5.0f };
 	//左下前
 	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,-7.5f };
 	enemyCores_[kLeftDownFront]->Initialize(tmpTransform, 0);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftDownFront]);
 	//左下奥
 	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,7.5f };
 	enemyCores_[kLeftDownBack]->Initialize(tmpTransform, 1);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftDownBack]);
 	//左上前
 	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
 	enemyCores_[kLeftTopFront]->Initialize(tmpTransform, 2);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftTopFront]);
 	//左上奥
 	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,7.5f };
 	enemyCores_[kLeftTopBack]->Initialize(tmpTransform, 3);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftTopBack]);
 	//右下前
 	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,-7.5f };
 	enemyCores_[kRightDownFront]->Initialize(tmpTransform, 4);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightDownFront]);
 	//右下奥
 	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,7.5f };
 	enemyCores_[kRightDownBack]->Initialize(tmpTransform, 5);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightDownBack]);
 	//右上前
 	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
 	enemyCores_[kRightTopFront]->Initialize(tmpTransform, 6);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightTopFront]);
 	//右上奥
 	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,7.5f };
 	enemyCores_[kRightTopBack]->Initialize(tmpTransform, 7);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightTopBack]);
 }
 
 void Enemy::Update() {

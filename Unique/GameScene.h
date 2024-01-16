@@ -11,7 +11,7 @@
 #include "Game/player/Player.h"
 #include "Game/stage/Stage.h"
 #include "Game/enemy/Enemy.h"
-#include "Game/block/block.h"
+#include "Game/block/Block.h"
 #include "Game/followCamera/FollowCamera.h"
 
 class GameScene :

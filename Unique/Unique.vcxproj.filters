@@ -28,7 +28,7 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\block\block.cpp">
+    <ClCompile Include="Game\block\Block.cpp">
       <Filter>Game\block</Filter>
     </ClCompile>
     <ClCompile Include="Game\enemy\Enemy.cpp">
@@ -55,6 +55,12 @@
     <ClCompile Include="Game\enemy\Laser.cpp">
       <Filter>Game\enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Game\player\Reticle3D.cpp">
+      <Filter>Game\player</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\EnemyCoreManager.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -63,7 +69,7 @@
     <ClInclude Include="GameScene.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\block\block.h">
+    <ClInclude Include="Game\block\Block.h">
       <Filter>Game\block</Filter>
     </ClInclude>
     <ClInclude Include="Game\enemy\Enemy.h">
@@ -88,6 +94,12 @@
       <Filter>Game\enemy</Filter>
     </ClInclude>
     <ClInclude Include="Game\enemy\Laser.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player\Reticle3D.h">
+      <Filter>Game\player</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\EnemyCoreManager.h">
       <Filter>Game\enemy</Filter>
     </ClInclude>
   </ItemGroup>

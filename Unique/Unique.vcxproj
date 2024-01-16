@@ -16,13 +16,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\block\block.cpp" />
+    <ClCompile Include="Game\block\Block.cpp" />
     <ClCompile Include="Game\enemy\Enemy.cpp" />
     <ClCompile Include="Game\enemy\EnemyBullet.cpp" />
     <ClCompile Include="Game\enemy\EnemyCore.cpp" />
+    <ClCompile Include="Game\enemy\EnemyCoreManager.cpp" />
     <ClCompile Include="Game\enemy\Laser.cpp" />
     <ClCompile Include="Game\followCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\player\Player.cpp" />
+    <ClCompile Include="Game\player\Reticle3D.cpp" />
     <ClCompile Include="Game\player\Weapon.cpp" />
     <ClCompile Include="Game\stage\Stage.cpp" />
     <ClCompile Include="Unique.cpp" />
@@ -30,13 +32,15 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\block\block.h" />
+    <ClInclude Include="Game\block\Block.h" />
     <ClInclude Include="Game\enemy\Enemy.h" />
     <ClInclude Include="Game\enemy\EnemyBullet.h" />
     <ClInclude Include="Game\enemy\EnemyCore.h" />
+    <ClInclude Include="Game\enemy\EnemyCoreManager.h" />
     <ClInclude Include="Game\enemy\Laser.h" />
     <ClInclude Include="Game\followCamera\FollowCamera.h" />
     <ClInclude Include="Game\player\Player.h" />
+    <ClInclude Include="Game\player\Reticle3D.h" />
     <ClInclude Include="Game\player\Weapon.h" />
     <ClInclude Include="Game\stage\Stage.h" />
     <ClInclude Include="Unique.h" />
