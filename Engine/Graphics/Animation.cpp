@@ -2,65 +2,39 @@
 
 #include <cassert>
 
-size_t AnimationNode::GetPositionIndex(float animationTime) {
-    size_t min = 0, max = positions_.size() - 1, mid = 0;
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
-    do {
-        mid = (min + max) >> 1;
-        if (animationTime >= positions_[mid].timeStamp && 
-            animationTime <= positions_[mid + 1].timeStamp) {
-            return mid;
-        }
-        else if (animationTime < positions_[mid].timeStamp) {
-            max = mid - 1;
-        }
-        else {
-            min = mid + 1;
-        }
+#include <Windows.h>
 
-    } while (min <= max);
+std::vector<std::shared_ptr<Animation>> Animation::Load(const std::filesystem::path& path) {
+    // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
+    struct Helper : Animation {
+        Helper() : Animation() {}
+    };
 
-    return positions_.size();
-}
 
-size_t AnimationNode::GetRotateIndex(float animationTime) {
-    size_t min = 0, max = rotates_.size() - 1, mid = 0;
+    auto directory = path.parent_path();
 
-    do {
-        mid = (min + max) >> 1;
-        if (animationTime >= rotates_[mid].timeStamp &&
-            animationTime <= rotates_[mid + 1].timeStamp) {
-            return mid;
-        }
-        else if (animationTime < rotates_[mid].timeStamp) {
-            max = mid - 1;
-        }
-        else {
-            min = mid + 1;
-        }
+    Assimp::Importer importer;
+    int flags = 0;
+    const aiScene* scene = importer.ReadFile(path.string(), flags);
+    // 読み込めた
+    if (!scene) {
+        OutputDebugStringA(importer.GetErrorString());
+        assert(false);
+    }
+    // アニメーションがある
+    assert(scene->HasAnimations());
 
-    } while (min <= max);
+    std::vector<std::shared_ptr<Animation>> animations(scene->mNumAnimations);
+    
+    for (size_t i = 0; i < animations.size(); ++i) {
+        animations[i] = std::make_shared<Helper>();
+        auto anim = scene->mAnimations[i];
+        anim->mChannels;
+    }
 
-    return rotates_.size();
-}
-
-size_t AnimationNode::GetScaleIndex(float animationTime) {
-    size_t min = 0, max = scales_.size() - 1, mid = 0;
-
-    do {
-        mid = (min + max) >> 1;
-        if (animationTime >= scales_[mid].timeStamp &&
-            animationTime <= scales_[mid + 1].timeStamp) {
-            return mid;
-        }
-        else if (animationTime < scales_[mid].timeStamp) {
-            max = mid - 1;
-        }
-        else {
-            min = mid + 1;
-        }
-
-    } while (min <= max);
-
-    return scales_.size();
+    return std::vector<std::shared_ptr<Animation>>();
 }
