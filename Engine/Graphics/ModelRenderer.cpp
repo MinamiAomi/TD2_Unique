@@ -85,6 +85,9 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
                     if (mesh.material->diffuseMap) {
                         texture = mesh.material->diffuseMap->GetSRV();
                     }
+                    if (instance->GetTexture()) {
+                        texture = instance->GetTexture()->GetTexture();
+                    }
                 }
 
                 commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
