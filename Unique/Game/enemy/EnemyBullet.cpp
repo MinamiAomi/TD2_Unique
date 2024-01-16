@@ -78,7 +78,7 @@ void EnemyBullet::Update() {
 void EnemyBullet::Shot(const Vector3& position) {
 
 	liveTime_ = maxLiveTime_;
-	velocity_ = Vector3(position - transform.translate).Normalize();
+	velocity_ = Vector3(position - transform.translate).Normalized();
 	velocity_ *= 3.0f;
 	isShot_ = true;
 
