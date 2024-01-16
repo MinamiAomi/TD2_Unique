@@ -52,6 +52,7 @@ void EnemyBullet::Update() {
 
 	if (isShot_ && !isDead_) {
 		transform.translate += velocity_;
+		transform.rotate = Quaternion::MakeForZAxis(0.6f) * transform.rotate;
 
 		liveTime_--;
 

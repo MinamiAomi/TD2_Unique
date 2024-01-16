@@ -55,7 +55,7 @@ void EnemyCore::Update() {
 		hitCoolTime_--;
 	}
 
-	transform.translate = Vector3::Lerp(lerpT_, startPosition_, endPosition_);
+	transform.translate = Vector3::Slerp(lerpT_, startPosition_, endPosition_);
 
 	Vector3 rotateSpeed = { 0.01f + float(hitCoolTime_ * 0.005f),0.01f + float(hitCoolTime_ * 0.005f),
 		0.01f + float(hitCoolTime_ * 0.005f) };
