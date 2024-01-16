@@ -52,6 +52,9 @@
     <ClCompile Include="Game\enemy\EnemyCore.cpp">
       <Filter>Game\enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Game\enemy\Laser.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -82,6 +85,9 @@
       <Filter>Game\stage</Filter>
     </ClInclude>
     <ClInclude Include="Game\enemy\EnemyCore.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\Laser.h">
       <Filter>Game\enemy</Filter>
     </ClInclude>
   </ItemGroup>

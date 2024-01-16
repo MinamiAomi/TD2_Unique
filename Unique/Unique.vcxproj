@@ -20,6 +20,7 @@
     <ClCompile Include="Game\enemy\Enemy.cpp" />
     <ClCompile Include="Game\enemy\EnemyBullet.cpp" />
     <ClCompile Include="Game\enemy\EnemyCore.cpp" />
+    <ClCompile Include="Game\enemy\Laser.cpp" />
     <ClCompile Include="Game\followCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\player\Player.cpp" />
     <ClCompile Include="Game\player\Weapon.cpp" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Game\enemy\Enemy.h" />
     <ClInclude Include="Game\enemy\EnemyBullet.h" />
     <ClInclude Include="Game\enemy\EnemyCore.h" />
+    <ClInclude Include="Game\enemy\Laser.h" />
     <ClInclude Include="Game\followCamera\FollowCamera.h" />
     <ClInclude Include="Game\player\Player.h" />
     <ClInclude Include="Game\player\Weapon.h" />
