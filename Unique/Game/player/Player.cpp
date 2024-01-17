@@ -40,6 +40,8 @@ Player::Player()
 
 	weapon_ = std::make_unique<Weapon>();
 
+	reticle_ = std::make_shared<Reticle3D>();
+
 }
 
 Player::~Player()
@@ -61,6 +63,8 @@ void Player::Initialize() {
 	weapon_->transform.translate = { 0.0f,3.0f,3.0f };
 	weapon_->transform.scale = Vector3::one;
 	weapon_->transform.UpdateMatrix();
+
+	reticle_->Initialize();
 
 	preDirection_ = { 0.0f,0.0f,1.0f };
 	direction_ = { 0.0f,0.0f,1.0f };
@@ -185,6 +189,8 @@ void Player::Update() {
 	}
 
 	weapon_->Update();
+
+	reticle_->Update();
 
 	transform.UpdateMatrix();
 	collider_->SetCenter(transform.translate);

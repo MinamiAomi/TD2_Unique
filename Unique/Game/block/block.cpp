@@ -89,7 +89,7 @@ void Block::Shot(const Vector3& velocity) {
 
 	velocity_ = velocity;
 	velocity_.Normalize();
-	velocity_ = player_->transform.rotate * velocity_;
+	/*velocity_ = player_->transform.rotate * velocity_;*/
 	velocity_ *= 3.0f;
 	isShot_ = true;
 	collider_->SetName("Block_Shot");
@@ -120,7 +120,7 @@ void Block::OnCollision(const CollisionInfo& collisionInfo) {
 	else if (collisionInfo.collider->GetName() == "Weapon") {
 
 		if (canShot_ && !isShot_) {
-			Shot({ 0.0f,0.2f,1.0f });
+			Shot(player_->GetReticle()->GetReticlePosition() - player_->GetPosition());
 		}
 
 	}

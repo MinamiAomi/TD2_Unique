@@ -12,7 +12,7 @@ void FollowCamera::Initialize() {
     RenderManager::GetInstance()->SetCamera(camera_);
 
     transform_ = std::make_shared<Transform>();
-    transform_->rotate = Quaternion::MakeForXAxis(10.0f * Math::ToRadian);
+    transform_->rotate = Quaternion::MakeForXAxis(0.0f * Math::ToRadian);
 
     followDelay_ = 0.8f;
 
@@ -46,6 +46,7 @@ void FollowCamera::Update() {
     }
     transform_->translate = interTarget_ + CalcOffset();
 
+    transform_->UpdateMatrix();
 
     camera_->SetPosition(transform_->translate);
     camera_->SetRotate(transform_->rotate);

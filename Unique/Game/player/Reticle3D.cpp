@@ -1,46 +1,59 @@
-//#include "Reticle3D.h"
-//#include "Graphics/ResourceManager.h"
-//
-//Reticle3D::Reticle3D()
-//{
-//}
-//
-//Reticle3D::~Reticle3D()
-//{
-//}
-//
-//void Reticle3D::Initialize() {
-//
-//}
-//
-//void Reticle3D::Update() {
-//
-//	//レティクル
-//	{
-//
-//		//カメラからの距離
-//		const float kDistance = 120.0f;
-//		//オフセット
-//		Vector3 offset = { 0.0f,0.0f,1.0f };
-//		offset = TransformNormal(offset, camera_->GetTransform()->worldMatrix);
-//		offset = Normalize(offset) * kDistance;
-//		reticlePos_ = camera_->GetTransform()->translate + offset;
-//		reticle3D_->position_ = reticlePos_;
-//
-//	}
-//
-//	{
-//
-//		Vector3 posReticle = { reticle3D_->matWorld_.m[3][0],reticle3D_->matWorld_.m[3][1],reticle3D_->matWorld_.m[3][2] };
-//		//ビューポート
-//		Matrix4x4 matViewport = MakeViewportMatrix(0.0f, 0.0f, WinApp::kWindowWidth, WinApp::kWindowHeight, 0.0f, 1.0f);
-//		Matrix4x4 cameraMatrix = camera_->GetTransform()->worldMatrix;
-//		Matrix4x4 matView = cameraMatrix.Inverse();
-//		Matrix4x4 matProjection = MakePerspectiveFovMatrix(0.45f, float(1280.0f) / float(720.0f), 0.1f, 1000.0f);
-//		Matrix4x4 matViewProjectionViewport = matView * matProjection * matViewport;
-//		posReticle = CoordTransform(posReticle, matViewProjectionViewport);
-//		reticle_->position_ = { posReticle.x - 64.0f, posReticle.y - 64.0f };
-//
-//	}
-//
-//}
+#include "Reticle3D.h"
+#include "Graphics/ResourceManager.h"
+
+Reticle3D::Reticle3D()
+{
+
+	reticleTex_ = ResourceManager::GetInstance()->FindTexture("reticle");
+
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->SetTexture(reticleTex_);
+
+}
+
+Reticle3D::~Reticle3D()
+{
+}
+
+void Reticle3D::Initialize() {
+
+	sprite_->SetPosition({ 640.0f,360.0f });
+	sprite_->SetTexcoordRect({ 128.0f,128.0f }, { 128.0f,128.0f });
+	sprite_->SetScale({ 64.0f,64.0f });
+
+}
+
+void Reticle3D::Update() {
+
+	if (camera_.get()) {
+
+		//レティクル
+		{
+
+			//カメラからの距離
+			const float kDistance = 120.0f;
+			//オフセット
+			Vector3 offset = { 0.0f,0.0f,1.0f };
+			offset = camera_->GetTransform()->worldMatrix.ApplyRotation(offset);
+			offset = offset.Normalized() * kDistance;
+			reticlePos_ = camera_->GetTransform()->translate + offset;
+
+		}
+
+		{
+
+			Vector3 posReticle = reticlePos_;
+			//ビューポート
+			Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+			Matrix4x4 cameraMatrix = camera_->GetTransform()->worldMatrix;
+			Matrix4x4 matView = cameraMatrix.Inverse();
+			Matrix4x4 matProjection = Matrix4x4::MakePerspectiveProjection(45.0f * Math::ToRadian, float(1280.0f) / float(720.0f), 0.1f, 1000.0f);
+			Matrix4x4 matViewProjectionViewport = matView * matProjection * matViewport;
+			posReticle = matViewProjectionViewport.ApplyTransformWDivide(posReticle);
+			sprite_->SetPosition({ posReticle.x, posReticle.y });
+
+		}
+
+	}
+
+}

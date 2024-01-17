@@ -36,6 +36,7 @@ void GameScene::OnInitialize() {
 
 void GameScene::Reset() {
 
+    followCamera_->Initialize();
     player_->Initialize();
     enemy_->Initialize();
     stage_->Initialize();

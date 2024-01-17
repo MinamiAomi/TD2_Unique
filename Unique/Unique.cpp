@@ -21,7 +21,7 @@ void Unique::OnInitialize() {
 	enemyHpTex->Load("./Resources/UI/e_life.png");
 	resourceManager->AddTexture("enemy_hp", enemyHpTex);
 	std::shared_ptr<Texture> reticle = std::make_shared<Texture>();
-	reticle->Load("./Resources/UI/p_life.png");
+	reticle->Load("./Resources/UI/reticle.png");
 	resourceManager->AddTexture("reticle", reticle);
 	std::shared_ptr<Texture> UI_A = std::make_shared<Texture>();
 	UI_A->Load("./Resources/UI/ui_1.png");

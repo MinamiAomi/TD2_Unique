@@ -8,6 +8,7 @@
 #include "Collision/GameObject.h"
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/player/Weapon.h"
+#include "Reticle3D.h"
 
 //振る舞い
 enum class Behavior {
@@ -75,7 +76,12 @@ public:
 
 	bool GetIsInvincible() const { return workInvincible_.isInvincible; }
 
-	void SetCamera(std::shared_ptr<FollowCamera> camera) { camera_ = camera; }
+	void SetCamera(std::shared_ptr<FollowCamera> camera) { 
+		camera_ = camera;
+		reticle_->SetCamera(camera_);
+	}
+
+	std::shared_ptr<Reticle3D> GetReticle() { return reticle_; }
 
 private:
 
@@ -90,6 +96,8 @@ private:
 	std::shared_ptr<FollowCamera> camera_;
 
 	std::unique_ptr<Weapon> weapon_;
+
+	std::shared_ptr<Reticle3D> reticle_;
 
 	std::list<std::shared_ptr<Block>> blocks_;
 
