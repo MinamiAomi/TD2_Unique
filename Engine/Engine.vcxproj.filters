@@ -258,6 +258,9 @@
     <ClCompile Include="Graphics\Raytracing\RTShadowRenderer.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Animation.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -508,6 +511,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Raytracing\RTShadowRenderer.h">
       <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Animation.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
