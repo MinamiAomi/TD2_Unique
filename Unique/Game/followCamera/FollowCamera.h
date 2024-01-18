@@ -32,5 +32,7 @@ private:
 
     float followDelay_;
 
+    Vector3 euler_{};
+
     /*std::shared_ptr<LookOn> lookOn_;*/
 };

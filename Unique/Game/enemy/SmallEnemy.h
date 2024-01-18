@@ -3,13 +3,21 @@
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
 
-class SmallEnemy
+class SmallEnemy : public GameObject
 {
 public:
 	SmallEnemy();
 	~SmallEnemy();
 
+	void Initialize();
+
+	void Update();
+
 private:
+
+	std::shared_ptr<ModelInstance> model_;
+
+
 
 };
 

@@ -40,7 +40,7 @@ private:
 
     std::unique_ptr<Sprite> reticle_;
 
-    std::shared_ptr<Enemy> enemy_;
+   /* std::shared_ptr<Enemy> enemy_;*/
 
     Vector3 reticlePos_{};
 

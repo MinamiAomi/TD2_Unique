@@ -2,6 +2,7 @@
 #include "Engine/input/Input.h"
 #include "Graphics/ResourceManager.h"
 #include "Game/block/block.h"
+#include "GlobalVariables.h"
 
 Player::Player()
 {
@@ -105,9 +106,13 @@ void Player::Initialize() {
 
 	blocks_.clear();
 
+	RegisterGlobalVariables();
+
 }
 
 void Player::Update() {
+
+	ApplyGlobalVariables();
 
 	blocks_.remove_if([](auto& block) {
 
@@ -313,21 +318,29 @@ void Player::BehaviorAttackUpdate() {
 	switch (workAttack_.attackType)
 	{
 	default:
-	case AttackType::kVertical:
-
-		if (workAttack_.attackTimer < workAttack_.waitFrame) {
-			weapon_->transform.translate += workAttack_.velocity;
-		}
-
-		break;
 	case AttackType::kHorizontal:
 
-		if (workAttack_.attackTimer < workAttack_.waitFrame) {
-			weapon_->transform.translate += workAttack_.velocity;
+		//攻撃中
+		if (workAttack_.attackTimer >= workAttack_.waitFrameBefore + workAttack_.preFrame &&
+			workAttack_.attackTimer - workAttack_.waitFrameBefore - workAttack_.preFrame < workAttack_.attackFrame) {
+			transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_.attackFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.attackRotate)) * transform.rotate;
+		}
+		//攻撃開始前
+		else if (workAttack_.attackTimer < workAttack_.preFrame) {
+			transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_.preFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.preRotate)) * transform.rotate;
+		}
+
+		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
+			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+			transform.rotate = workAttack_.playerRotate;
+			workAttack_.isAttack = false;
+			behaviorRequest_ = Behavior::kRoot;
 		}
 
 		break;
-	case AttackType::kAddBlock:
+	/*case AttackType::kAddBlock:
 
 		if (workAttack_.attackTimer == 0) {
 			blocks_.clear();
@@ -338,13 +351,13 @@ void Player::BehaviorAttackUpdate() {
 			blocks_.push_back(block);
 		}
 
-		break;
-	}
+		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
+			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+			workAttack_.isAttack = false;
+			behaviorRequest_ = Behavior::kRoot;
+		}
 
-	if (++workAttack_.attackTimer == workAttack_.attackFrame) {
-		weapon_->transform.translate = { 0.0f,3.0f,3.0f };
-		workAttack_.isAttack = false;
-		behaviorRequest_ = Behavior::kRoot;
+		break;*/
 	}
 
 }
@@ -354,26 +367,21 @@ void Player::BehaviorAttackInitialize() {
 	workAttack_.attackTimer = 0;
 	workAttack_.isAttack = true;
 	workAttack_.isHit = false;
+	workAttack_.playerRotate = transform.rotate;
 	weapon_->isHit_ = false;
 
 	switch (workAttack_.attackType)
 	{
 	default:
-	case AttackType::kVertical:
-
-		weapon_->transform.translate = { 0.0f,3.0f,0.0f };
-		workAttack_.velocity = { 0.0f,-0.4f,0.3f };
-
-		break;
 	case AttackType::kHorizontal:
 
 		weapon_->transform.translate = { -2.0f,3.0f,4.0f };
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
 		break;
-	case AttackType::kAddBlock:
+	/*case AttackType::kAddBlock:
 		workAttack_.isAttack = false;
-		break;
+		break;*/
 	}
 
 	
@@ -424,5 +432,43 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
 		Damage(1);
 
 	}
+
+}
+
+constexpr char kGroupName[] = "Player";
+
+void Player::RegisterGlobalVariables() {
+	
+	GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
+	
+	if (!globalVariables.HasGroup(kGroupName)) {
+		auto& group = globalVariables[kGroupName];
+		group["Dush Speed"] = workDash_.speed_;
+		group["Attack PreFrame"] = workAttack_.preFrame;
+		group["Attack WaitFrameBefore"] = workAttack_.waitFrameBefore;
+		group["Attack WaitFrameAfter"] = workAttack_.waitFrameAfter;
+		group["Attack AttackFrame"] = workAttack_.attackFrame;
+		group["Attack PreRotate"] = workAttack_.preRotate;
+		group["Attack AttackRotate"] = workAttack_.attackRotate;
+	}
+
+}
+
+void Player::ApplyGlobalVariables() {
+
+	GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
+
+	auto& group = globalVariables[kGroupName];
+
+	workDash_.speed_ = group["Dush Speed"].Get<float>();
+	workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>();
+	workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>();
+	workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>();
+	workAttack_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
+	workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
+	workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();
+
+	workAttack_.allFrame = workAttack_.preFrame + workAttack_.waitFrameBefore +
+		workAttack_.attackFrame + workAttack_.waitFrameAfter;
 
 }

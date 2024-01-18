@@ -9,6 +9,7 @@
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/player/Weapon.h"
 #include "Reticle3D.h"
+#include "Gravity.h"
 
 //振る舞い
 enum class Behavior {
@@ -87,6 +88,10 @@ private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
 
+	void RegisterGlobalVariables();
+
+	void ApplyGlobalVariables();
+
 private:
 
 	Input* input_ = nullptr;
@@ -120,16 +125,30 @@ private:
 		Vector3 velocity;
 		//攻撃時間の媒介変数
 		int32_t attackTimer;
+		//攻撃前の振りを溜める時間
+		int32_t preFrame = 10;
+		//攻撃前の待ち時間
+		int32_t waitFrameBefore = 10;
+		//攻撃中の時間
+		int32_t attackFrame = 10;
 		//攻撃後の待ち時間
-		int32_t waitFrame = 10;
-		//攻撃フレーム数
-		int32_t attackFrame = 20;
+		int32_t waitFrameAfter = 10;
+		//合計待ち時間
+		int32_t waitFrameAll = 30;
+		//合計フレーム数
+		int32_t allFrame = 40;
 		//攻撃タイプ
 		AttackType attackType;
 		//攻撃中かどうか
 		bool isAttack = false;
 		//攻撃が当たったかどうか
 		bool isHit = false;
+		//攻撃前のY回転量
+		float preRotate = 1.57f;
+		//攻撃時のY回転量
+		float attackRotate = -3.14f;
+		//プレイヤーの回転保存
+		Quaternion playerRotate;
 	};
 
 	//無敵状態ワーク

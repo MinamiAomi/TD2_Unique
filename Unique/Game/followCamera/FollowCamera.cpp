@@ -36,9 +36,28 @@ void FollowCamera::Update() {
         if (std::abs(xinputState.Gamepad.sThumbRX) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
             std::abs(xinputState.Gamepad.sThumbRY) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
             const float rotateSpeed = 4.0f * Math::ToRadian;
-            destinationRotate_ = Quaternion::MakeForYAxis(float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed) * destinationRotate_;
+            euler_.x += -float(xinputState.Gamepad.sThumbRY) / float(SHRT_MAX) * rotateSpeed;
+            euler_.y += float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed;
+
+            if (euler_.x > 0.2f) {
+                euler_.x = 0.2f;
+            }
+            else if (euler_.x < -0.2f) {
+                euler_.x = -0.2f;
+            }
+
+            if (euler_.y > 3.14f) {
+                euler_.y = -3.14f;
+            }
+            else if (euler_.y <= -3.14f) {
+                euler_.y = 3.14f;
+            }
+
+            destinationRotate_ = Quaternion::MakeFromEulerAngle(euler_);
+            /*destinationRotate_ = Quaternion::MakeForYAxis(float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed) * destinationRotate_;*/
         }
     }
+
     transform_->rotate = Quaternion::Slerp(1.0f - followDelay_, transform_->rotate, destinationRotate_);
 
     if (target_) {
