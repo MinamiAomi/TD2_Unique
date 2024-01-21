@@ -57,7 +57,7 @@ void Player::Initialize() {
 	
 	transform.translate = Vector3::zero;
 	transform.scale = Vector3::one;
-	transform.scale.z = 2.0f;
+	transform.scale.z = 1.0f;
 
 	weapon_->Initialize();
 	weapon_->transform.SetParent(&transform);
@@ -209,13 +209,11 @@ void Player::Update() {
 		playerModel_->SetIsActive(false);
 	}
 
-	if (!isDead_ && workAttack_.isAttack) {
+	if (!isDead_ ) {
 		weapon_->GetModel()->SetIsActive(true);
-		weapon_->GetCollider()->SetIsActive(true);
 	}
 	else {
 		weapon_->GetModel()->SetIsActive(false);
-		weapon_->GetCollider()->SetIsActive(false);
 	}
 
 }
@@ -225,10 +223,36 @@ void Player::BehaviorRootUpdate() {
 	auto& camera = camera_->GetCamera();
 	auto input = Input::GetInstance();
 
+	auto& xinputState = input->GetXInputState();
+
+	auto& preXInputState = input->GetPreXInputState();
+
+	//重力付与、前に突き立て
+	if (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		Thrust();
+	}
+	else {
+		weapon_->isThrust_ = false;
+	}
+
+	// 攻撃に遷移
+	if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+
+
+		workAttack_.attackType = kHorizontal;
+
+		behaviorRequest_ = Behavior::kAttack;
+
+	}
+	// ダッシュに遷移
+	else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+		behaviorRequest_ = Behavior::kDash;
+		Audio::GetInstance()->SoundPlayWave(dashSE_);
+	}
+
 	Vector3 move{};
 	// Gamepad入力
 	{
-		auto& xinputState = input->GetXInputState();
 		const float margin = 0.8f;
 		const float shortMaxReci = 1.0f / float(SHRT_MAX);
 		move = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
@@ -258,48 +282,14 @@ void Player::BehaviorRootUpdate() {
 			// 回転
 			//transform.rotate = Quaternion::Slerp(0.2f, transform.rotate, Quaternion::MakeLookRotation(move));
 
-			move = transform.rotate.Conjugate() * move;
-			Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-			transform.rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * transform.rotate;
+			//武器を前に掲げている時は回転させない
+			if (!weapon_->isThrust_) {
+				move = transform.rotate.Conjugate() * move;
+				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+				transform.rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * transform.rotate;
+			}
+			
 		}
-	}
-
-
-	auto& xinputState = input->GetXInputState();
-
-	auto& preXInputState = input->GetPreXInputState();
-
-	//ボタンを押している時
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
-
-		if (inputTime_ < 30) {
-			inputTime_++;
-		}
-		
-	}
-
-	// 攻撃に遷移(離した時、または既定の時間長押しした時)
-	if ((!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) ||
-		inputTime_ >= 30) {
-
-
-		//単押しなら通常振り
-		if (inputTime_ < 30) {
-			workAttack_.attackType = kHorizontal;
-		}
-		//長押しなら壁生成
-		else {
-			workAttack_.attackType = kAddBlock;
-		}
-
-		behaviorRequest_ = Behavior::kAttack;
-		inputTime_ = 0;
-
-	}
-	// ダッシュに遷移
-	else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
-		behaviorRequest_ = Behavior::kDash;
-		Audio::GetInstance()->SoundPlayWave(dashSE_);
 	}
 
 	/*if (input_->TriggerButton(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
@@ -311,6 +301,19 @@ void Player::BehaviorRootUpdate() {
 
 void Player::BehaviorRootInitialize() {
 	
+}
+
+void Player::Thrust() {
+
+	//重力が付与されていなかったら重力付与
+	if (!weapon_->GetIsGravity()) {
+		weapon_->AddGravity();
+	}
+
+	weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+	weapon_->isThrust_ = true;
+
+
 }
 
 void Player::BehaviorAttackUpdate() {
@@ -325,15 +328,17 @@ void Player::BehaviorAttackUpdate() {
 			workAttack_.attackTimer - workAttack_.waitFrameBefore - workAttack_.preFrame < workAttack_.attackFrame) {
 			transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_.attackFrame),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.attackRotate)) * transform.rotate;
+			weapon_->GetCollider()->SetIsActive(true);
 		}
 		//攻撃開始前
 		else if (workAttack_.attackTimer < workAttack_.preFrame) {
 			transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_.preFrame),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.preRotate)) * transform.rotate;
+			weapon_->GetCollider()->SetIsActive(false);
 		}
 
 		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
-			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+			weapon_->transform.translate = { 0.0f,1.0f,3.0f };
 			transform.rotate = workAttack_.playerRotate;
 			workAttack_.isAttack = false;
 			behaviorRequest_ = Behavior::kRoot;
@@ -375,7 +380,7 @@ void Player::BehaviorAttackInitialize() {
 	default:
 	case AttackType::kHorizontal:
 
-		weapon_->transform.translate = { -2.0f,3.0f,4.0f };
+		weapon_->transform.translate = { 0.0f,3.0f,4.0f };
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
 		break;
@@ -388,10 +393,6 @@ void Player::BehaviorAttackInitialize() {
 
 }
 
-void Player::Attack() {
-
-
-}
 
 
 void Player::BehaviorDashUpdate() {
@@ -468,6 +469,7 @@ void Player::ApplyGlobalVariables() {
 	workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
 	workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();
 
+	//攻撃に使う合計フレームを設定
 	workAttack_.allFrame = workAttack_.preFrame + workAttack_.waitFrameBefore +
 		workAttack_.attackFrame + workAttack_.waitFrameAfter;
 

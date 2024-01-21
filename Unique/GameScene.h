@@ -13,6 +13,7 @@
 #include "Game/enemy/Enemy.h"
 #include "Game/block/Block.h"
 #include "Game/followCamera/FollowCamera.h"
+#include "Game/enemy/SmallEnemy.h"
 
 class GameScene :
     public BaseScene {
@@ -25,6 +26,8 @@ public:
 private:
 
     void Reset();
+
+    void SetEnemy();
 
 private:
     Vector3 euler_;
@@ -39,6 +42,8 @@ private:
     std::shared_ptr<Texture> reticleTex_;
 
     std::unique_ptr<Sprite> reticle_;
+
+    std::list<std::shared_ptr<SmallEnemy>> enemies_;
 
    /* std::shared_ptr<Enemy> enemy_;*/
 

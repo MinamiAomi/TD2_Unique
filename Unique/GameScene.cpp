@@ -6,6 +6,10 @@
 #include "Collision/CollisionManager.h"
 #include "Game/enemy/EnemyCoreManager.h"
 #include "GlobalVariables.h"
+#include "Game/enemy/SmallEnemyManager.h"
+#include "Math/Random.h"
+
+static Random::RandomNumberGenerator randomNumberGenerator;
 
 void GameScene::OnInitialize() {
 
@@ -43,10 +47,38 @@ void GameScene::Reset() {
     player_->Initialize();
     /*enemy_->Initialize();*/
     stage_->Initialize();
+    SmallEnemyManager::GetInstance()->Clear();
+    enemies_.clear();
+
+}
+
+void GameScene::SetEnemy() {
+
+    for (uint32_t i = 0; i < 10; i++) {
+
+        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
+        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-40.0f,40.0f),
+        0.0f, randomNumberGenerator.NextFloatRange(-40.0f, 40.0f), });
+        newEnemy->SetPlayer(player_.get());
+        SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
+        enemies_.push_back(newEnemy);
+
+    }
 
 }
 
 void GameScene::OnUpdate() {
+
+    enemies_.remove_if([](auto& enemy) {
+
+        if (enemy->GetIsDead()) {
+            SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
+            return true;
+        }
+
+        return false;
+
+       });
 
     GlobalVariables::GetInstance()->Update();
 
@@ -54,6 +86,15 @@ void GameScene::OnUpdate() {
 
     if (input->IsKeyTrigger(DIK_R)) {
         Reset();
+    }
+
+    //敵召喚
+    if (input->IsKeyTrigger(DIK_E)) {
+        SetEnemy();
+    }
+
+    for (auto& enemy : enemies_) {
+        enemy->Update();
     }
 
     player_->Update();

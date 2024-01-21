@@ -68,6 +68,9 @@
       <Filter>Game\player</Filter>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="Game\enemy\SmallEnemyManager.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -116,5 +119,8 @@
       <Filter>Game\player</Filter>
     </ClInclude>
     <ClInclude Include="GlobalVariables.h" />
+    <ClInclude Include="Game\enemy\SmallEnemyManager.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

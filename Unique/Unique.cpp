@@ -14,6 +14,7 @@ void Unique::OnInitialize() {
 
 	auto resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
+	resourceManager->AddModel("Sphere", Model::Load("./Resources/sphere/sphere.obj"));
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");
 	resourceManager->AddTexture("player_hp", playerHpTex);

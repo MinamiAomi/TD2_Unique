@@ -3,11 +3,12 @@
 #include "Game/enemy/Enemy.h"
 #include <unordered_map>
 #include "Game/enemy/EnemyCoreManager.h"
+#include "Player.h"
 
 Gravity::Gravity()
 {
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Sphere"));
 }
 
 Gravity::~Gravity()
@@ -22,11 +23,10 @@ void Gravity::Initialize() {
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 
-	collider_ = std::make_unique<BoxCollider>();
+	collider_ = std::make_unique<SphereCollider>();
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
-	collider_->SetOrientation(transform.rotate);
+	collider_->SetRadius(transform.scale.x);
 	collider_->SetName("Gravity");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
@@ -61,14 +61,16 @@ void Gravity::Update() {
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
-	collider_->SetOrientation(transform.rotate);
+	collider_->SetRadius(transform.scale.x);
 
 	model_->SetWorldMatrix(transform.worldMatrix);
 
 }
 
 void Gravity::Shot(const Vector3& velocity) {
+
+	transform.translate = transform.worldMatrix.GetTranslate();
+	transform.SetParent(nullptr);
 
 	velocity_ = velocity;
 	velocity_.Normalize();

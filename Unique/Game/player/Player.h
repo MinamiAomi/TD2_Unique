@@ -88,6 +88,8 @@ private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
 
+	void Thrust();
+
 	void RegisterGlobalVariables();
 
 	void ApplyGlobalVariables();
@@ -210,9 +212,6 @@ private:
 
 	//ダッシュ初期化
 	void BehaviorDashInitialize();
-
-	//攻撃
-	void Attack();
 
 	//死亡フラグ
 	bool isDead_ = false;

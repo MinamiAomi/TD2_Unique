@@ -6,8 +6,6 @@
 #include "Math/Camera.h"
 #include "Collision/GameObject.h"
 
-class EnemyCore;
-
 class Player;
 
 class Gravity : public GameObject
@@ -56,7 +54,7 @@ private:
 	int32_t shotLiveTimer_ = 180;
 
 	//当たり判定(aabb)
-	std::unique_ptr<BoxCollider> collider_;
+	std::unique_ptr<SphereCollider> collider_;
 
 };
 
