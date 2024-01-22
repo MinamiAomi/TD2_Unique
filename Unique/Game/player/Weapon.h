@@ -42,6 +42,9 @@ public:
 	//重力付与
 	void AddGravity();
 
+	//遅延量取得
+	const int32_t& GetDelay() { return gravityDelay_; }
+
 	bool isThrust_ = false;
 
 private:
@@ -59,7 +62,7 @@ private:
 private:
 
 	enum GravityLevel {
-		kSmall, //小範囲
+		kSmall = 1, //小範囲
 		kMedium, //中範囲
 		kWide, //広範囲
 	};
@@ -82,6 +85,9 @@ private:
 
 	//重力の強さ
 	GravityLevel gravityLevel_;
+
+	//重力による振りの遅延量
+	int32_t gravityDelay_ = 5;
 
 	//重力を付与しているかどうか
 	bool isGravity_ = false;

@@ -231,7 +231,8 @@ void Player::BehaviorRootUpdate() {
 	auto& preXInputState = input->GetPreXInputState();
 
 	//重力付与、前に突き立て
-	if (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && 
+		!weapon_->GetIsShot()) {
 		Thrust();
 	}
 	else {
@@ -260,10 +261,14 @@ void Player::BehaviorRootUpdate() {
 		behaviorRequest_ = Behavior::kAttack;
 
 	}
-	// ダッシュに遷移
-	else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
-		behaviorRequest_ = Behavior::kDash;
-		Audio::GetInstance()->SoundPlayWave(dashSE_);
+	// ダッシュ
+	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+		
+		workDash_.speed_ = 2.0f;
+
+	}
+	else {
+		workDash_.speed_ = 1.0f;
 	}
 
 	Vector3 move{};
@@ -285,7 +290,7 @@ void Player::BehaviorRootUpdate() {
 			// 地面に水平なカメラの回転
 			move = camera->GetRotate() * move;
 			move.y = 0.0f;
-			move = move.Normalized() * 0.7f;
+			move = move.Normalized() * (0.7f * workDash_.speed_);
 
 			// 親がいる場合親の空間にする
 			const Transform* parent = transform.GetParent();
@@ -409,6 +414,10 @@ void Player::BehaviorAttackInitialize() {
 		weapon_->transform.translate = { 0.0f,3.0f,4.0f };
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
+		if (workAttack_.preFrame == 0) {
+			transform.rotate = Quaternion::MakeForYAxis(workAttack_.preRotate) * Quaternion::identity;
+		}
+
 		break;
 	/*case AttackType::kAddBlock:
 		workAttack_.isAttack = false;
@@ -488,9 +497,9 @@ void Player::ApplyGlobalVariables() {
 	auto& group = globalVariables[kGroupName];
 
 	workDash_.speed_ = group["Dush Speed"].Get<float>();
-	workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>();
-	workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>();
-	workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>();
+	workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
+	workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
+	workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
 	workAttack_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
 	workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
 	workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();

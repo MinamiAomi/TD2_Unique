@@ -1,0 +1,11 @@
+{
+    "Player": {
+        "Attack AttackFrame": 10,
+        "Attack AttackRotate": -3.140000104904175,
+        "Attack PreFrame": 0,
+        "Attack PreRotate": 1.5700000524520874,
+        "Attack WaitFrameAfter": 0,
+        "Attack WaitFrameBefore": 0,
+        "Dush Speed": 2.0
+    }
+}

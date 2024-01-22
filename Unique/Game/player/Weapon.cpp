@@ -110,6 +110,14 @@ void Weapon::Update() {
 		break;
 	}
 
+	//重力をまとっている間
+	if (isGravity_ && !isShot_) {
+		gravityDelay_ = int32_t(gravityLevel_ * 5);
+	}
+	else {
+		gravityDelay_ = 0;
+	}
+
 	gravityTransform_->UpdateMatrix();
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
