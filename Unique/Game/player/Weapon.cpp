@@ -38,6 +38,7 @@ void Weapon::Initialize() {
 	collider_->SetName("Weapon");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
+	collider_->SetIsActive(false);
 
 	gravityCollider_->SetCenter(gravityTransform_->translate);
 	gravityCollider_->SetRadius(gravityTransform_->scale.x);

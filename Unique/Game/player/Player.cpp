@@ -18,24 +18,31 @@ Player::Player()
 	ui_A_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_A");
 	ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
 	ui_LB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LB");
+	ui_RT_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RT");
 
 	ui_A_ = std::make_unique<Sprite>();
 	ui_A_->SetTexture(ui_A_Tex_);
-	ui_A_->SetPosition({ 1100.0f,150.0f });
+	ui_A_->SetPosition({ 1100.0f,250.0f });
 	ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_A_->SetScale({ 256.0f,64.0f });
 
 	ui_RB_ = std::make_unique<Sprite>();
 	ui_RB_->SetTexture(ui_RB_Tex_);
-	ui_RB_->SetPosition({ 1000.0f,50.0f });
+	ui_RB_->SetPosition({ 1050.0f,50.0f });
 	ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
 	ui_RB_->SetScale({ 512.0f,64.0f });
 
 	ui_LB_ = std::make_unique<Sprite>();
 	ui_LB_->SetTexture(ui_LB_Tex_);
-	ui_LB_->SetPosition({ 1100.0f,250.0f });
+	ui_LB_->SetPosition({ 1100.0f,350.0f });
 	ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_LB_->SetScale({ 256.0f,64.0f });
+
+	ui_RT_ = std::make_unique<Sprite>();
+	ui_RT_->SetTexture(ui_RT_Tex_);
+	ui_RT_->SetPosition({ 1100.0f,150.0f });
+	ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+	ui_RT_->SetScale({ 256.0f,64.0f });
 
 	collider_ = std::make_unique<BoxCollider>();
 
@@ -374,6 +381,7 @@ void Player::BehaviorAttackUpdate() {
 				Quaternion::identity;*/
 			transform.rotate = workAttack_.playerRotate;
 			workAttack_.isAttack = false;
+			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
 			behaviorRequest_ = Behavior::kRoot;
 		}
@@ -414,7 +422,15 @@ void Player::BehaviorAttackInitialize() {
 	default:
 	case AttackType::kHorizontal:
 
-		weapon_->transform.translate = { 0.0f,1.0f,10.0f };
+		
+
+		if (workAttack_.preFrame == 0) {
+			weapon_->transform.translate = { 10.0f,1.0f,0.0f };
+		}
+		else {
+			weapon_->transform.translate = { 0.0f,1.0f,10.0f };
+		}
+
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
 		break;

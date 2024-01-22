@@ -27,7 +27,7 @@ private:
 
     void Reset();
 
-    void SetEnemy();
+    void SetEnemy(uint32_t num);
 
 private:
     Vector3 euler_;

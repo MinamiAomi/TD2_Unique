@@ -39,6 +39,7 @@ void GameScene::OnInitialize() {
     followCamera_->SetTarget(&player_->transform);
    /* enemy_->SetPlayer(player_.get());*/
     /*enemy_->SetBlockList(&blocks_);*/
+    SetEnemy(40);
 
 }
 
@@ -50,12 +51,13 @@ void GameScene::Reset() {
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
+    SetEnemy(40);
 
 }
 
-void GameScene::SetEnemy() {
+void GameScene::SetEnemy(uint32_t num) {
 
-    for (uint32_t i = 0; i < 10; i++) {
+    for (uint32_t i = 0; i < num; i++) {
 
         std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
         newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-40.0f,40.0f),
@@ -106,7 +108,7 @@ void GameScene::OnUpdate() {
 
     //敵召喚
     if (input->IsKeyTrigger(DIK_E)) {
-        SetEnemy();
+        SetEnemy(10);
     }
 
     for (auto& enemy : enemies_) {
