@@ -47,6 +47,12 @@ void Weapon::Initialize() {
 
 	gravityModel_->SetIsActive(false);
 
+	energyCount_ = 0;
+
+	isShot_ = false;
+	isBreak_ = false;
+	isGravity_ = false;
+
 }
 
 void Weapon::Update() {
@@ -86,7 +92,7 @@ void Weapon::Update() {
 
 	transform.UpdateMatrix();
 
-	if (isThrust_ || isShot_) {
+	if ((isThrust_ || isShot_ || isAttack_) && isGravity_) {
 		gravityCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
 		collider_->SetIsActive(false);
@@ -195,6 +201,15 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 		isHit_ = true;
 
 	}
+	else if (collisionInfo.collider->GetName() == "Small_Enemy") {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+		enemy->Damage(0, player_->transform.worldMatrix.GetTranslate());
+
+	}
 
 }
 
@@ -241,6 +256,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
+			enemy->transform.SetParent(nullptr);
 			enemy->Damage(3 + gravityLevel_, transform.worldMatrix.GetTranslate());
 
 			isHit_ = true;

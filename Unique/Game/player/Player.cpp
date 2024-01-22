@@ -61,7 +61,7 @@ void Player::Initialize() {
 
 	weapon_->Initialize();
 	weapon_->transform.SetParent(&transform);
-	weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+	weapon_->transform.translate = { 3.0f,1.0f,0.0f };
 	weapon_->transform.scale = Vector3::one;
 	/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
 		Quaternion::identity;*/
@@ -334,7 +334,7 @@ void Player::Thrust() {
 			weapon_->AddGravity();
 		}
 
-		weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+		weapon_->transform.translate = { 0.0f,1.0f,10.0f };
 		weapon_->transform.rotate = Quaternion::identity;
 		weapon_->isThrust_ = true;
 
@@ -358,20 +358,23 @@ void Player::BehaviorAttackUpdate() {
 			transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_.attackFrame),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.attackRotate)) * transform.rotate;
 			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
 		}
 		//攻撃開始前
 		else if (workAttack_.attackTimer < workAttack_.preFrame) {
 			transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_.preFrame),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.preRotate)) * transform.rotate;
 			weapon_->GetCollider()->SetIsActive(false);
+			weapon_->isAttack_ = false;
 		}
 
 		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
-			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+			weapon_->transform.translate = { 3.0f,1.0f,0.0f };
 			/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) * 
 				Quaternion::identity;*/
 			transform.rotate = workAttack_.playerRotate;
 			workAttack_.isAttack = false;
+			weapon_->isAttack_ = false;
 			behaviorRequest_ = Behavior::kRoot;
 		}
 
@@ -411,12 +414,8 @@ void Player::BehaviorAttackInitialize() {
 	default:
 	case AttackType::kHorizontal:
 
-		weapon_->transform.translate = { 0.0f,3.0f,4.0f };
+		weapon_->transform.translate = { 0.0f,1.0f,10.0f };
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
-
-		if (workAttack_.preFrame == 0) {
-			transform.rotate = Quaternion::MakeForYAxis(workAttack_.preRotate) * Quaternion::identity;
-		}
 
 		break;
 	/*case AttackType::kAddBlock:
@@ -492,20 +491,25 @@ void Player::RegisterGlobalVariables() {
 
 void Player::ApplyGlobalVariables() {
 
-	GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
+	//攻撃中は変数を変更しない
+	if (!workAttack_.isAttack) {
 
-	auto& group = globalVariables[kGroupName];
+		GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
 
-	workDash_.speed_ = group["Dush Speed"].Get<float>();
-	workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
-	workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
-	workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
-	workAttack_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
-	workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
-	workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();
+		auto& group = globalVariables[kGroupName];
 
-	//攻撃に使う合計フレームを設定
-	workAttack_.allFrame = workAttack_.preFrame + workAttack_.waitFrameBefore +
-		workAttack_.attackFrame + workAttack_.waitFrameAfter;
+		workDash_.speed_ = group["Dush Speed"].Get<float>();
+		workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
+		workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
+		workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();
+
+		//攻撃に使う合計フレームを設定
+		workAttack_.allFrame = workAttack_.preFrame + workAttack_.waitFrameBefore +
+			workAttack_.attackFrame + workAttack_.waitFrameAfter;
+
+	}
 
 }

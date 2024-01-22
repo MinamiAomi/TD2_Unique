@@ -47,6 +47,8 @@ public:
 
 	bool isThrust_ = false;
 
+	bool isAttack_ = false;
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);

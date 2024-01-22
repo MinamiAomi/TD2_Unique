@@ -47,6 +47,9 @@ private:
 
 	Vector3 velocity_{};
 
+	//死亡までのフレーム
+	int32_t deadCount_ = 10;
+
 };
 
 
