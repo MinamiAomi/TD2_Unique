@@ -271,7 +271,8 @@ void Player::BehaviorRootUpdate() {
 	// ダッシュ
 	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
 		
-		workDash_.speed_ = 2.0f;
+		//ディレイの値に応じてスピード調整
+		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f);
 
 	}
 	else {
