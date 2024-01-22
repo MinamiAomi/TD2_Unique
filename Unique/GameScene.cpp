@@ -8,6 +8,7 @@
 #include "GlobalVariables.h"
 #include "Game/enemy/SmallEnemyManager.h"
 #include "Math/Random.h"
+#include "Graphics/ImGuiManager.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
@@ -68,6 +69,21 @@ void GameScene::SetEnemy() {
 }
 
 void GameScene::OnUpdate() {
+
+#ifdef _DEBUG
+
+    //操作説明表記
+    ImGui::Begin("Command");
+    ImGui::Text("Player");
+    ImGui::Text("R Button : Collect");
+    ImGui::Text("R Trigger : Shot");
+    ImGui::Text("L Button : Dash");
+    ImGui::Text("A Button : Attack");
+
+    ImGui::End();
+
+#endif // _DEBUG
+
 
     enemies_.remove_if([](auto& enemy) {
 

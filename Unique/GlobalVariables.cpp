@@ -48,6 +48,9 @@ void GlobalVariables::LoadFiles() {
 }
 
 void GlobalVariables::Update() {
+
+#ifdef _DEBUG
+
 	if (!ImGui::Begin("Global Variables", nullptr, ImGuiWindowFlags_MenuBar)) {
 		ImGui::End();
 		return;
@@ -65,6 +68,9 @@ void GlobalVariables::Update() {
 
 	ImGui::EndMenuBar();
 	ImGui::End();
+
+#endif // _DEBUG
+
 }
 
 bool GlobalVariables::LoadFile(const std::string& name) {
@@ -111,7 +117,10 @@ GlobalVariables::Item& GlobalVariables::Group::operator[](const std::string& key
 
 bool GlobalVariables::Group::HasItem(const std::string& key) const { return items_.contains(key); }
 
-void GlobalVariables::Group::Edit(const std::string& name) {
+void GlobalVariables::Group::Edit([[maybe_unused]] const std::string& name) {
+
+#ifdef _DEBUG
+
 	if (!ImGui::BeginMenu(name.c_str())) {
 		return;
 	}
@@ -126,6 +135,9 @@ void GlobalVariables::Group::Edit(const std::string& name) {
 		}
 	}
 	ImGui::EndMenu();
+
+#endif // _DEBUG
+
 }
 
 bool GlobalVariables::Group::Save(const std::string& name) {
@@ -177,15 +189,23 @@ GlobalVariables::Item& GlobalVariables::Item::operator=(const Vector3& value) {
 	return *this;
 }
 
-void GlobalVariables::Item::Edit(const std::string& name) {
+void GlobalVariables::Item::Edit([[maybe_unused]] const std::string& name) {
+
+#ifdef _DEBUG
+
 	if (std::holds_alternative<int32_t>(value_)) {
 		int32_t* ptr = std::get_if<int32_t>(&value_);
 		ImGui::DragInt(name.c_str(), ptr);
-	} else if (std::holds_alternative<float>(value_)) {
+	}
+	else if (std::holds_alternative<float>(value_)) {
 		float* ptr = std::get_if<float>(&value_);
 		ImGui::DragFloat(name.c_str(), ptr, 0.1f);
-	} else if (std::holds_alternative<Vector3>(value_)) {
+	}
+	else if (std::holds_alternative<Vector3>(value_)) {
 		Vector3* ptr = std::get_if<Vector3>(&value_);
 		ImGui::DragFloat3(name.c_str(), reinterpret_cast<float*>(ptr), 0.1f);
 	}
+
+#endif // _DEBUG
+
 }

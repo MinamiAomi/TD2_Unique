@@ -50,6 +50,8 @@ private:
 
 	void GravityOnCollision(const CollisionInfo& collisionInfo);
 
+	void GravityDamageOnCollision(const CollisionInfo& collisionInfo);
+
 	void Break();
 
 	void Reset();
@@ -89,5 +91,11 @@ private:
 	uint32_t kMaxShotTime_ = 60;
 
 	int32_t shotTimer_ = kMaxShotTime_;
+
+	bool isBreak_ = false;
+
+	uint32_t kMaxBreakTime_ = 30;
+
+	int32_t breakTimer_ = kMaxBreakTime_;
 
 };

@@ -19,6 +19,12 @@ public:
 
 	bool GetIsDead() const { return isDead_; }
 
+	bool GetIsAffectedGravity() const { return isAffectedGravity_; }
+
+	BoxCollider* GetCollider() { return collider_.get(); }
+
+	void Damage(uint32_t val, const Vector3& affectPosition);
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
@@ -36,6 +42,10 @@ private:
 	int32_t hp_ = kMaxHp_;
 
 	bool isDead_ = false;
+
+	bool isAffectedGravity_ = false;
+
+	Vector3 velocity_{};
 
 };
 

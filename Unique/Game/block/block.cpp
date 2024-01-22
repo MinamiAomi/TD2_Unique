@@ -102,8 +102,8 @@ void Block::OnCollision(const CollisionInfo& collisionInfo) {
 	if (collisionInfo.collider->GetName() == "Enemy" ||
 		collisionInfo.collider->GetName() == "Enemy_Core") {
 
-		auto go = collisionInfo.collider->GetGameObject();
-		std::shared_ptr<EnemyCore> enemy = EnemyCoreManager::GetInstance()->GetCore(go);
+		auto object = collisionInfo.collider->GetGameObject();
+		std::shared_ptr<EnemyCore> enemy = EnemyCoreManager::GetInstance()->GetCore(object);
 
 		enemy->Damage(3);
 

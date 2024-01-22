@@ -40,7 +40,7 @@ void SmallEnemy::Update() {
 
 	transform.UpdateMatrix();
 
-	collider_->SetCenter(transform.translate);
+	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.scale);
 	collider_->SetOrientation(transform.rotate);
 
@@ -50,11 +50,29 @@ void SmallEnemy::Update() {
 
 void SmallEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Gravity" ||
-		collisionInfo.collider->GetName() == "Gravity_Shot") {
+	if (collisionInfo.collider->GetName() == "Gravity") {
 
-		collider_->SetIsActive(false);
+		
 
 	}
+	else if (collisionInfo.collider->GetName() == "Gravity_Shot") {
+
+
+
+	}
+	else if (collisionInfo.collider->GetName() == "Gravity_Break") {
+
+
+
+	}
+
+}
+
+void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
+
+	hp_ -= val;
+
+	//攻撃を受けた地点からノックバック
+	velocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
 
 }

@@ -63,7 +63,10 @@ void Player::Initialize() {
 	weapon_->transform.SetParent(&transform);
 	weapon_->transform.translate = { 0.0f,3.0f,3.0f };
 	weapon_->transform.scale = Vector3::one;
+	/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
+		Quaternion::identity;*/
 	weapon_->transform.UpdateMatrix();
+	weapon_->SetPlayer(this);
 
 	reticle_->Initialize();
 
@@ -235,8 +238,21 @@ void Player::BehaviorRootUpdate() {
 		weapon_->isThrust_ = false;
 	}
 
+	//重力波発射
+	if (xinputState.Gamepad.bRightTrigger) {
+
+		//重力付与状態で発射していなかったら
+		if (weapon_->GetIsGravity() && !weapon_->GetIsShot()) {
+			weapon_->Shot(transform.rotate * Vector3{ 0.0f,0.0f,1.0f });
+		}
+
+	}
+
 	// 攻撃に遷移
-	if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+	// 重力波発射中と突き出し中は遷移不可
+	if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+		!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) && 
+		!weapon_->GetIsShot() && !weapon_->isThrust_) {
 
 
 		workAttack_.attackType = kHorizontal;
@@ -305,14 +321,22 @@ void Player::BehaviorRootInitialize() {
 
 void Player::Thrust() {
 
-	//重力が付与されていなかったら重力付与
-	if (!weapon_->GetIsGravity()) {
-		weapon_->AddGravity();
+	//重力波が発射されていない時
+	if (!weapon_->GetIsShot()) {
+
+		//重力が付与されていなかったら重力付与
+		if (!weapon_->GetIsGravity()) {
+			weapon_->AddGravity();
+		}
+
+		weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+		weapon_->transform.rotate = Quaternion::identity;
+		weapon_->isThrust_ = true;
+
 	}
-
-	weapon_->transform.translate = { 0.0f,3.0f,3.0f };
-	weapon_->isThrust_ = true;
-
+	else {
+		weapon_->isThrust_ = false;
+	}
 
 }
 
@@ -338,7 +362,9 @@ void Player::BehaviorAttackUpdate() {
 		}
 
 		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
-			weapon_->transform.translate = { 0.0f,1.0f,3.0f };
+			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
+			/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) * 
+				Quaternion::identity;*/
 			transform.rotate = workAttack_.playerRotate;
 			workAttack_.isAttack = false;
 			behaviorRequest_ = Behavior::kRoot;

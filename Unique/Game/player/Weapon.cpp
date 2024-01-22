@@ -1,6 +1,7 @@
 #include "Weapon.h"
 #include "Graphics/ResourceManager.h"
 #include "Player.h"
+#include "Game/enemy/SmallEnemyManager.h"
 
 Weapon::Weapon()
 {
@@ -44,6 +45,8 @@ void Weapon::Initialize() {
 	gravityCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {GravityOnCollision(collisionInfo); });
 	gravityCollider_->SetGameObject(this);
 
+	gravityModel_->SetIsActive(false);
+
 }
 
 void Weapon::Update() {
@@ -52,11 +55,18 @@ void Weapon::Update() {
 		energyCount_ = 20;
 	}
 
-	if (isShot_) {
+	//重力波が破裂する時
+	if (isBreak_) {
+
+		if (--breakTimer_ <= 0) {
+			Reset();
+		}
+
+	}
+	//重力波が発射されている途中
+	else if (isShot_) {
 
 		transform.translate += velocity_;
-
-		
 
 		if (--shotTimer_ <= 0) {
 			Break();
@@ -69,16 +79,20 @@ void Weapon::Update() {
 
 	}
 
+	if (isGravity_) {
+		gravityTransform_->rotate = Quaternion::MakeFromAngleAxis(0.1f, Vector3{ 0.5f,0.5f,0.5f }.Normalized()) *
+			gravityTransform_->rotate;
+	}
+
 	transform.UpdateMatrix();
 
-	if (isThrust_) {
+	if (isThrust_ || isShot_) {
 		gravityCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
 		collider_->SetIsActive(false);
 	}
 	else {
 		gravityCollider_->SetIsActive(false);
-		gravityModel_->SetIsActive(false);
 	}
 
 	//重力波のレベルに応じて当たり判定を肥大化
@@ -117,27 +131,23 @@ void Weapon::Shot(const Vector3& velocity) {
 	velocity_ = velocity;
 	velocity_.Normalize();
 
-	if (player_) {
-		velocity_ = player_->transform.rotate * velocity_;
-	}
-
 	velocity_ *= 3.0f;
 	isShot_ = true;
 	shotTimer_ = kMaxShotTime_;
 	
 	gravityCollider_->SetName("Gravity_Shot");
-
+	
 }
 
 void Weapon::Break() {
 
-	energyCount_ = 0;
+	isBreak_ = true;
 
-	isShot_ = false;
-	isGravity_ = false;
+	breakTimer_ = kMaxBreakTime_;
 
-	Reset();
-
+	gravityModel_->SetColor({ 1.0f,0.0f,1.0f });
+	gravityCollider_->SetName("Gravity_Break");
+	
 }
 
 void Weapon::AddGravity() {
@@ -149,7 +159,24 @@ void Weapon::AddGravity() {
 
 void Weapon::Reset() {
 
-	transform.translate = {0.0f,0.0f,3.0f};
+	energyCount_ = 0;
+
+	isShot_ = false;
+	isBreak_ = false;
+	isGravity_ = false;
+
+	gravityModel_->SetColor({ 1.0f,1.0f,1.0f });
+	gravityModel_->SetIsActive(false);
+
+	gravityCollider_->SetName("Gravity");
+	gravityCollider_->SetIsActive(false);
+	
+	transform.SetParent(&player_->transform);
+
+	transform.translate = { 0.0f,0.0f,3.0f };
+	transform.scale = Vector3::one;
+	transform.rotate = Quaternion::identity;
+	transform.UpdateMatrix();
 
 }
 
@@ -165,24 +192,61 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Enemy_Core" ||
-		collisionInfo.collider->GetName() == "Enemy_Bullet" ||
-		collisionInfo.collider->GetName() == "Small_Enemy") {
+	//重力をまとっている、発射している途中
+	if (gravityCollider_->GetName() == "Gravity" || 
+		gravityCollider_->GetName() == "Gravity_Shot") {
 
-		energyCount_++;
+		if (collisionInfo.collider->GetName() == "Small_Enemy") {
 
-		if (energyCount_ >= 20) {
-			gravityLevel_ = kWide;
-		}
-		else if (energyCount_ >= 10) {
-			gravityLevel_ = kMedium;
-		}
-		else {
-			gravityLevel_ = kSmall;
-		}
+			energyCount_++;
 
-		isHit_ = true;
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+			enemy->transform.SetParent(gravityTransform_.get());
+			enemy->transform.translate /= 2.0f;
+			enemy->GetCollider()->SetName("Small_Enemy_Affected");
+
+			if (energyCount_ >= 20) {
+				gravityLevel_ = kWide;
+			}
+			else if (energyCount_ >= 10) {
+				gravityLevel_ = kMedium;
+			}
+			else {
+				gravityLevel_ = kSmall;
+			}
+
+			isHit_ = true;
+
+		}
 
 	}
+	//発射して破裂した時
+	else if (gravityCollider_->GetName() == "Gravity_Break") {
+
+		if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+			collisionInfo.collider->GetName() == "Small_Enemy_Affected") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+			enemy->Damage(3 + gravityLevel_, transform.worldMatrix.GetTranslate());
+
+			isHit_ = true;
+
+		}
+
+	}
+
+	
+
+}
+
+void Weapon::GravityDamageOnCollision(const CollisionInfo& collisionInfo) {
+
+	collisionInfo;
 
 }
