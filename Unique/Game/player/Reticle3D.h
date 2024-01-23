@@ -2,6 +2,7 @@
 #include "Graphics/Sprite.h"
 #include "Collision/GameObject.h"
 #include "Game/followCamera/FollowCamera.h"
+#include "Graphics/Model.h"
 
 class Reticle3D : public GameObject
 {
@@ -24,6 +25,8 @@ private:
 	std::shared_ptr<Texture> reticleTex_;
 
 	std::unique_ptr<Sprite> sprite_;
+
+	std::shared_ptr<ModelInstance> model_;
 
 	Vector3 reticlePos_;
 

@@ -149,6 +149,10 @@ void Weapon::Shot(const Vector3& velocity) {
 
 	velocity_ = velocity;
 	velocity_.Normalize();
+	
+	if (velocity_.y < 0.0f) {
+		velocity_.y = 0.0f;
+	}
 
 	velocity_ *= 3.0f;
 	isShot_ = true;
