@@ -14,6 +14,7 @@ Weapon::Weapon()
 	collider_ = std::make_unique<BoxCollider>();
 	gravityCollider_ = std::make_unique<SphereCollider>();
 	gravityTransform_ = std::make_shared<Transform>();
+	gravityScaleTransform_ = std::make_shared<Transform>();
 }
 
 Weapon::~Weapon()
@@ -32,6 +33,11 @@ void Weapon::Initialize() {
 	gravityTransform_->scale = Vector3::one;
 	gravityTransform_->rotate = Quaternion::identity;
 	gravityTransform_->SetParent(&transform);
+
+	gravityScaleTransform_->translate = Vector3::zero;
+	gravityScaleTransform_->scale = Vector3::one;
+	gravityScaleTransform_->rotate = Quaternion::identity;
+	gravityScaleTransform_->SetParent(gravityTransform_.get());
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
@@ -113,13 +119,13 @@ void Weapon::Update() {
 	{
 	default:
 	case Weapon::kSmall:
-		gravityTransform_->scale = { 3.0f,3.0f,3.0f };
+		gravityScaleTransform_->scale = { 3.0f,3.0f,3.0f };
 		break;
 	case Weapon::kMedium:
-		gravityTransform_->scale = { 5.0f,5.0f,5.0f };
+		gravityScaleTransform_->scale = { 5.0f,5.0f,5.0f };
 		break;
 	case Weapon::kWide:
-		gravityTransform_->scale = { 8.0f,8.0f,8.0f };
+		gravityScaleTransform_->scale = { 8.0f,8.0f,8.0f };
 		break;
 	}
 
@@ -132,16 +138,17 @@ void Weapon::Update() {
 	}
 
 	gravityTransform_->UpdateMatrix();
+	gravityScaleTransform_->UpdateMatrix();
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
-	gravityCollider_->SetRadius(gravityTransform_->scale.x);
+	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x);
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
 	model_->SetWorldMatrix(transform.worldMatrix);
 	modelBody_->SetWorldMatrix(transform.worldMatrix);
-	gravityModel_->SetWorldMatrix(gravityTransform_->worldMatrix);
+	gravityModel_->SetWorldMatrix(gravityScaleTransform_->worldMatrix);
 
 }
 
@@ -199,7 +206,7 @@ void Weapon::Reset() {
 	
 	transform.SetParent(&player_->transform);
 
-	transform.translate = { 0.0f,0.0f,3.0f };
+	transform.translate = { 3.0f,1.0f,0.0f };
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();

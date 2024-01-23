@@ -72,6 +72,7 @@ private:
 	Player* player_ = nullptr;
 
 	std::shared_ptr<Transform> gravityTransform_;
+	std::shared_ptr<Transform> gravityScaleTransform_;
 
 	Vector3 velocity_{};
 
