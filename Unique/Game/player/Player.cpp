@@ -246,6 +246,13 @@ void Player::BehaviorRootUpdate() {
 		weapon_->isThrust_ = false;
 	}
 
+	//突き立て終了時
+	if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+		(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+		!weapon_->GetIsShot()) {
+		weapon_->transform.translate = { 3.0f,1.0f,0.0f };
+	}
+
 	//重力波発射
 	if (xinputState.Gamepad.bRightTrigger) {
 
