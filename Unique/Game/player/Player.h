@@ -9,7 +9,6 @@
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/player/Weapon.h"
 #include "Reticle3D.h"
-#include "Gravity.h"
 
 //振る舞い
 enum class Behavior {
