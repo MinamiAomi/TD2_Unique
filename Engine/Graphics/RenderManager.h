@@ -48,7 +48,7 @@ private:
     ColorBuffer mainColorBuffer_;
     DepthBuffer mainDepthBuffer_;
 
-    ToonRenderer toonRenderer_;
+    //ToonRenderer toonRenderer_;
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
     RaytracingRenderer raytracingRenderer_;
@@ -56,7 +56,6 @@ private:
     ModelRenderer modelRenderer;
     //Bloom bloom_;
     PostEffect postEffect_;
-    ComputeShaderTester computeShaderTester_;
     
     Timer timer_;
     std::weak_ptr<const Camera> camera_;

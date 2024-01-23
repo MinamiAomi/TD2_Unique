@@ -8,6 +8,12 @@
 #include "Math/Random.h"
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
+#include "Game/player/Player.h"
+#include "Game/stage/Stage.h"
+#include "Game/enemy/Enemy.h"
+#include "Game/block/Block.h"
+#include "Game/followCamera/FollowCamera.h"
+#include "Game/enemy/SmallEnemy.h"
 
 class GameScene :
     public BaseScene {
@@ -18,11 +24,32 @@ public:
     void OnFinalize() override;
 
 private:
-    std::shared_ptr<Camera> camera_;
+
+    void Reset();
+
+    void SetEnemy(uint32_t num);
+
+private:
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
-    std::shared_ptr<Model> floor_;
+    std::shared_ptr<FollowCamera> followCamera_;
+
+    std::shared_ptr<Player> player_;
+
+    std::shared_ptr<Stage> stage_;
+
+    std::shared_ptr<Texture> reticleTex_;
+
+    std::unique_ptr<Sprite> reticle_;
+
+    std::list<std::shared_ptr<SmallEnemy>> enemies_;
+
+   /* std::shared_ptr<Enemy> enemy_;*/
+
+    Vector3 reticlePos_{};
+
+   /* std::shared_ptr<Model> floor_;
     std::shared_ptr<Model> teapot_;
     std::shared_ptr<Model> bunny_;
     std::shared_ptr<Model> box_;
@@ -41,5 +68,5 @@ private:
 
     ModelInstance floorModel_;
     ModelInstance teapotModel_;
-    ModelInstance bunnyModel_;
+    ModelInstance bunnyModel_;*/
 };
