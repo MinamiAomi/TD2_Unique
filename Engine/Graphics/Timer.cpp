@@ -1,5 +1,6 @@
 #include "Timer.h"
 
+#include <thread>
 #include <Windows.h>
 
 #pragma comment(lib, "winmm.lib")

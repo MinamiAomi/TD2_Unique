@@ -64,11 +64,11 @@ float FractalSumNoise(float2 uv, float density) {
 [numthreads(8, 8, 1)]
 void main(uint3 DTid : SV_DispatchThreadID) {
     
-    float2 textureSize;
-    g_Texture.GetDimensions(textureSize.x, textureSize.y);
-    float2 uv = DTid.xy / textureSize;
-    
-    float random = FractalSumNoise(uv, 10.0f);
-    
-    g_Texture[DTid.xy] = lerp(float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.2f, 0.3f, 0.6f, 1.0f), 1.0f - pow(1.0f - random, 3.0f));
+    //float2 textureSize;
+    //g_Texture.GetDimensions(textureSize.x, textureSize.y);
+    //float2 uv = DTid.xy / textureSize;
+    //
+    //float random = FractalSumNoise(uv, 10.0f);
+    //
+    //g_Texture[DTid.xy] = lerp(float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.2f, 0.3f, 0.6f, 1.0f), 1.0f - pow(1.0f - random, 3.0f));
 }

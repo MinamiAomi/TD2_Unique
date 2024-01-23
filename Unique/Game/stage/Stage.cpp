@@ -22,7 +22,7 @@ void Stage::Initialize() {
 	
 	model_->SetIsActive(true);
 	model_->SetWorldMatrix(transform.worldMatrix);
-	model_->SetColor({ 0.0f,0.0f,0.0f });
+	model_->SetColor({ 0.2f,0.2f,0.2f });
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている

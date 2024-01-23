@@ -66,10 +66,10 @@ PSOutput main(PSInput input) {
     PSOutput output;
     
     float2 uv = input.texcoord;
-    if (uv.x > 0.25f && uv.x < 0.75f &&
-        uv.y > 0.25f && uv.y < 0.75f) {
-        uv.y += FractalSumNoise(uv * float2(0.1f, 1.0f) + g_Constant.time * 0.1f, 10.0f) * 0.1f - 0.05f;
-    }
+    //if (uv.x > 0.25f && uv.x < 0.75f &&
+    //    uv.y > 0.25f && uv.y < 0.75f) {
+    //    uv.y += FractalSumNoise(uv * float2(0.1f, 1.0f) + g_Constant.time * 0.1f, 10.0f) * 0.1f - 0.05f;
+    //}
     
     output.color = g_Texture.Sample(g_Sampler, uv);
     

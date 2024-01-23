@@ -34,7 +34,7 @@ void RenderManager::Initialize() {
     mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
     mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
 
-    toonRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    //toonRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
@@ -42,11 +42,6 @@ void RenderManager::Initialize() {
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-
-    computeShaderTester_.Initialize(1024, 1024);
-    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    computeShaderTester_.Dispatch(commandContext_);
-    commandContext_.Finish(true);
 
     timer_.Initialize();
 
@@ -126,7 +121,7 @@ void RenderManager::Render() {
     ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
     ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
+   // ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 
     //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
