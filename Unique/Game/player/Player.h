@@ -15,7 +15,6 @@
 enum class Behavior {
 	kRoot, //通常状態
 	kAttack, //攻撃中
-	kDash, //ダッシュ
 };
 
 class Block;
@@ -29,7 +28,6 @@ public:
 	enum AttackType {
 		kVertical, //縦攻撃
 		kHorizontal, //横攻撃
-		kAddBlock, //壁追加
 	};
 
 	void Initialize();
@@ -106,19 +104,13 @@ private:
 
 	std::shared_ptr<Reticle3D> reticle_;
 
-	std::list<std::shared_ptr<Block>> blocks_;
-
 	//前フレームの位置
 	Vector3 prePosition_{};
 
 	//ダッシュ用ワーク
 	struct WorkDash {
-		//ダッシュ用の媒介変数
-		uint32_t dashParamater_ = 0;
 		//ダッシュのスピード
 		float speed_ = 2.0f;
-		//ダッシュ時間
-		int32_t dashTime_ = 5;
 	};
 
 	//攻撃用ワーク
@@ -206,12 +198,6 @@ private:
 
 	//攻撃行動初期化
 	void BehaviorAttackInitialize();
-
-	//ダッシュ更新
-	void BehaviorDashUpdate();
-
-	//ダッシュ初期化
-	void BehaviorDashInitialize();
 
 	//死亡フラグ
 	bool isDead_ = false;

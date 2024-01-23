@@ -1,6 +1,7 @@
 #include "SmallEnemy.h"
 #include "Graphics/ResourceManager.h"
 #include "SmallEnemyManager.h"
+#include "Game/player/Player.h"
 
 SmallEnemy::SmallEnemy()
 {
@@ -36,9 +37,23 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 
 void SmallEnemy::Update() {
 
+	if (coolTimer_ > 0) {
+
+		velocity_ = player_->GetPosition() - transform.translate;
+		velocity_ = velocity_.Normalized();
+		velocity_ /= 3.0f;
+		coolTimer_--;
+
+		//規定フレームで移動に移行
+		if (coolTimer_ <= 0) {
+			moveTimer_ = kMaxMoveTime_;
+		}
+
+	}
+
 	if (hp_ <= 0) {
 
-		transform.translate += velocity_;
+		transform.translate += knockBackVelocity_;
 
 		if (--deadCount_ <= 0) {
 			isDead_ = true;
@@ -47,12 +62,42 @@ void SmallEnemy::Update() {
 	}
 	else {
 
-		transform.translate += velocity_;
+		//移動中の敵の場合
+		if (collider_->GetName() == "Small_Enemy") {
 
-		velocity_ /= 1.05f;
+			if (knockBackCount_ > 0) {
 
-		if (velocity_.Length() < 0.05f) {
-			velocity_ = Vector3::zero;
+				transform.translate += knockBackVelocity_;
+
+				knockBackVelocity_ /= 1.05f;
+
+				if (knockBackVelocity_.Length() < 0.05f) {
+					knockBackVelocity_ = Vector3::zero;
+				}
+
+				knockBackCount_--;
+
+			}
+			else {
+
+				//移動更新
+				if (moveTimer_ > 0) {
+
+					transform.translate += velocity_;
+					moveTimer_--;
+
+					//規定フレームで一旦停止
+					if (moveTimer_ <= 0) {
+						coolTimer_ = kMaxCoolTime_;
+					}
+
+				}
+
+				Vector3 diff = player_->GetPosition() - transform.translate;
+				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+
+			}
+
 		}
 
 	}
@@ -69,19 +114,16 @@ void SmallEnemy::Update() {
 
 void SmallEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Gravity") {
+	if (collisionInfo.collider->GetName() == "Player") {
 
-		
+		//攻撃を受けた地点からノックバック
+		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - player_->GetPosition();
 
-	}
-	else if (collisionInfo.collider->GetName() == "Gravity_Shot") {
+		knockBackVelocity_.y = 0.0f;
 
+		knockBackVelocity_ = knockBackVelocity_.Normalized();
 
-
-	}
-	else if (collisionInfo.collider->GetName() == "Gravity_Break") {
-
-
+		knockBackCount_ = kKnockBackTime_ / 2;
 
 	}
 
@@ -96,10 +138,12 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 	}
 
 	//攻撃を受けた地点からノックバック
-	velocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
+	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
 
-	velocity_.y = 0.0f;
+	knockBackVelocity_.y = 0.0f;
 
-	velocity_ = velocity_.Normalized() * 1.5f;
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * 1.5f;
+
+	knockBackCount_ = kKnockBackTime_;
 
 }

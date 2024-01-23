@@ -45,10 +45,25 @@ private:
 
 	bool isAffectedGravity_ = false;
 
+	Vector3 knockBackVelocity_{};
+
 	Vector3 velocity_{};
 
 	//死亡までのフレーム
 	int32_t deadCount_ = 10;
+
+	//ノックバック中のタイムカウント
+	uint32_t kKnockBackTime_ = 30;
+
+	int32_t knockBackCount_ = 0;
+
+	uint32_t kMaxMoveTime_ = 30;
+
+	int32_t moveTimer_ = 0;
+
+	uint32_t kMaxCoolTime_ = 30;
+
+	int32_t coolTimer_ = kMaxCoolTime_;
 
 };
 

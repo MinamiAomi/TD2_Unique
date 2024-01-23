@@ -77,6 +77,8 @@ private:
 
 	std::shared_ptr<ModelInstance> model_;
 
+	std::shared_ptr<ModelInstance> modelBody_;
+
 	std::shared_ptr<ModelInstance> gravityModel_;
 
 	std::unique_ptr<BoxCollider> collider_;

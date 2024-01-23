@@ -6,7 +6,9 @@
 Weapon::Weapon()
 {
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon_Head"));
+	modelBody_ = std::make_shared<ModelInstance>();
+	modelBody_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon"));
 	gravityModel_ = std::make_shared<ModelInstance>();
 	gravityModel_->SetModel(ResourceManager::GetInstance()->FindModel("Sphere"));
 	collider_ = std::make_unique<BoxCollider>();
@@ -24,7 +26,7 @@ void Weapon::Initialize() {
 
 	transform.translate = Vector3::zero;
 	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::identity;
+	transform.rotate = Quaternion::MakeFromAngleAxis(1.57f,Vector3{0.5f,0.5f,0.5f}.Normalized());
 
 	gravityTransform_->translate = Vector3::zero;
 	gravityTransform_->scale = Vector3::one;
@@ -138,6 +140,7 @@ void Weapon::Update() {
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
 	model_->SetWorldMatrix(transform.worldMatrix);
+	modelBody_->SetWorldMatrix(transform.worldMatrix);
 	gravityModel_->SetWorldMatrix(gravityTransform_->worldMatrix);
 
 }

@@ -70,8 +70,7 @@ void Player::Initialize() {
 	weapon_->transform.SetParent(&transform);
 	weapon_->transform.translate = { 3.0f,1.0f,0.0f };
 	weapon_->transform.scale = Vector3::one;
-	/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
-		Quaternion::identity;*/
+	weapon_->transform.rotate = Quaternion::MakeFromAngleAxis(-0.75f, Vector3{ 0.5f,0.5f,0.5f }.Normalized()) * Quaternion::identity;
 	weapon_->transform.UpdateMatrix();
 	weapon_->SetPlayer(this);
 
@@ -97,9 +96,7 @@ void Player::Initialize() {
 
 	behavior_ = Behavior::kRoot;
 
-	workDash_.dashParamater_ = 0;
 	workDash_.speed_ = 2.0f;
-	workDash_.dashTime_ = 5;
 
 	/*workAttack_.attackFrame = 30;*/
 	workAttack_.attackTimer = 0;
@@ -116,8 +113,6 @@ void Player::Initialize() {
 	shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/shoot.wav");
 	crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
 
-	blocks_.clear();
-
 	RegisterGlobalVariables();
 
 }
@@ -125,16 +120,6 @@ void Player::Initialize() {
 void Player::Update() {
 
 	ApplyGlobalVariables();
-
-	blocks_.remove_if([](auto& block) {
-
-		if (block->GetIsDead()) {
-			return true;
-		}
-
-		return false;
-
-	});
 
 	prePosition_ = Vector3{
 			transform.worldMatrix.m[3][0],
@@ -165,9 +150,6 @@ void Player::Update() {
 			case Behavior::kAttack:
 				BehaviorAttackInitialize();
 				break;
-			case Behavior::kDash:
-				BehaviorDashInitialize();
-				break;
 			}
 			//振る舞いリクエストをリセット
 			behaviorRequest_ = std::nullopt;
@@ -180,9 +162,6 @@ void Player::Update() {
 			break;
 		case Behavior::kAttack:
 			BehaviorAttackUpdate();
-			break;
-		case Behavior::kDash:
-			BehaviorDashUpdate();
 			break;
 		}
 
@@ -200,10 +179,6 @@ void Player::Update() {
 	}
 
 	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
-
-	for (auto& block : blocks_) {
-		block->Update();
-	}
 
 	weapon_->Update();
 
@@ -397,24 +372,7 @@ void Player::BehaviorAttackUpdate() {
 		}
 
 		break;
-	/*case AttackType::kAddBlock:
-
-		if (workAttack_.attackTimer == 0) {
-			blocks_.clear();
-
-			std::shared_ptr<Block> block = std::make_shared<Block>();
-			block->Initialize(this->GetNewBlockPosition(),
-				this, { 4.0f,5.0f,2.0f });
-			blocks_.push_back(block);
-		}
-
-		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
-			weapon_->transform.translate = { 0.0f,3.0f,3.0f };
-			workAttack_.isAttack = false;
-			behaviorRequest_ = Behavior::kRoot;
-		}
-
-		break;*/
+	
 	}
 
 }
@@ -444,35 +402,9 @@ void Player::BehaviorAttackInitialize() {
 		workAttack_.velocity = { 0.4f,0.0f,0.0f };
 
 		break;
-	/*case AttackType::kAddBlock:
-		workAttack_.isAttack = false;
-		break;*/
 	}
 
 	
-
-}
-
-
-
-void Player::BehaviorDashUpdate() {
-
-	auto move = transform.rotate.GetForward() * workDash_.speed_;
-	transform.translate += move;
-
-	//ダッシュ時間
-	const uint32_t behaviorDashTime = workDash_.dashTime_;
-
-	//既定の時間で通常行動に戻る
-	if (++workDash_.dashParamater_ >= behaviorDashTime) {
-		behaviorRequest_ = Behavior::kRoot;
-	}
-
-}
-
-void Player::BehaviorDashInitialize() {
-
-	workDash_.dashParamater_ = 0;
 
 }
 
@@ -488,7 +420,8 @@ void Player::Damage(uint32_t val) {
 
 void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
+	if (collisionInfo.collider->GetName() == "Enemy_Bullet" ||
+		collisionInfo.collider->GetName() == "Small_Enemy") {
 
 		Damage(1);
 
