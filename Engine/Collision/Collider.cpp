@@ -1,10 +1,9 @@
 #include "Collider.h"
 
 #include <array>
+#include <limits>
 
 #include "CollisionManager.h"
-
-#include <limits>
 
 namespace {
 
@@ -12,17 +11,17 @@ namespace {
         Vector3 halfSize = obb.size * 0.5f;
 
         std::vector<Vector3> vertices(8);
-
-        vertices[0] = { -halfSize.x, -halfSize.y, -halfSize.z };   // 左下前
-        vertices[1] = { -halfSize.x,  halfSize.y, -halfSize.z };   // 左上前
-        vertices[2] = { halfSize.x,  halfSize.y, -halfSize.z };   // 右上前
-        vertices[3] = { halfSize.x, -halfSize.y, -halfSize.z };   // 右下前
-        vertices[4] = { -halfSize.x, -halfSize.y,  halfSize.z };   // 左下奥 
-        vertices[5] = { -halfSize.x,  halfSize.y,  halfSize.z };   // 左上奥
-        vertices[6] = { halfSize.x,  halfSize.y,  halfSize.z };   // 右上奥
-        vertices[7] = { halfSize.x, -halfSize.y,  halfSize.z };   // 右下奥
-
-        Matrix4x4 obbWorldMatrix =
+        
+        vertices[0] =  { -halfSize.x, -halfSize.y, -halfSize.z };   // 左下前
+        vertices[1] =  { -halfSize.x,  halfSize.y, -halfSize.z };   // 左上前
+        vertices[2] =  {  halfSize.x,  halfSize.y, -halfSize.z };   // 右上前
+        vertices[3] =  {  halfSize.x, -halfSize.y, -halfSize.z };   // 右下前
+        vertices[4] =  { -halfSize.x, -halfSize.y,  halfSize.z };   // 左下奥 
+        vertices[5] =  { -halfSize.x,  halfSize.y,  halfSize.z };   // 左上奥
+        vertices[6] =  {  halfSize.x,  halfSize.y,  halfSize.z };   // 右上奥
+        vertices[7] =  {  halfSize.x, -halfSize.y,  halfSize.z };   // 右下奥
+        
+        Matrix4x4 obbWorldMatrix = 
             Matrix4x4().SetXAxis(obb.orientations[0]).SetYAxis(obb.orientations[1]).SetZAxis(obb.orientations[2]).SetTranslate(obb.center);
         for (size_t i = 0; i < vertices.size(); ++i) {
             vertices[i] = vertices[i] * obbWorldMatrix;
@@ -71,8 +70,13 @@ bool Collider::CanCollision(uint32_t mask) const {
     return (this->collisionAttribute_ & mask);
 }
 
+void SphereCollider::UpdateAABB() {
+    aabb_.min = sphere_.center + Vector3(-sphere_.radius);
+    aabb_.max = sphere_.center + Vector3(sphere_.radius);
+}
+
 bool SphereCollider::IsCollision(Collider* other, CollisionInfo& collisionInfo) {
-    if (CanCollision(other)) {
+    if (CanCollision(other) && this->GetAABB().Intersect(other->GetAABB())) {
         return  other->IsCollision(this, collisionInfo);
     }
     return false;
@@ -146,8 +150,28 @@ bool SphereCollider::RayCast(const Vector3& origin, const Vector3& diff, uint32_
     return true;
 }
 
+void SphereCollider::Nearest(const Vector3& point, uint32_t mask, NearestInfo& nearest) {
+    if (!CanCollision(mask)) { return; }
+
+    nearest.collider = this;
+    nearest.point = sphere_.center + (point - sphere_.center).Normalized() * sphere_.radius;
+
+}
+
+Vector3 SphereCollider::CalcSurfaceNormal(const Vector3& point) {
+    return (point - sphere_.center).Normalized();
+}
+
+void BoxCollider::UpdateAABB() {
+    auto vertices = GetVertices(this->obb_);
+    aabb_.max = aabb_.min = vertices[0];
+    for (uint32_t i = 1; i < vertices.size(); ++i) {
+        aabb_.Merge(vertices[i]);
+    }
+}
+
 bool BoxCollider::IsCollision(Collider* other, CollisionInfo& collisionInfo) {
-    if (CanCollision(other)) {
+    if (CanCollision(other) && this->GetAABB().Intersect(other->GetAABB())) {
         return  other->IsCollision(this, collisionInfo);
     }
     return false;
@@ -189,27 +213,19 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
     auto vertices1 = GetVertices(this->obb_);
     auto vertices2 = GetVertices(other->obb_);
 
-    Vector3 axes[] = {
+    Vector3 axes1[] = {
         this->obb_.orientations[0],
         this->obb_.orientations[1],
         this->obb_.orientations[2],
+    };
 
+    Vector3 axes2[] = {
         other->obb_.orientations[0],
         other->obb_.orientations[1],
         other->obb_.orientations[2],
-
-        Cross(this->obb_.orientations[0], other->obb_.orientations[0]).Normalized(),
-        Cross(this->obb_.orientations[0], other->obb_.orientations[1]).Normalized(),
-        Cross(this->obb_.orientations[0], other->obb_.orientations[2]).Normalized(),
-
-        Cross(this->obb_.orientations[1], other->obb_.orientations[0]).Normalized(),
-        Cross(this->obb_.orientations[1], other->obb_.orientations[1]).Normalized(),
-        Cross(this->obb_.orientations[1], other->obb_.orientations[2]).Normalized(),
-
-        Cross(this->obb_.orientations[2], other->obb_.orientations[0]).Normalized(),
-        Cross(this->obb_.orientations[2], other->obb_.orientations[1]).Normalized(),
-        Cross(this->obb_.orientations[2], other->obb_.orientations[2]).Normalized(),
     };
+
+    const size_t numAxes = _countof(axes1);
 
     float minOverlap = FLT_MAX;
     Vector3 minOverlapAxis = {};
@@ -221,10 +237,10 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
         Vector2 minmax2 = Projection(vertices2, axis);
 
         // 分離軸である
-        if (!(minmax1.x <= minmax2.y && minmax1.y >= minmax2.x)) {
-            return true;
+        if (!(minmax1.x <= minmax2.y && minmax1.y >= minmax2.x)) { 
+            return true; 
         }
-
+        
         float overlap = GetOverlap(minmax1, minmax2);
 
         if (overlap < minOverlap) {
@@ -233,11 +249,24 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
         }
 
         return false;
-    };
+        };
 
-    for (auto& axis : axes) {
-        if (std::isnan(axis.x) || std::isnan(axis.y) || std::isnan(axis.z)) { continue; }
-        if (IsSeparateAxis(axis)) { return false; }
+    for (size_t i = 0; i < numAxes; ++i) {
+        if (IsSeparateAxis(axes1[i])) { return false; }
+    }
+    for (size_t i = 0; i < numAxes; ++i) {
+        if (IsSeparateAxis(axes2[i])) { return false; }
+    }
+    for (size_t i = 0; i < numAxes; ++i) {
+        for (size_t j = 0; j < numAxes; ++j) {
+            Vector3 axis = Cross(axes1[i], axes2[j]).Normalized();
+            if (std::isnan(axis.x) ||
+                std::isnan(axis.y) ||
+                std::isnan(axis.z)) {
+                continue;
+            }
+            if (IsSeparateAxis(axis)) { return false; }
+        }
     }
 
     // 衝突情報を格納していく
@@ -296,3 +325,44 @@ bool BoxCollider::RayCast(const Vector3& origin, const Vector3& diff, uint32_t m
 
     return true;
 }
+
+void BoxCollider::Nearest(const Vector3& point, uint32_t mask, NearestInfo& nearest) {
+    if (!CanCollision(mask)) { return; }
+
+    Math::OBB& obb = this->obb_;
+    // obbのローカル空間で衝突判定を行う
+    Matrix4x4 obbWorldMatrix = Matrix4x4().SetXAxis(obb.orientations[0]).SetYAxis(obb.orientations[1]).SetZAxis(obb.orientations[2]);
+    Matrix4x4 obbWorldInverse = Matrix4x4::MakeAffineInverse(obbWorldMatrix, obb.center);
+    obbWorldMatrix.SetTranslate(obb.center);
+    Vector3 pointInOBBLocal = point * obbWorldInverse;
+    Vector3 halfSize = obb.size * 0.5f;
+
+    Vector3 nearestPoint = {
+          std::clamp(pointInOBBLocal.x, -halfSize.x, halfSize.x),
+          std::clamp(pointInOBBLocal.y, -halfSize.y, halfSize.y),
+          std::clamp(pointInOBBLocal.z, -halfSize.z, halfSize.z) };
+
+    nearest.collider = this;
+    nearest.point = nearestPoint * obbWorldMatrix;
+}
+
+Vector3 BoxCollider::CalcSurfaceNormal(const Vector3& point) {
+    Math::OBB& obb = this->obb_;
+    // obbのローカル空間で衝突判定を行う
+    Matrix4x4 obbRotate = Matrix4x4().SetXAxis(obb.orientations[0]).SetYAxis(obb.orientations[1]).SetZAxis(obb.orientations[2]);
+    Matrix4x4 obbInverse = Matrix4x4::MakeAffineInverse(obbRotate, obb.center);
+
+    Vector3 pointInOBBLocal = point * obbInverse;
+    pointInOBBLocal.x /= obb.size.x * 0.5f;
+    pointInOBBLocal.y /= obb.size.y * 0.5f;
+    pointInOBBLocal.z /= obb.size.z * 0.5f;
+    
+    Vector3 normal = Vector3::zero;
+    if (std::abs(pointInOBBLocal.x) > 0.9999f) { normal += obb.orientations[0] * pointInOBBLocal.x; }
+    if (std::abs(pointInOBBLocal.y) > 0.9999f) { normal += obb.orientations[1] * pointInOBBLocal.y; }
+    if (std::abs(pointInOBBLocal.z) > 0.9999f) { normal += obb.orientations[2] * pointInOBBLocal.z; }
+    normal = normal.Normalized();
+
+    return normal;
+}
+
