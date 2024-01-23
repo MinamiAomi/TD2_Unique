@@ -18,6 +18,10 @@ void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
     auto& queue = graphics->GetCommandQueue(type_);
     commandAllocator_ = graphics->GetCommandAllocatorPool(type_).Allocate(queue.GetLastCompletedFenceValue());
     commandList_ = graphics->GetCommandListPool(type_).Allocate(commandAllocator_);
+    
+    for (int i = 0; i < LinearAllocatorType::Count; ++i) {
+        dynamicBuffers_[i].Create(LinearAllocatorType::Type(i));
+    }
 
     if (graphics->IsDXRSupported()) {
         ASSERT_IF_FAILED(commandList_.As(&dxrCommandList_));
@@ -62,7 +66,9 @@ UINT64 CommandContext::Finish(bool waitForCompletion) {
     graphics->GetCommandListPool(type_).Discard(commandList_);
     commandList_ = nullptr;
     dxrCommandList_ = nullptr;
-    dynamicBuffer_.Reset(type_, fenceValue);
+    for (int i = 0; i < LinearAllocatorType::Count; ++i) {
+        dynamicBuffers_[i].Reset(type_, fenceValue);
+    }
 
     if (waitForCompletion) {
         queue.WaitForGPU(fenceValue);

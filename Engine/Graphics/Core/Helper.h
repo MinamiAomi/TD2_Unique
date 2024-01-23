@@ -54,6 +54,7 @@ namespace Helper {
     void AssertIfFailed(HRESULT hr, const wchar_t* str);
 
     std::wstring GetCommandListTypeStr(D3D12_COMMAND_LIST_TYPE type);
+    std::wstring GetDescriptorHeapTypeStr(D3D12_DESCRIPTOR_HEAP_TYPE type);
 }
 
 #ifndef HELPER_DEFINES

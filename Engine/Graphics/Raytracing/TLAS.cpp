@@ -22,18 +22,20 @@ void TLAS::Create(const std::wstring& name, CommandContext& commandContext, cons
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO asInfo{};
     graphics->GetDXRDevoce()->GetRaytracingAccelerationStructurePrebuildInfo(&asInputs, &asInfo);
 
-    CD3DX12_HEAP_PROPERTIES defaultHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    CD3DX12_RESOURCE_DESC resultDesc = CD3DX12_RESOURCE_DESC::Buffer(asInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    CreateResource(name, defaultHeapProps, resultDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
+    if (asInfo.ResultDataMaxSizeInBytes > reservedSize_) {
+        CD3DX12_HEAP_PROPERTIES defaultHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        CD3DX12_RESOURCE_DESC resultDesc = CD3DX12_RESOURCE_DESC::Buffer(asInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+        CreateResource(name, defaultHeapProps, resultDesc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
+        reservedSize_ = asInfo.ResultDataMaxSizeInBytes;
+    }
+
     // スクラッチリソース一時的なリソース
-    GPUResource scratchResource;
-    CD3DX12_RESOURCE_DESC scratchDesc = CD3DX12_RESOURCE_DESC::Buffer(asInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    scratchResource.CreateResource(L"TLAS ScratchDataBuffer", defaultHeapProps, scratchDesc, D3D12_RESOURCE_STATE_COMMON);
+    auto scratchAllocation = commandContext.AllocateDynamicBuffer(LinearAllocatorType::Default, asInfo.ScratchDataSizeInBytes);
 
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC asDesc{};
     asDesc.Inputs = asInputs;
     asDesc.DestAccelerationStructureData = resource_->GetGPUVirtualAddress();
-    asDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
+    asDesc.ScratchAccelerationStructureData = scratchAllocation.gpu;
 
     commandContext.GetDXRCommandList()->BuildRaytracingAccelerationStructure(&asDesc, 0, nullptr);
     // 生成完了までUAVバリアを張る

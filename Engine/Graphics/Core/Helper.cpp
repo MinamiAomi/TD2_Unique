@@ -135,7 +135,7 @@ namespace Helper {
         CreateBlendDesc(TRUE,
             D3D12_BLEND_SRC_ALPHA,
             D3D12_BLEND_ONE,
-            D3D12_BLEND_OP_REV_SUBTRACT,
+            D3D12_BLEND_OP_SUBTRACT,
             D3D12_BLEND_ONE,
             D3D12_BLEND_ZERO,
             D3D12_BLEND_OP_ADD,
@@ -452,11 +452,26 @@ namespace Helper {
     std::wstring GetCommandListTypeStr(D3D12_COMMAND_LIST_TYPE type) {
         switch (type) {
         case D3D12_COMMAND_LIST_TYPE_DIRECT:
-            return L"Direct";
+            return L"DIRECT";
         case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-            return L"Compute";
+            return L"COMPUTE";
         case D3D12_COMMAND_LIST_TYPE_COPY:
-            return L"Copy";
+            return L"COPY";
+        }
+        return L"";
+    }
+
+    std::wstring GetDescriptorHeapTypeStr(D3D12_DESCRIPTOR_HEAP_TYPE type) {
+        switch (type)
+        {
+        case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
+            return L"CBV_SRV_UAV";
+        case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
+            return L"SAMPLER";
+        case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
+            return L"RTV";
+        case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
+            return L"DSV";
         }
         return L"";
     }

@@ -2,13 +2,11 @@
 
 #include <memory>
 #include <filesystem>
-#include <list>
 
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"
 #include "Mesh.h"
 #include "Raytracing/BLAS.h"
-#include "Sprite.h"
 
 class Model {
 public:
@@ -33,7 +31,6 @@ public:
     ~ModelInstance();
 
     void SetModel(const std::shared_ptr<Model>& model) { model_ = model; }
-    void SetTexture(const std::shared_ptr<Texture>& texture) { texture_ = texture; }
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
     void SetColor(const Vector3& color) { color_ = color; }
     void SetAlpha(float alpha) { alpha_ = alpha; }
@@ -44,7 +41,6 @@ public:
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
     const std::shared_ptr<Model>& GetModel() const { return model_; }
-    const std::shared_ptr<Texture>& GetTexture() const { return texture_; }
     const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
     const Vector3& GetColor() const { return color_; }
     float GetAlpha() const { return alpha_; }
@@ -58,7 +54,6 @@ private:
     static std::list<ModelInstance*> instanceLists_;
 
     std::shared_ptr<Model> model_;
-    std::shared_ptr<Texture> texture_;
     Matrix4x4 worldMatrix_;
     Vector3 color_ = Vector3::one;
     float alpha_ = 1.0f;

@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include "Model.h"
-#include "Sprite.h"
+class Model;
+class Texture;
 
 class ResourceManager {
 public:

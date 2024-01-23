@@ -7,7 +7,7 @@
 const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
 const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
 const wchar_t kPostEffectOtherPixelShader[] = L"PostEffectOtherPS.hlsl";
-const wchar_t kPostEffectTwoPixelShader[] = L"PostEffectTwoPS.hlsl";
+const wchar_t kPostEffectAddPixelShader[] = L"PostEffectAddPS.hlsl";
 
 void PostEffect::Initialize(const ColorBuffer& target) {
     CD3DX12_DESCRIPTOR_RANGE srvRange[3]{};
@@ -22,7 +22,7 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     rootParameters[3].InitAsDescriptorTable(1, &srvRange[2]);
 
     CD3DX12_STATIC_SAMPLER_DESC staticSampler[1]{};
-    staticSampler->Init(0);
+    staticSampler->Init(0, D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters = _countof(rootParameters);
@@ -55,9 +55,13 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
     pipelineStateOther_.Create(L"PostEffect PipelineState", pipelineStateDesc);
 
-    ps = shaderManager->Compile(kPostEffectTwoPixelShader, ShaderManager::kPixel);
+    ps = shaderManager->Compile(kPostEffectAddPixelShader, ShaderManager::kPixel);
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-    pipelineStateTwo_.Create(L"PostEffect PipelineState", pipelineStateDesc);
+    pipelineStateDesc.BlendState = Helper::BlendAdditive;
+    pipelineStateAdd_.Create(L"PostEffect PipelineState", pipelineStateDesc);
+
+    pipelineStateDesc.BlendState = Helper::BlendMultiply;
+    pipelineStateMultiply_.Create(L"PostEffect PipelineState", pipelineStateDesc);
 }
 
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow, ColorBuffer& reflection) {
@@ -73,21 +77,34 @@ void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, Co
     commandContext.Draw(3);
 }
 
-void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow) {
-    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(shadow, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.SetRootSignature(rootSignature_);
-    commandContext.SetPipelineState(pipelineStateTwo_);
-    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(1, texture.GetSRV());
-    commandContext.SetDescriptorTable(2, shadow.GetSRV());
-    commandContext.Draw(3);
-}
-
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
+    static const float cycle = 120.0f;
+    static float time = 0.0f;
+
+    time += 1.0f / cycle;
+
     commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.SetRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineStateOther_);
+    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    commandContext.SetDynamicConstantBufferView(0, sizeof(time), &time);
+    commandContext.SetDescriptorTable(1, texture.GetSRV());
+    commandContext.Draw(3);
+}
+
+void PostEffect::RenderAddTexture(CommandContext& commandContext, ColorBuffer& texture) {
+    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.SetRootSignature(rootSignature_);
+    commandContext.SetPipelineState(pipelineStateAdd_);
+    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    commandContext.SetDescriptorTable(1, texture.GetSRV());
+    commandContext.Draw(3);
+}
+
+void PostEffect::RenderMultiplyTexture(CommandContext& commandContext, ColorBuffer& texture) {
+    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.SetRootSignature(rootSignature_);
+    commandContext.SetPipelineState(pipelineStateMultiply_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandContext.SetDescriptorTable(1, texture.GetSRV());
     commandContext.Draw(3);

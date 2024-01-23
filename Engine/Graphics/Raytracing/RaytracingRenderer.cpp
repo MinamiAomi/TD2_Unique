@@ -14,11 +14,15 @@
 
 static const wchar_t kRaytracingShader[] = L"Raytracing/Raytracing.hlsl";
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
-static const wchar_t kMissName[] = L"Miss";
-static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryRayClosestHit";
-static const wchar_t kShadowRayClosestHitName[] = L"ShadowRayClosestHit";
-static const wchar_t kPrimaryRayHitGroupName[] = L"PrimaryRayHitGroup";
-static const wchar_t kShadowRayHitGroupName[] = L"ShadowRayHitGroup";
+static const wchar_t kPrimaryMissName[] = L"PrimaryMiss";
+static const wchar_t kShadowMissName[] = L"ShadowMiss";
+static const wchar_t kReflectionMissName[] = L"ReflectionMiss";
+static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryClosestHit";
+static const wchar_t kShadowRayClosestHitName[] = L"ShadowClosestHit";
+static const wchar_t kReflectionRayClosestHitName[] = L"ReflectionClosestHit";
+static const wchar_t kPrimaryRayHitGroupName[] = L"PrimaryHitGroup";
+static const wchar_t kShadowRayHitGroupName[] = L"ShadowHitGroup";
+static const wchar_t kReflectionRayHitGroupName[] = L"ReflectionHitGroup";
 
 void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
     std::wstringstream wstr;
@@ -127,8 +131,8 @@ void RaytracingRenderer::Create(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
     CreateShaderTables();
-    shadowBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R16_FLOAT);
-    reflectionBuffer_.Create(L"RaytracingRenderer ReflectionBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    shadowBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+    specularBuffer_.Create(L"RaytracingRenderer ReflectionBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 }
 
 void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight) {
@@ -137,12 +141,19 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // シーン定数
     struct Scene {
         Matrix4x4 viewProjectionInverseMatrix;
+        Vector3 cameraPosition;
+        float pad;
         Vector3 sunLightDirection;
+        float sunLightIntensity;
+        Vector3 sunLightColor;
     };
     // シーン定数を送る
     Scene scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
+    scene.cameraPosition = camera.GetPosition();
     scene.sunLightDirection = sunLight.direction;
+    scene.sunLightIntensity = sunLight.intensity;
+    scene.sunLightColor = sunLight.color;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
     commandList;
@@ -150,13 +161,18 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // TLASを生成
     BuildScene(commandContext);
 
+    commandContext.TransitionResource(shadowBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.TransitionResource(specularBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.FlushResourceBarriers();
+
     commandList->SetComputeRootSignature(globalRootSignature_);
     commandList->SetPipelineState1(stateObject_);
 
-    commandList->SetComputeRoot32BitConstant(0, tlas_.GetSRV().GetIndex(), 0);
-    commandList->SetComputeRoot32BitConstant(0, shadowBuffer_.GetUAV().GetIndex(), 1);
-    commandList->SetComputeRoot32BitConstant(0, reflectionBuffer_.GetUAV().GetIndex(), 2);
-    commandList->SetComputeRootConstantBufferView(1, sceneCB);
+    commandList->SetComputeRootConstantBufferView(0, sceneCB);
+    commandList->SetComputeRootDescriptorTable(1, tlas_.GetSRV());
+    commandList->SetComputeRootDescriptorTable(2, castShadowTLAS_.GetSRV());
+    commandList->SetComputeRootDescriptorTable(3, shadowBuffer_.GetUAV());
+    commandList->SetComputeRootDescriptorTable(4, specularBuffer_.GetUAV());
 
     D3D12_DISPATCH_RAYS_DESC rayDesc{};
     rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
@@ -173,20 +189,29 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     commandList->DispatchRays(&rayDesc);
 
     commandContext.UAVBarrier(shadowBuffer_);
-    commandContext.UAVBarrier(reflectionBuffer_);
+    commandContext.UAVBarrier(specularBuffer_);
 }
 
 void RaytracingRenderer::CreateRootSignature() {
 
     {
-        CD3DX12_ROOT_PARAMETER rootParameters[2]{};
-        rootParameters[0].InitAsConstants(3, 0);
-        rootParameters[1].InitAsConstantBufferView(1);
+        
+        CD3DX12_DESCRIPTOR_RANGE descriptorRanges[4]{};
+        descriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+        descriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+        descriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
+        descriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+
+
+        CD3DX12_ROOT_PARAMETER rootParameters[5]{};
+        rootParameters[0].InitAsConstantBufferView(0);
+        rootParameters[1].InitAsDescriptorTable(1, descriptorRanges + 0);
+        rootParameters[2].InitAsDescriptorTable(1, descriptorRanges + 1);
+        rootParameters[3].InitAsDescriptorTable(1, descriptorRanges + 2);
+        rootParameters[4].InitAsDescriptorTable(1, descriptorRanges + 3);
 
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
         rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-        rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
-        rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
 
         rootSignatureDesc.pParameters = rootParameters;
         rootSignatureDesc.NumParameters = _countof(rootParameters);
@@ -224,15 +249,23 @@ void RaytracingRenderer::CreateStateObject() {
     auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
     dxilLibSubobject->SetDXILLibrary(&shaderByteCode);
     dxilLibSubobject->DefineExport(kRayGenerationName);
-    dxilLibSubobject->DefineExport(kMissName);
+    dxilLibSubobject->DefineExport(kPrimaryMissName);
+    dxilLibSubobject->DefineExport(kShadowMissName);
+    dxilLibSubobject->DefineExport(kReflectionMissName);
     dxilLibSubobject->DefineExport(kPrimaryRayClosestHitName);
     dxilLibSubobject->DefineExport(kShadowRayClosestHitName);
+    dxilLibSubobject->DefineExport(kReflectionRayClosestHitName);
 
     // 2.一次レイヒットグループ
     auto primaryRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
     primaryRayHitGroup->SetClosestHitShaderImport(kPrimaryRayClosestHitName);
     primaryRayHitGroup->SetHitGroupExport(kPrimaryRayHitGroupName);
     primaryRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+
+    auto reflectionRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+    reflectionRayHitGroup->SetClosestHitShaderImport(kReflectionRayClosestHitName);
+    reflectionRayHitGroup->SetHitGroupExport(kReflectionRayHitGroupName);
+    reflectionRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
     // 3.ヒットグループのローカルルートシグネチャ
     auto primaryHitGroupRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
@@ -242,6 +275,7 @@ void RaytracingRenderer::CreateStateObject() {
     auto primaryHitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
     primaryHitGroupRootSignatureAssociation->SetSubobjectToAssociate(*primaryHitGroupRootSignature);
     primaryHitGroupRootSignatureAssociation->AddExport(kPrimaryRayHitGroupName);
+    primaryHitGroupRootSignatureAssociation->AddExport(kReflectionRayHitGroupName);
 
     // 5.シャドウレイヒットグループ
     auto shadowRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
@@ -251,13 +285,13 @@ void RaytracingRenderer::CreateStateObject() {
 
     // 6.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-    size_t maxPayloadSize = sizeof(uint32_t) * 2 + sizeof(float) * 3;      // 最大ペイロードサイズ
+    size_t maxPayloadSize = 4 * sizeof(float);      // 最大ペイロードサイズ
     size_t maxAttributeSize = 2 * sizeof(float);   // 最大アトリビュートサイズ
     shaderConfig->Config((UINT)maxPayloadSize, (UINT)maxAttributeSize);
 
     // 7.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 3; // 一次レイ, シャドウレイ
+    uint32_t maxTraceRecursionDepth = 4; // 一次レイ, シャドウレイ
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 8.グローバルルートシグネチャ
@@ -281,7 +315,10 @@ void RaytracingRenderer::CreateShaderTables() {
         InsertIdentifier(kRayGenerationName);
         InsertIdentifier(kPrimaryRayHitGroupName);
         InsertIdentifier(kShadowRayHitGroupName);
-        InsertIdentifier(kMissName);
+        InsertIdentifier(kReflectionRayHitGroupName);
+        InsertIdentifier(kPrimaryMissName);
+        InsertIdentifier(kShadowMissName);
+        InsertIdentifier(kReflectionMissName);
     }
 
     {
@@ -290,8 +327,11 @@ void RaytracingRenderer::CreateShaderTables() {
     }
     // ヒットグループは毎フレーム更新
     {
-        ShaderRecord missShaderRecord(identifierMap_[kMissName]);
-        missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", &missShaderRecord, 1);
+        std::vector<ShaderRecord> shaderRecords;
+        shaderRecords.emplace_back(identifierMap_[kPrimaryMissName]);
+        shaderRecords.emplace_back(identifierMap_[kShadowMissName]);
+        shaderRecords.emplace_back(identifierMap_[kReflectionMissName]);
+        missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
     }
 }
 
@@ -300,22 +340,32 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
 
     struct MaterialConstantData {
         Vector3 color;
-        uint32_t reflection;
+        uint32_t useLighting;
+        Vector3 diffuse;
+        float shininess;
+        Vector3 specular;
     };
 
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
     instanceDescs.reserve(instanceList.size());
+    std::vector<D3D12_RAYTRACING_INSTANCE_DESC> castShadowTLASInstanceDesc;
+    castShadowTLASInstanceDesc.reserve(instanceList.size());
 
     std::vector<ShaderRecord> shaderRecords;
-    shaderRecords.reserve(instanceList.size() + 1);
+    shaderRecords.reserve(instanceList.size() * 2 + 1);
 
     shaderRecords.emplace_back(identifierMap_[kShadowRayHitGroupName]);
+
+    auto primaryHitGroupIdentifier = identifierMap_[kPrimaryRayHitGroupName];
+    auto reflectionHitGroupIdentifier = identifierMap_[kReflectionRayHitGroupName];
 
     // レイトレで使用するオブジェクトをインスタンスデスクに登録
     for (auto& instance : instanceList) {
         if (!(instance->IsActive() && instance->GetModel())) {
             continue;
         }
+
+        auto model = instance->GetModel();
 
         auto& desc = instanceDescs.emplace_back();
 
@@ -331,35 +381,53 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         }
         desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size() - 1;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-        desc.AccelerationStructure = instance->GetModel()->GetBLAS().GetGPUVirtualAddress();
+        desc.AccelerationStructure = model->GetBLAS().GetGPUVirtualAddress();
 
-
+        if (instance->CastShadow()) {
+            auto& castShadowDesc = castShadowTLASInstanceDesc.emplace_back(desc);
+            castShadowDesc.InstanceMask = 0xFF;
+            castShadowDesc.InstanceContributionToHitGroupIndex = 0;
+        }
+        
         MaterialConstantData material;
         material.color = instance->GetColor();
-        material.reflection = instance->Reflection() ? 1 : 0;
+        material.useLighting = instance->UseLighting() ? 1 : 0;
 
-        for (auto& mesh : instance->GetModel()->GetMeshes()) {
-            auto& shaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);
-            shaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
-            shaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+        for (auto& mesh : model->GetMeshes()) {
+            auto& primaryShaderRecord = shaderRecords.emplace_back(primaryHitGroupIdentifier);
+            auto& reflectionShaderRecord = shaderRecords.emplace_back(reflectionHitGroupIdentifier);
+
+            primaryShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
+            primaryShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+            
+            reflectionShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
+            reflectionShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
 
             if (mesh.material && mesh.material->diffuseMap) {
-                shaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+                primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+                reflectionShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
             }
             else {
-                shaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+                primaryShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+                reflectionShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
             }
-            shaderRecord.Add(SamplerManager::AnisotropicWrap);
+            primaryShaderRecord.Add(SamplerManager::LinearWrap);
+            reflectionShaderRecord.Add(SamplerManager::LinearWrap);
 
             if (mesh.material && instance->UseLighting()) {
-                material.color = Vector3::Scale(material.color, mesh.material->diffuse);
+                material.diffuse = mesh.material->diffuse;
+                material.specular = mesh.material->specular;
+                material.shininess = mesh.material->shininess;
             }
+
             D3D12_GPU_VIRTUAL_ADDRESS materialCB = commandContext.TransfarUploadBuffer(sizeof(material), &material);
-            shaderRecord.Add(materialCB);
+            primaryShaderRecord.Add(materialCB);
+            reflectionShaderRecord.Add(materialCB);
         }
     }
 
 
     hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
+    castShadowTLAS_.Create(L"RaytracingRenderer CastShadowTLAS", commandContext, castShadowTLASInstanceDesc.data(), castShadowTLASInstanceDesc.size());
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
 }

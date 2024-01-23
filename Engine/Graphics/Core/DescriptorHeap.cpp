@@ -1,6 +1,7 @@
 #include "DescriptorHeap.h"
 
 #include <cassert>
+#include <sstream>
 
 #include "Graphics.h"
 #include "Helper.h"
@@ -25,6 +26,13 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescrip
         desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     }
     ASSERT_IF_FAILED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(descriptorHeap_.ReleaseAndGetAddressOf())));
+    {
+        // デバッグ用名前
+        std::wostringstream name;
+        name << L"DescriptorHeap ";
+        name << Helper::GetDescriptorHeapTypeStr(type);
+        D3D12_OBJECT_SET_NAME(descriptorHeap_, name.str().c_str());
+    }
 
     type_ = type;
     cpuStart_ = descriptorHeap_->GetCPUDescriptorHandleForHeapStart();

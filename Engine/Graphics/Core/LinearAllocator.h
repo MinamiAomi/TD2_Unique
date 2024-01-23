@@ -1,71 +1,104 @@
 #pragma once
+#include "GPUResource.h"
 
 #include <memory>
 #include <queue>
 #include <mutex>
 
-#include "UploadBuffer.h"
+struct LinearAllocatorType {
+    enum Type {
+        Default,
+        Upload,
+
+        Count
+    } type;
+    LinearAllocatorType(Type type = Default) : type(type) {}
+    operator Type() { return type; }
+    const size_t GetSize() const {
+        switch (type) {
+        case LinearAllocatorType::Default: return 0x10000; // 64KiB
+        case LinearAllocatorType::Upload: return 0x200000; // 2MiB
+        }
+        return (size_t)-1;
+    }
+    const wchar_t* GetName() {
+        switch (type) {
+        case LinearAllocatorType::Default: return  L"Default";
+        case LinearAllocatorType::Upload: return L"Upload";
+        }
+        return L"";
+    }
+};
+
+class LinearAllocatorPage :
+    public GPUResource {
+public:
+    void Create(const std::wstring& name, LinearAllocatorType type);
+
+    void* GetCPUAddressStart() const { return cpuAddressStart_; }
+    D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddressStart() const { return gpuAddressStart_; }
+    size_t GetSize() const { return size_; }
+
+private:
+    void* cpuAddressStart_;
+    D3D12_GPU_VIRTUAL_ADDRESS gpuAddressStart_;
+    size_t size_;
+};
+
+class LinearAllocatorPagePool {
+public:
+    void Initialize(LinearAllocatorType type);
+    void Finalize();
+
+    LinearAllocatorPage* Allocate();
+    void Discard(D3D12_COMMAND_LIST_TYPE commandType, UINT64 fenceValue, const std::vector<LinearAllocatorPage*>& pages);
+    void Clear();
+
+    size_t GetSize() const { return pagePool_.size(); }
+
+private:
+    using ReadyPageQueue = std::queue<std::pair<UINT64, LinearAllocatorPage*>>;
+
+    ReadyPageQueue& GetReadyPageQueue(D3D12_COMMAND_LIST_TYPE commandType) {
+        switch (commandType) {
+        case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+            return computeReadyPageQueue_;
+        case D3D12_COMMAND_LIST_TYPE_COPY:
+            return copyReadyPageQueue_;
+        }
+        return directReadyPageQueue_;
+    }
+    bool TryAllocate(D3D12_COMMAND_LIST_TYPE commandType, LinearAllocatorPage** page);
+    LinearAllocatorPage* CreateNewPage();
+
+    LinearAllocatorType type_;
+    std::vector<std::unique_ptr<LinearAllocatorPage>> pagePool_;
+    ReadyPageQueue directReadyPageQueue_;
+    ReadyPageQueue computeReadyPageQueue_;
+    ReadyPageQueue copyReadyPageQueue_;
+    std::mutex mutex_;
+};
 
 class LinearAllocator {
 public:
-    static const size_t kPageSize = 2000000;
-
     struct Allocation {
+        GPUResource& resource;
         void* cpu;
         const D3D12_GPU_VIRTUAL_ADDRESS gpu;
+        size_t size;
+        size_t offset;
     };
 
-    static void Finalize();
-    
-    Allocation Allocate(size_t sizeInByte, size_t alignment = 256);
-    void Reset(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue);
+    void Create(LinearAllocatorType type);
+    Allocation Allocate(size_t size, size_t alignment = 256);
+    void Reset(D3D12_COMMAND_LIST_TYPE commandType, UINT64 fenceValue);
 
 private:
-    class Page {
-    public:
-        Page();
+    bool HasSpace(size_t size, size_t alignment);
 
-        bool HasSpace(size_t sizeInByte, size_t alignment);
-        Allocation Allocate(size_t sizeInByte, size_t alignment);
-        void Reset();
+    LinearAllocatorType type_;
 
-    private:
-        UploadBuffer buffer_;
-        size_t offset_;
-    };
-
-    using PagePtr = std::shared_ptr<Page>;
-
-    class PagePool {
-    public:
-        PagePtr Allocate();
-        void Discard(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue, const std::vector<PagePtr>& pages);
-        void Clear();
-
-        size_t GetSize() const { return pagePool_.size(); }
-
-    private:
-        std::queue<std::pair<UINT64, PagePtr>>& GetReadyPages(D3D12_COMMAND_LIST_TYPE type) {
-            switch (type) {
-            case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                return computeReadyPages_;
-            case D3D12_COMMAND_LIST_TYPE_COPY:
-                return copyReadyPages_;
-            }
-            return directReadyPages_;
-        }
-
-        PagePtr TryAllocate(D3D12_COMMAND_LIST_TYPE type);
-
-        std::vector<PagePtr> pagePool_;
-        std::queue<std::pair<UINT64, PagePtr>> directReadyPages_;
-        std::queue<std::pair<UINT64, PagePtr>> computeReadyPages_;
-        std::queue<std::pair<UINT64, PagePtr>> copyReadyPages_;
-        std::mutex mutex_;
-    };
-
-    static PagePool pagePool_;
-
-    std::vector<PagePtr> usedPages_;
-    PagePtr currentPage_;
+    std::vector<LinearAllocatorPage*> usedPages_;
+    LinearAllocatorPage* currentPage_;
+    size_t currentOffset_;
 };
