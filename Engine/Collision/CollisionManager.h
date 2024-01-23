@@ -15,6 +15,7 @@ public:
     void CheckCollision();
 
     bool RayCast(const Vector3& origin, const Vector3& diff, uint32_t mask, RayCastInfo* nearest);
+    NearestInfo NearestCollider(const Vector3& point, uint32_t mask);
 
 private:
     CollisionManager() = default;

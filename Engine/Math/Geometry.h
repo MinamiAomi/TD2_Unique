@@ -19,7 +19,7 @@ namespace Math {
 
     struct Sphere {
         Vector3 center;
-        float radius;
+        float radius = 0.5f;
     };
 
     struct AABB {
@@ -66,14 +66,21 @@ namespace Math {
                 point.z <= max.z;
         }
 
+        bool Intersect(const AABB& other) const {
+            return
+                (this->min.x <= other.max.x && this->max.x >= other.min.x) &&
+                (this->min.y <= other.max.y && this->max.y >= other.min.y) &&
+                (this->min.z <= other.max.z && this->max.z >= other.min.z);
+        }
+
         Vector3 min;
         Vector3 max;
     };
 
     struct OBB {
         Vector3 center;
-        Vector3 orientations[3];
-        Vector3 size;
+        Vector3 orientations[3] = { Vector3::unitX, Vector3::unitY, Vector3::unitZ };
+        Vector3 size = Vector3::one;
     };
 
     struct Line {
