@@ -9,6 +9,9 @@ Reticle3D::Reticle3D()
 	sprite_ = std::make_unique<Sprite>();
 	sprite_->SetTexture(reticleTex_);
 
+	model_ = std::make_shared<ModelInstance>();
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+
 }
 
 Reticle3D::~Reticle3D()
@@ -55,5 +58,10 @@ void Reticle3D::Update() {
 		}
 
 	}
+
+	transform.translate = reticlePos_;
+	transform.UpdateMatrix();
+
+	model_->SetWorldMatrix(transform.worldMatrix);
 
 }

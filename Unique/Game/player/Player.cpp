@@ -260,7 +260,7 @@ void Player::BehaviorRootUpdate() {
 
 		//重力付与状態で発射していなかったら
 		if (weapon_->GetIsGravity() && !weapon_->GetIsShot()) {
-			weapon_->Shot(transform.rotate * Vector3{ 0.0f,0.0f,1.0f });
+			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
 		}
 
 	}
@@ -285,7 +285,7 @@ void Player::BehaviorRootUpdate() {
 
 	}
 	else {
-		workDash_.speed_ = 1.0f;
+		workDash_.speed_ = 1.0f - (weapon_->GetDelay() / 40.0f);
 	}
 
 	Vector3 move{};
