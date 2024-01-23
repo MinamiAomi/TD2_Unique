@@ -21,7 +21,7 @@ public:
     void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
 
     ColorBuffer& GetShadow() { return shadowBuffer_; }
-    ColorBuffer& GetReflection() { return reflectionBuffer_; }
+    ColorBuffer& GetSpecular() { return specularBuffer_; }
 
 private:
     void CreateRootSignature();
@@ -33,6 +33,10 @@ private:
     RootSignature globalRootSignature_;
     RootSignature hitGroupLocalRootSignature_;
     TLAS tlas_;
+
+    TLAS mainTLAS_;
+    TLAS castShadowTLAS_;
+
     ShaderTable rayGenerationShaderTable_;
     ShaderTable hitGroupShaderTable_;
     ShaderTable missShaderTable_;
@@ -40,5 +44,5 @@ private:
     std::map<std::wstring, void*> identifierMap_;
 
     ColorBuffer shadowBuffer_;
-    ColorBuffer reflectionBuffer_;
+    ColorBuffer specularBuffer_;
 };

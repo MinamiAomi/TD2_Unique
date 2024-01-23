@@ -16,7 +16,7 @@ public:
 
     const DescriptorHandle& GetRTV() const { return rtvHandle_; }
     const DescriptorHandle& GetSRV() const { return srvHandle_; }
-    const DescriptorHandle& GetUAV() const { return srvHandle_; }
+    const DescriptorHandle& GetUAV() const { return uavHandle_; }
 
 private:
     void CreateViews(bool srgb);

@@ -49,9 +49,8 @@ float GetDistance(in float3 position) {
     float2 r = REPETITION(position.xz, 5.0f);
     float3 rayPos = float3(r.x, position.y, r.y);
     //float height = sin(r.x / 5.0f);
-    float height = 0.0f;
-    //height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f))));
-    float distance = sdBox(rayPos - float3(0.0f, -50.0f + height, 0.0f), float3(2.25f, 1.0f, 2.25f)) - 0.25f;
+    //float height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f))));
+    float distance = sdBox(rayPos - float3(0.0f, -50.0f, 0.0f), float3(2.25f, 1.0f, 2.25f)) - 0.25f;
     
     return distance;
 }
@@ -111,7 +110,7 @@ void main(uint3 DTid : SV_DispatchThreadID) {
         float3 normal = GetNormal(position);
         float3 pixelToCamera = normalize(g_Scene.cameraPosition - position);
         color.rgb = Lighting::HalfLambertReflection(normal, lightDirection) + Lighting::BlinnPhongReflection(normal, pixelToCamera, lightDirection, 10.0f);
-        //color.rgb *= lerp(float3(1.0f, 1.0f, 1.0f), float3(0.0f, 0.0f, 0.0f), abs(floor(position.x / 5.0f) + floor(position.z / 5.0f)) % 2);
+        color.rgb *= lerp(float3(1.0f, 1.0f, 1.0f), float3(1.0f, 0.0f, 0.0f), abs(floor(position.x / 5.0f) + floor(position.z / 5.0f)) % 2);
         
         color.rgb = Fog(color.rgb, float3(0.0f, 0.0f, 0.0f), distance);
         

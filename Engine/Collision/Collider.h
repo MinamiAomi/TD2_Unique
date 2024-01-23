@@ -80,8 +80,6 @@ class BoxCollider :
     public Collider {
     friend class SphereCollider;
 public:
-    BoxCollider();
-
     bool IsCollision(Collider* other, CollisionInfo& collisionInfo) override;
     bool IsCollision(SphereCollider* other, CollisionInfo& collisionInfo) override;
     bool IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) override;

@@ -90,10 +90,19 @@
     <ClCompile Include="Graphics\ImGuiManager.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\ModelLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\PostEffect.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ToonModel.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ToonRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp">
@@ -204,9 +213,6 @@
     <ClCompile Include="Graphics\ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Animation.cpp">
-      <Filter>Graphics\Standard</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
@@ -255,11 +261,8 @@
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
       <Filter>Graphics\Raymarching</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Raytracing\RTShadowRenderer.cpp">
-      <Filter>Graphics\Raytracing</Filter>
-    </ClCompile>
-    <ClCompile Include="Math\Animation.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="Graphics\ComputeShader.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -302,10 +305,19 @@
     <ClInclude Include="Graphics\ImGuiManager.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ModelLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\PostEffect.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RenderManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ToonModel.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ToonRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Core\ColorBuffer.h">
@@ -467,9 +479,6 @@
     <ClInclude Include="Graphics\Material.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Animation.h">
-      <Filter>Graphics\Standard</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Core\TextureLoader.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
@@ -509,11 +518,8 @@
     <ClInclude Include="Graphics\RaymarchingRenderer.h">
       <Filter>Graphics\Raymarching</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Raytracing\RTShadowRenderer.h">
-      <Filter>Graphics\Raytracing</Filter>
-    </ClInclude>
-    <ClInclude Include="Math\Animation.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="Graphics\ComputeShader.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -529,10 +535,22 @@
     <None Include="Graphics\Shader\LuminanceExtractionrPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
+    <None Include="Graphics\Shader\OutlinePS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\OutlineVS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
     <None Include="Graphics\Shader\PostEffectPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\ToonPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\ToonVS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\VerticalGaussianBlurVS.hlsl">
@@ -589,10 +607,10 @@
     <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\RTShadow.hlsl">
-      <Filter>Graphics\Shader\Raytracing</Filter>
+    <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\PostEffectTwoPS.hlsl">
+    <None Include="Graphics\Shader\TestCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

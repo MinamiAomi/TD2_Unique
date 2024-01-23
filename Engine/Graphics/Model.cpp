@@ -120,8 +120,6 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     //flags |= aiProcess_CalcTangentSpace;
     flags |= aiProcess_GenNormals;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
-
-
     // 読み込めた
     if (!scene) {
         OutputDebugStringA(importer.GetErrorString());
@@ -152,8 +150,8 @@ ModelInstance::ModelInstance() {
 
 ModelInstance::~ModelInstance() {
     std::erase(instanceLists_, this);
-    // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
-    // if (iter != instanceLists_.end()) {
-    //     instanceLists_.erase(iter);
-    // }
+   // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
+   // if (iter != instanceLists_.end()) {
+   //     instanceLists_.erase(iter);
+   // }
 }

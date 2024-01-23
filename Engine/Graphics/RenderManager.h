@@ -9,13 +9,14 @@
 #include "Raytracing/RaytracingRenderer.h"
 #include "RaymarchingRenderer.h"
 #include "ModelRenderer.h"
-#include "Raytracing/RTShadowRenderer.h"
 #include "Bloom.h"
+#include "ToonRenderer.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
 #include "PostEffect.h"
 #include "Timer.h"
 #include "LightManager.h"
+#include "ComputeShader.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -47,16 +48,20 @@ private:
     ColorBuffer mainColorBuffer_;
     DepthBuffer mainDepthBuffer_;
 
+    ToonRenderer toonRenderer_;
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
-    //RaytracingRenderer raytracingRenderer_;
-    //RaymarchingRenderer raymarchingRenderer_;
-    ModelRenderer modelRenderer_;
-    RTShadowRenderer rtShadowRenderer_;
+    RaytracingRenderer raytracingRenderer_;
+    RaymarchingRenderer raymarchingRenderer_;
+    ModelRenderer modelRenderer;
     //Bloom bloom_;
     PostEffect postEffect_;
+    ComputeShaderTester computeShaderTester_;
     
     Timer timer_;
-    std::shared_ptr<const Camera> camera_;
-    std::shared_ptr<const DirectionalLight> sunLight_;
+    std::weak_ptr<const Camera> camera_;
+    std::weak_ptr<const DirectionalLight> sunLight_;
+
+    UINT64 frameCount_;
+    bool raymarching_ = false;
 };

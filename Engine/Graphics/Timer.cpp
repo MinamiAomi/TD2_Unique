@@ -1,6 +1,5 @@
 #include "Timer.h"
 
-#include <thread>
 #include <Windows.h>
 
 #pragma comment(lib, "winmm.lib")
@@ -20,8 +19,8 @@ void Timer::KeepFrameRate(uint32_t fps) {
     if (check > microseconds::zero()) {
         microseconds waitTime = minTime - elapsed;
 
-        steady_clock::time_point waitStart = steady_clock::now();
         timeBeginPeriod(1);
+        steady_clock::time_point waitStart = steady_clock::now();
         do {
             std::this_thread::sleep_for(microseconds(1));
         } while (steady_clock::now() - waitStart < waitTime);

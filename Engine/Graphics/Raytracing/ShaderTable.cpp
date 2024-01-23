@@ -78,18 +78,22 @@ void ShaderTable::Create(const std::wstring& name, const ShaderRecord* pShaderRe
             maxShaderRecordSize = size;
         }
     }
-    
+
     shaderRecordSize_ = Helper::AlignUp(maxShaderRecordSize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
     numShaderRecords_ = numShaderRecords;
-    bufferSize_ = shaderRecordSize_ * numShaderRecords_;
-    auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize_);
-    CreateResource(name, heapProps, resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
-    ASSERT_IF_FAILED(resource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedShaderRecords_)));
+    UINT bufferSize = shaderRecordSize_ * numShaderRecords_;
+    if (bufferSize > bufferSize_) {
+        bufferSize_ = bufferSize;
+        auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize_);
+        CreateResource(name, heapProps, resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
+        ASSERT_IF_FAILED(resource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedShaderRecords_)));
+    }
     ZeroMemory(mappedShaderRecords_, bufferSize_);
 
+    BYTE* currentMappedAddress = mappedShaderRecords_;
     for (UINT i = 0; i < numShaderRecords; ++i) {
-        pShaderRecord[i].CopyTo(mappedShaderRecords_);
-        mappedShaderRecords_ += shaderRecordSize_;
+        pShaderRecord[i].CopyTo(currentMappedAddress);
+        currentMappedAddress += shaderRecordSize_;
     }
 }

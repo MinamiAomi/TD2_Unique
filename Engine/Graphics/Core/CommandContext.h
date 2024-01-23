@@ -12,12 +12,14 @@
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
 #include "LinearAllocator.h"
+#include "UploadBuffer.h"
 #include "Helper.h"
 
 #define DXR_GRAPHICS_COMMAND_LIST ID3D12GraphicsCommandList4
 
 class CommandContext {
 public:
+
     void Start(D3D12_COMMAND_LIST_TYPE type);
     void Close();
     UINT64 Finish(bool waitForCompletion);
@@ -91,12 +93,14 @@ public:
     void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
     void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
-    
+
     void Dispatch(UINT threadGroupCountX);
     void Dispatch(UINT threadGroupCountX, UINT threadGroupCountY);
     void Dispatch(UINT threadGroupCountX, UINT threadGroupCountY, UINT threadGroupCountZ);
 
     D3D12_GPU_VIRTUAL_ADDRESS TransfarUploadBuffer(size_t bufferSize, const void* bufferData);
+
+    LinearAllocator::Allocation AllocateDynamicBuffer(LinearAllocatorType type, size_t bufferSize, size_t alignment = 256);
 
     operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
 
@@ -122,7 +126,7 @@ private:
 
     D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
 
-    LinearAllocator dynamicBuffer_;
+    LinearAllocator dynamicBuffers_[LinearAllocatorType::Count];
 
     bool isClose_;
 };
@@ -177,8 +181,17 @@ inline void CommandContext::CopyBuffer(GPUResource& dest, GPUResource& src) {
 inline void CommandContext::CopyBuffer(GPUResource& dest, size_t bufferSize, const void* data) {
     assert(data);
 
+    if (bufferSize <= LinearAllocatorType(LinearAllocatorType::Upload).GetSize()) {
+        auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize);
+        memcpy(allocation.cpu, data, bufferSize);
+        TransitionResource(dest, D3D12_RESOURCE_STATE_COPY_DEST);
+        FlushResourceBarriers();
+        commandList_->CopyBufferRegion(dest, 0, allocation.resource, allocation.offset, bufferSize);
+        return;
+    }
+
     UploadBuffer uploadBuffer;
-    uploadBuffer.Create(L"CopyBuffer UploadBuffer", bufferSize);
+    uploadBuffer.Create(L"UploadBuffer CopySource", bufferSize);
     uploadBuffer.Copy(data, bufferSize);
     CopyBuffer(dest, uploadBuffer);
 }
@@ -394,7 +407,7 @@ inline void CommandContext::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& ibv) {
 inline void CommandContext::SetDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
     assert(bufferData);
 
-    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize, 256);
     memcpy(allocation.cpu, bufferData, bufferSize);
     commandList_->SetGraphicsRootConstantBufferView(rootIndex, allocation.gpu);
 }
@@ -402,7 +415,7 @@ inline void CommandContext::SetDynamicConstantBufferView(UINT rootIndex, size_t 
 inline void CommandContext::SetDynamicShaderResourceView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
     assert(bufferData);
 
-    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize, 256);
     memcpy(allocation.cpu, bufferData, bufferSize);
     commandList_->SetGraphicsRootShaderResourceView(rootIndex, allocation.gpu);
 }
@@ -411,7 +424,7 @@ inline void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices
     assert(vertexData);
 
     size_t bufferSize = Helper::AlignUp(numVertices * vertexStride, 16);
-    auto allocation = dynamicBuffer_.Allocate(bufferSize);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize);
     memcpy(allocation.cpu, vertexData, bufferSize);
     D3D12_VERTEX_BUFFER_VIEW vbv{
         .BufferLocation = allocation.gpu,
@@ -427,7 +440,7 @@ inline void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT
 
     size_t stride = (indexFormat == DXGI_FORMAT_R16_UINT) ? sizeof(uint16_t) : sizeof(uint32_t);
     size_t bufferSize = Helper::AlignUp(numIndices * stride, 16);
-    auto allocation = dynamicBuffer_.Allocate(bufferSize);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize);
     memcpy(allocation.cpu, indexData, bufferSize);
     D3D12_INDEX_BUFFER_VIEW ibv{
         .BufferLocation = allocation.gpu,
@@ -440,7 +453,7 @@ inline void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT
 inline void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
     assert(bufferData);
 
-    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize, 256);
     memcpy(allocation.cpu, bufferData, bufferSize);
     commandList_->SetComputeRootConstantBufferView(rootIndex, allocation.gpu);
 }
@@ -448,7 +461,7 @@ inline void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, 
 inline void CommandContext::SetComputeDynamicShaderResourceView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
     assert(bufferData);
 
-    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize, 256);
     memcpy(allocation.cpu, bufferData, bufferSize);
     commandList_->SetComputeRootShaderResourceView(rootIndex, allocation.gpu);
 }
@@ -487,8 +500,12 @@ inline void CommandContext::Dispatch(UINT threadGroupCountX, UINT threadGroupCou
 }
 
 inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t bufferSize, const void* bufferData) {
-    auto allocation = dynamicBuffer_.Allocate(bufferSize);
+    auto allocation = dynamicBuffers_[LinearAllocatorType::Upload].Allocate(bufferSize);
     memcpy(allocation.cpu, bufferData, bufferSize);
     return allocation.gpu;
+}
+
+inline LinearAllocator::Allocation CommandContext::AllocateDynamicBuffer(LinearAllocatorType type, size_t bufferSize, size_t alignment) {
+    return dynamicBuffers_[type].Allocate(bufferSize, alignment);
 }
 

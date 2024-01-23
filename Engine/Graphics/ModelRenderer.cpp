@@ -67,6 +67,7 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
 
             InstanceConstant data;
             data.worldMatrix = instance->GetWorldMatrix();
+            data.worldInverseTransposeMatrix = instance->GetWorldMatrix().Inverse().Transpose();
             data.color = instance->GetColor();
             data.alpha = instance->GetAlpha();
             data.useLighting = instance->UseLighting() ? 1 : 0;
@@ -84,9 +85,6 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
                     material.specular = mesh.material->specular;
                     if (mesh.material->diffuseMap) {
                         texture = mesh.material->diffuseMap->GetSRV();
-                    }
-                    if (instance->GetTexture()) {
-                        texture = instance->GetTexture()->GetTexture();
                     }
                 }
 

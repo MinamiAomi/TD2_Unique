@@ -16,5 +16,5 @@ private:
     void CreateView();
 
     DescriptorHandle srvHandle_;
-    
+    size_t reservedSize_ = 0;
 };
