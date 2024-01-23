@@ -111,6 +111,23 @@ void GameScene::OnUpdate() {
         SetEnemy(10);
     }
 
+    if (input->IsKeyTrigger(DIK_C)) {
+
+        //コライダーを非アクティブ(ctrl + C)
+        if (input->IsKeyPressed(DIK_LCONTROL)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(false);
+            }
+        }
+        //コライダーをアクティブ(C)
+        else {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(true);
+            }
+        }
+       
+    }
+
     for (auto& enemy : enemies_) {
         enemy->Update();
     }

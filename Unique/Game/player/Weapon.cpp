@@ -39,12 +39,16 @@ void Weapon::Initialize() {
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
 	collider_->SetIsActive(false);
+	collider_->SetCollisionAttribute(0xfffffffe);
+	collider_->SetCollisionMask(0x00000001);
 
 	gravityCollider_->SetCenter(gravityTransform_->translate);
 	gravityCollider_->SetRadius(gravityTransform_->scale.x);
 	gravityCollider_->SetName("Gravity");
 	gravityCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {GravityOnCollision(collisionInfo); });
 	gravityCollider_->SetGameObject(this);
+	gravityCollider_->SetCollisionAttribute(0xfffffffe);
+	gravityCollider_->SetCollisionMask(0x00000001);
 
 	gravityModel_->SetIsActive(false);
 
@@ -119,7 +123,7 @@ void Weapon::Update() {
 
 	//重力をまとっている間
 	if (isGravity_ && !isShot_) {
-		gravityDelay_ = int32_t(gravityLevel_ * 5);
+		gravityDelay_ = int32_t(gravityLevel_ * 5) + 5;
 	}
 	else {
 		gravityDelay_ = 0;

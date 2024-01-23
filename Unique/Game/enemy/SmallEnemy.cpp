@@ -29,6 +29,8 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetName("Small_Enemy");
 	collider_->SetGameObject(this);
+	collider_->SetCollisionAttribute(0xfffffffd);
+	collider_->SetCollisionMask(0x00000002);
 
 }
 

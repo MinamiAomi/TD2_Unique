@@ -90,6 +90,8 @@ void Player::Initialize() {
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
 	collider_->SetGameObject(this);
+	collider_->SetCollisionAttribute(0xfffffffe);
+	collider_->SetCollisionMask(0x00000001);
 
 	velocity_ = { 0.0f,0.0f,1.0f };
 
