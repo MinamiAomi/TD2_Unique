@@ -39,6 +39,8 @@ Player::Player()
 	ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
 	ui_LB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LB");
 	ui_RT_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RT");
+	ui_RS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RS");
+	ui_LS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LS");
 
 	ui_A_ = std::make_unique<Sprite>();
 	ui_A_->SetTexture(ui_A_Tex_);
@@ -63,6 +65,18 @@ Player::Player()
 	ui_RT_->SetPosition({ 1100.0f,150.0f });
 	ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_RT_->SetScale({ 256.0f,64.0f });
+
+	ui_RS_ = std::make_unique<Sprite>();
+	ui_RS_->SetTexture(ui_RS_Tex_);
+	ui_RS_->SetPosition({ 200.0f,150.0f });
+	ui_RS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+	ui_RS_->SetScale({ 384.0f,48.0f });
+
+	ui_LS_ = std::make_unique<Sprite>();
+	ui_LS_->SetTexture(ui_LS_Tex_);
+	ui_LS_->SetPosition({ 200.0f,50.0f });
+	ui_LS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+	ui_LS_->SetScale({ 384.0f,48.0f });
 
 	collider_ = std::make_unique<BoxCollider>();
 

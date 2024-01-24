@@ -287,11 +287,16 @@ private:
 	std::shared_ptr<Texture> ui_RB_Tex_;
 	std::shared_ptr<Texture> ui_LB_Tex_;
 	std::shared_ptr<Texture> ui_RT_Tex_;
+	std::shared_ptr<Texture> ui_RS_Tex_;
+	std::shared_ptr<Texture> ui_LS_Tex_;
+
 
 	std::unique_ptr<Sprite> ui_A_;
 	std::unique_ptr<Sprite> ui_LB_;
 	std::unique_ptr<Sprite> ui_RB_;
 	std::shared_ptr<Sprite> ui_RT_;
+	std::unique_ptr<Sprite> ui_LS_;
+	std::unique_ptr<Sprite> ui_RS_;
 
 	size_t dashSE_;
 	size_t deathSE_;
