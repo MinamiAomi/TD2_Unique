@@ -264,7 +264,7 @@
     <ClCompile Include="Graphics\ComputeShader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Animation.cpp">
+    <ClCompile Include="Math\AnimationNode.cpp">
       <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -524,8 +524,11 @@
     <ClInclude Include="Graphics\ComputeShader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Animation.h">
+    <ClInclude Include="Math\AnimationNode.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Animation.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
