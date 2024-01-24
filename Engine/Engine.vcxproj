@@ -179,6 +179,7 @@
     <ClCompile Include="Graphics\ToonModel.cpp" />
     <ClCompile Include="Graphics\ToonRenderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
+    <ClCompile Include="Math\Animation.cpp" />
     <ClCompile Include="Math\Camera.cpp" />
     <ClCompile Include="Math\Color.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Graphics\ToonModel.h" />
     <ClInclude Include="Graphics\ToonRenderer.h" />
     <ClInclude Include="Input\Input.h" />
+    <ClInclude Include="Math\Animation.h" />
     <ClInclude Include="Math\Camera.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\Geometry.h" />
