@@ -24,6 +24,8 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 	transform.scale = Vector3::one * 2.0f;
 	transform.rotate = Quaternion::identity;
 
+	model_->SetColor({ 1.0f,0.0f,0.0f });
+
 	collider_->SetCenter(transform.translate);
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
