@@ -60,8 +60,8 @@ void GameScene::SetEnemy(uint32_t num) {
     for (uint32_t i = 0; i < num; i++) {
 
         std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
-        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-40.0f,40.0f),
-        10.0f, randomNumberGenerator.NextFloatRange(-40.0f, 40.0f), });
+        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-200.0f,200.0f),
+        10.0f, randomNumberGenerator.NextFloatRange(-200.0f, 200.0f), });
         newEnemy->SetPlayer(player_.get());
         SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
         enemies_.push_back(newEnemy);
@@ -86,7 +86,6 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
-
     enemies_.remove_if([](auto& enemy) {
 
         if (enemy->GetIsDead()) {
@@ -101,6 +100,17 @@ void GameScene::OnUpdate() {
     GlobalVariables::GetInstance()->Update();
 
     Input* input = Input::GetInstance();
+
+    if (++spawn_.spawnTimer >= spawn_.spawnFrame) {
+
+        //敵の数が100体未満の時にスポーン処理
+        if (enemies_.size() < 100) {
+            SetEnemy(spawn_.spawnCount);
+        }
+
+        spawn_.spawnTimer = 0;
+
+    }
 
     if (input->IsKeyTrigger(DIK_R)) {
         Reset();

@@ -21,7 +21,7 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 	SetName("Small_Enemy");
 
 	transform.translate = startPosition;
-	transform.scale = Vector3::one;
+	transform.scale = Vector3::one * 2.0f;
 	transform.rotate = Quaternion::identity;
 
 	collider_->SetCenter(transform.translate);

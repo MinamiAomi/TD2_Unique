@@ -6,7 +6,10 @@ Stage::Stage()
 {
 	model_ = std::make_shared<ModelInstance>();
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	skydome_ = std::make_shared<ModelInstance>();
+	skydome_->SetModel(ResourceManager::GetInstance()->FindModel("Skydome"));
 	collider_ = std::make_unique<BoxCollider>();
+	skydomeTransform_ = std::make_shared<Transform>();
 }
 
 Stage::~Stage()
@@ -20,6 +23,11 @@ void Stage::Initialize() {
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
 	
+	skydomeTransform_->translate = Vector3::zero;
+	skydomeTransform_->scale = Vector3::one;
+	skydomeTransform_->rotate = Quaternion::identity;
+	skydomeTransform_->UpdateMatrix();
+
 	model_->SetIsActive(true);
 	model_->SetWorldMatrix(transform.worldMatrix);
 	model_->SetColor({ 0.2f,0.2f,0.2f });
@@ -36,9 +44,11 @@ void Stage::Initialize() {
 void Stage::Update() {
 
 	transform.UpdateMatrix();
+	skydomeTransform_->UpdateMatrix();
 	collider_->SetCenter(transform.translate);
 	collider_->SetSize(transform.scale);
 	model_->SetWorldMatrix(transform.worldMatrix);
+	skydome_->SetWorldMatrix(skydomeTransform_->worldMatrix);
 
 }
 

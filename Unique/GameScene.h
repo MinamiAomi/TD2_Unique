@@ -30,6 +30,16 @@ private:
     void SetEnemy(uint32_t num);
 
 private:
+
+    struct Spawn {
+        //自動スポーンに利用する変数
+        int32_t spawnTimer = 0;
+        //スポーンまでの時間
+        int32_t spawnFrame = 120;
+        //スポーン数
+        uint32_t spawnCount = 5;
+    };
+
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
@@ -44,6 +54,8 @@ private:
     std::unique_ptr<Sprite> reticle_;
 
     std::list<std::shared_ptr<SmallEnemy>> enemies_;
+
+    Spawn spawn_;
 
    /* std::shared_ptr<Enemy> enemy_;*/
 

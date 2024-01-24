@@ -120,6 +120,11 @@ void Player::Initialize() {
 	playerTransforms_[kRightUpperLeg]->translate = { 1.0f,-2.0f,0.0f };
 	playerTransforms_[kRightLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
 
+	//回転初期化
+	for (uint32_t i = 0; i < kMaxParts; i++) {
+		playerTransforms_[i]->rotate = Quaternion::identity;
+	}
+
 	weapon_->modelBodyTransform_->SetParent(playerTransforms_[kRightLowerArm].get());
 	weapon_->Initialize();
 	weapon_->SetPlayer(this);
@@ -304,6 +309,7 @@ void Player::BehaviorRootUpdate() {
 		if (weapon_->GetIsGravity()) {
 			playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
 			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
+			camera_->SetRockY(true);
 		}
 
 	}
@@ -314,6 +320,7 @@ void Player::BehaviorRootUpdate() {
 		//重力付与状態で発射していなかったら
 		if (weapon_->GetIsGravity() && !weapon_->GetIsShot()) {
 			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
+			camera_->SetRockY(false);
 			behaviorRequest_ = Behavior::kShot;
 		}
 
@@ -432,6 +439,10 @@ void Player::BehaviorAttackUpdate() {
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
 		if (attack_.attackTimer >= workAttack_01_.allFrame / 4) {
 
+			if (weapon_->GetIsGravity()) {
+				ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
+			}
+
 			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
 				attack_.currentCombo_ < 2 &&
 				(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
@@ -503,6 +514,8 @@ void Player::BehaviorAttackUpdate() {
 
 				attack_.attackType = kHorizontal_2;
 
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+
 				BehaviorAttackInitialize();
 
 			}
@@ -518,7 +531,7 @@ void Player::BehaviorAttackUpdate() {
 				weapon_->GetCollider()->SetIsActive(false);
 				weapon_->isAttack_ = false;
 				behaviorRequest_ = Behavior::kRoot;
-
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 			}
 			
 		}
@@ -528,6 +541,10 @@ void Player::BehaviorAttackUpdate() {
 
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
 		if (attack_.attackTimer >= workAttack_02_.allFrame / 4) {
+
+			if (weapon_->GetIsGravity()) {
+				ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+			}
 
 			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
 				attack_.currentCombo_ < 2 &&
@@ -561,6 +578,8 @@ void Player::BehaviorAttackUpdate() {
 
 				attack_.attackType = kRotateAttack;
 
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+
 				BehaviorAttackInitialize();
 
 			}
@@ -576,7 +595,7 @@ void Player::BehaviorAttackUpdate() {
 				weapon_->GetCollider()->SetIsActive(false);
 				weapon_->isAttack_ = false;
 				behaviorRequest_ = Behavior::kRoot;
-
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 			}
 
 		}
@@ -612,7 +631,7 @@ void Player::BehaviorAttackUpdate() {
 				weapon_->GetCollider()->SetIsActive(false);
 				weapon_->isAttack_ = false;
 				behaviorRequest_ = Behavior::kRoot;
-
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 			}
 
 		}

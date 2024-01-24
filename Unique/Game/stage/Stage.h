@@ -23,7 +23,11 @@ private:
 
 	std::shared_ptr<ModelInstance> model_;
 
+	std::shared_ptr<ModelInstance> skydome_;
+
 	std::unique_ptr<BoxCollider> collider_;
+
+	std::shared_ptr<Transform> skydomeTransform_;
 
 };
 

@@ -15,6 +15,8 @@ void Unique::OnInitialize() {
 	auto resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
 	resourceManager->AddModel("Sphere", Model::Load("./Resources/gravity/gravity.obj"));
+	//天球
+	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み
 	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_3.obj"));
 	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
