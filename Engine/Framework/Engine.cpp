@@ -10,7 +10,7 @@
 
 void Engine::Run(Game* game) {
     auto gameWindow = GameWindow::GetInstance();
-    gameWindow->Initialize(L"AL4", 1280, 720);
+    gameWindow->Initialize(L"2310_ミョルヴィティ", 1280, 720);
 
     auto graphics = Graphics::GetInstance();
     graphics->Initialize();
