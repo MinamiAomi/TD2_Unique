@@ -56,6 +56,12 @@ void Unique::OnInitialize() {
 	std::shared_ptr<Texture> UI_RT = std::make_shared<Texture>();
 	UI_RT->Load("./Resources/UI/ui_rt.png");
 	resourceManager->AddTexture("UI_RT", UI_RT);
+	std::shared_ptr<Texture> UI_LS = std::make_shared<Texture>();
+	UI_LS->Load("./Resources/UI/ui_ls.png");
+	resourceManager->AddTexture("UI_LS", UI_LS);
+	std::shared_ptr<Texture> UI_RS = std::make_shared<Texture>();
+	UI_RS->Load("./Resources/UI/ui_rs.png");
+	resourceManager->AddTexture("UI_RS", UI_RS);
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();
