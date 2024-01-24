@@ -11,6 +11,12 @@ public:
 	Weapon();
 	~Weapon();
 
+	enum GravityLevel {
+		kSmall = 1, //小範囲
+		kMedium, //中範囲
+		kWide, //広範囲
+	};
+
 	void Initialize();
 
 	void Update();
@@ -45,6 +51,8 @@ public:
 	//遅延量取得
 	const int32_t& GetDelay() { return gravityDelay_; }
 
+	const GravityLevel& GetLevel() { return gravityLevel_; }
+
 	bool isThrust_ = false;
 
 	bool isAttack_ = false;
@@ -67,12 +75,6 @@ private:
 	void Reset();
 
 private:
-
-	enum GravityLevel {
-		kSmall = 1, //小範囲
-		kMedium, //中範囲
-		kWide, //広範囲
-	};
 
 	Player* player_ = nullptr;
 

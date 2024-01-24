@@ -112,31 +112,31 @@ void GameScene::OnUpdate() {
 
     }
 
-    if (input->IsKeyTrigger(DIK_R)) {
+    if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
         Reset();
     }
 
     //敵召喚
-    if (input->IsKeyTrigger(DIK_E)) {
-        SetEnemy(10);
-    }
+    //if (input->IsKeyTrigger(DIK_E)) {
+    //    SetEnemy(10);
+    //}
 
-    if (input->IsKeyTrigger(DIK_C)) {
+    //if (input->IsKeyTrigger(DIK_C)) {
 
-        //コライダーを非アクティブ(ctrl + C)
-        if (input->IsKeyPressed(DIK_LCONTROL)) {
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(false);
-            }
-        }
-        //コライダーをアクティブ(C)
-        else {
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(true);
-            }
-        }
-       
-    }
+    //    //コライダーを非アクティブ(ctrl + C)
+    //    if (input->IsKeyPressed(DIK_LCONTROL)) {
+    //        for (auto& enemy : enemies_) {
+    //            enemy->GetCollider()->SetIsActive(false);
+    //        }
+    //    }
+    //    //コライダーをアクティブ(C)
+    //    else {
+    //        for (auto& enemy : enemies_) {
+    //            enemy->GetCollider()->SetIsActive(true);
+    //        }
+    //    }
+    //   
+    //}
 
     for (auto& enemy : enemies_) {
         enemy->Update();

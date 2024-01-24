@@ -92,6 +92,9 @@ public:
 
 	std::array<std::shared_ptr<Transform>, kMaxParts> playerTransforms_;
 
+	//死んだかどうか
+	bool GetIsDead() { return isDead_; }
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
@@ -269,6 +272,9 @@ private:
 
 	//死亡フラグ
 	bool isDead_ = false;
+
+	//発射準備中かどうか
+	bool isPoseShot_ = false;
 
 	//当たり判定(球)
 	std::unique_ptr<BoxCollider> collider_;

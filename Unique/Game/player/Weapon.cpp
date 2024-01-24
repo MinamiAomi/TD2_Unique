@@ -215,12 +215,7 @@ void Weapon::Reset() {
 
 	gravityCollider_->SetName("Gravity");
 	gravityCollider_->SetIsActive(false);
-	/*
-	transform.SetParent(modelBodyTransform_.get());
-
-	transform.translate = { 0.0f,2.0f,0.0f };
-	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::identity;*/
+	gravityLevel_ = kSmall;
 	
 	SetDefault();
 

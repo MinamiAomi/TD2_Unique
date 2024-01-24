@@ -275,6 +275,63 @@ void Player::Update() {
 		weapon_->GetModel()->SetIsActive(false);
 	}
 
+	//状態に応じてUIの表示を変更
+	if (behavior_ != Behavior::kRoot) {
+
+		ui_LB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		ui_RB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		ui_RT_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+
+		if (behavior_ == Behavior::kShot) {
+			ui_A_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		}
+
+	}
+	else {
+
+		//ダッシュ、攻撃UI
+		if (!weapon_->isThrust_ && !isPoseShot_) {
+			ui_LB_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+			ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+		}
+		else {
+			ui_LB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+			ui_A_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		}
+
+		//突き立てUI
+		if (!isPoseShot_) {
+			ui_RB_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+		}
+		else {
+			ui_RB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		}
+		
+		//重力発射UI
+		if (!weapon_->isThrust_ && weapon_->GetIsGravity()) {
+			
+			//重力の大きさに応じてUIの色変更
+			switch (weapon_->GetLevel())
+			{
+			default:
+			case Weapon::kSmall:
+				ui_RT_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+				break;
+			case Weapon::kMedium:
+				ui_RT_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
+				break;
+			case Weapon::kWide:
+				ui_RT_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+				break;
+			}
+
+		}
+		else {
+			ui_RT_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
+		}
+
+	}
+
 }
 
 void Player::BehaviorRootUpdate() {
@@ -288,7 +345,7 @@ void Player::BehaviorRootUpdate() {
 
 	//重力付与、前に突き立て
 	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && 
-		!weapon_->GetIsShot()) {
+		!weapon_->GetIsShot() && !isPoseShot_) {
 		Thrust();
 	}
 	else {
@@ -303,13 +360,14 @@ void Player::BehaviorRootUpdate() {
 	}
 
 	//重力波発射準備
-	if (xinputState.Gamepad.bRightTrigger) {
+	if (xinputState.Gamepad.bRightTrigger && !weapon_->isThrust_) {
 
 		//重力付与状態で構える
 		if (weapon_->GetIsGravity()) {
 			playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
 			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
 			camera_->SetRockY(true);
+			isPoseShot_ = true;
 		}
 
 	}
@@ -318,9 +376,10 @@ void Player::BehaviorRootUpdate() {
 	if (preXInputState.Gamepad.bRightTrigger && !xinputState.Gamepad.bRightTrigger) {
 
 		//重力付与状態で発射していなかったら
-		if (weapon_->GetIsGravity() && !weapon_->GetIsShot()) {
+		if (weapon_->GetIsGravity() && !weapon_->GetIsShot() && isPoseShot_) {
 			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
 			camera_->SetRockY(false);
+			isPoseShot_ = false;
 			behaviorRequest_ = Behavior::kShot;
 		}
 
@@ -330,7 +389,7 @@ void Player::BehaviorRootUpdate() {
 	// 重力波発射中と突き出し中は遷移不可
 	if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
 		!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) && 
-		!weapon_->GetIsShot() && !weapon_->isThrust_) {
+		!weapon_->GetIsShot() && !weapon_->isThrust_ && !isPoseShot_) {
 
 
 		attack_.attackType = kHorizontal_1;
@@ -339,7 +398,8 @@ void Player::BehaviorRootUpdate() {
 
 	}
 	// ダッシュ
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) &&
+		!weapon_->isThrust_ && !isPoseShot_) {
 		
 		//ディレイの値に応じてスピード調整
 		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f);
@@ -578,7 +638,7 @@ void Player::BehaviorAttackUpdate() {
 
 				attack_.attackType = kRotateAttack;
 
-				ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+				ui_A_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
 
 				BehaviorAttackInitialize();
 
