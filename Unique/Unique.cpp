@@ -15,8 +15,24 @@ void Unique::OnInitialize() {
 	auto resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
 	resourceManager->AddModel("Sphere", Model::Load("./Resources/gravity/gravity.obj"));
-	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon.obj"));
-	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head.obj"));
+	//武器モデル読み込み
+	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_2.obj"));
+	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
+	//プレイヤーモデル読み込み
+	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel_2/Body.obj"));
+	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel_2/Head.obj"));
+	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel_2/Hip.obj"));
+	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel_2/LeftLowerArm.obj"));
+	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel_2/LeftLowerLeg.obj"));
+	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel_2/LeftShoulder.obj"));
+	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel_2/LeftUpperArm.obj"));
+	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel_2/LeftUpperLeg.obj"));
+	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel_2/RightLowerArm.obj"));
+	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel_2/RightLowerLeg.obj"));
+	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel_2/RightShoulder.obj"));
+	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel_2/RightUpperArm.obj"));
+	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel_2/RightUpperLeg.obj"));
+	//UI読み込み
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");
 	resourceManager->AddTexture("player_hp", playerHpTex);

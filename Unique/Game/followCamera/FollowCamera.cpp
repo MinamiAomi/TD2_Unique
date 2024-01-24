@@ -87,7 +87,7 @@ void FollowCamera::Reset() {
 }
 
 Vector3 FollowCamera::CalcOffset() const {
-    Vector3 base = { 0.0f, 10.0f, -30.0f };
+    Vector3 base = { 0.0f, 5.0f, -30.0f };
     return transform_->rotate * base;
 }
 

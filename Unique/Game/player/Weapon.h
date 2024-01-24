@@ -49,6 +49,11 @@ public:
 
 	bool isAttack_ = false;
 
+	std::shared_ptr<Transform> modelBodyTransform_;
+
+	//武器の初期SRTへ戻す
+	void SetDefault();
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);

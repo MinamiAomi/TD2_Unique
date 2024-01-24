@@ -15,29 +15,43 @@ Weapon::Weapon()
 	gravityCollider_ = std::make_unique<SphereCollider>();
 	gravityTransform_ = std::make_shared<Transform>();
 	gravityScaleTransform_ = std::make_shared<Transform>();
+	modelBodyTransform_ = std::make_shared<Transform>();
 }
 
 Weapon::~Weapon()
 {
 }
 
+void Weapon::SetDefault() {
+
+	modelBodyTransform_->translate = { 5.0f,0.0f,0.0f };
+	modelBodyTransform_->scale = Vector3::one;
+	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.0f,0.0f,1.0f }.Normalized()) * Quaternion::identity;
+	modelBodyTransform_->UpdateMatrix();
+	transform.SetParent(modelBodyTransform_.get());
+	transform.translate = { 0.0f,5.0f,0.0f };
+	transform.scale = Vector3::one;
+	transform.rotate = Quaternion::identity;
+	transform.UpdateMatrix();
+
+}
+
 void Weapon::Initialize() {
 
 	SetName("Weapon");
 
-	transform.translate = Vector3::zero;
-	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::MakeFromAngleAxis(1.57f,Vector3{0.5f,0.5f,0.5f}.Normalized());
+	SetDefault();
 
+	gravityTransform_->SetParent(&transform);
 	gravityTransform_->translate = Vector3::zero;
 	gravityTransform_->scale = Vector3::one;
 	gravityTransform_->rotate = Quaternion::identity;
-	gravityTransform_->SetParent(&transform);
+	gravityTransform_->UpdateMatrix();
 
+	gravityScaleTransform_->SetParent(gravityTransform_.get());
 	gravityScaleTransform_->translate = Vector3::zero;
 	gravityScaleTransform_->scale = Vector3::one;
 	gravityScaleTransform_->rotate = Quaternion::identity;
-	gravityScaleTransform_->SetParent(gravityTransform_.get());
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
@@ -103,8 +117,6 @@ void Weapon::Update() {
 			gravityTransform_->rotate;
 	}
 
-	transform.UpdateMatrix();
-
 	if ((isThrust_ || isShot_ || isAttack_) && isGravity_) {
 		gravityCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
@@ -139,6 +151,8 @@ void Weapon::Update() {
 
 	gravityTransform_->UpdateMatrix();
 	gravityScaleTransform_->UpdateMatrix();
+	modelBodyTransform_->UpdateMatrix();
+	transform.UpdateMatrix();
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
 	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x);
@@ -147,7 +161,7 @@ void Weapon::Update() {
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
 	model_->SetWorldMatrix(transform.worldMatrix);
-	modelBody_->SetWorldMatrix(transform.worldMatrix);
+	modelBody_->SetWorldMatrix(modelBodyTransform_->worldMatrix);
 	gravityModel_->SetWorldMatrix(gravityScaleTransform_->worldMatrix);
 
 }
@@ -203,12 +217,15 @@ void Weapon::Reset() {
 
 	gravityCollider_->SetName("Gravity");
 	gravityCollider_->SetIsActive(false);
-	
-	transform.SetParent(&player_->transform);
+	/*
+	transform.SetParent(modelBodyTransform_.get());
 
-	transform.translate = { 3.0f,1.0f,0.0f };
+	transform.translate = { 0.0f,2.0f,0.0f };
 	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::identity;
+	transform.rotate = Quaternion::identity;*/
+	
+	SetDefault();
+
 	transform.UpdateMatrix();
 
 }
@@ -226,7 +243,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		enemy->Damage(0, player_->transform.worldMatrix.GetTranslate());
+		enemy->Damage(0, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
 	}
 

@@ -9,6 +9,26 @@ Player::Player()
 
 	playerModel_ = std::make_shared<ModelInstance>();
 	playerModel_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+
+	for (uint32_t i = 0; i < kMaxParts; i++) {
+		playerModels_[i] = std::make_shared<ModelInstance>();
+		playerTransforms_[i] = std::make_shared<Transform>();
+	}
+
+	playerModels_[kHip]->SetModel(ResourceManager::GetInstance()->FindModel("Hip"));
+	playerModels_[kBody]->SetModel(ResourceManager::GetInstance()->FindModel("Body"));
+	playerModels_[kHead]->SetModel(ResourceManager::GetInstance()->FindModel("Head"));
+	playerModels_[kLeftShoulder]->SetModel(ResourceManager::GetInstance()->FindModel("LeftShoulder"));
+	playerModels_[kLeftUpperArm]->SetModel(ResourceManager::GetInstance()->FindModel("LeftUpperArm"));
+	playerModels_[kLeftLowerArm]->SetModel(ResourceManager::GetInstance()->FindModel("LeftLowerArm"));
+	playerModels_[kRightShoulder]->SetModel(ResourceManager::GetInstance()->FindModel("RightShoulder"));
+	playerModels_[kRightUpperArm]->SetModel(ResourceManager::GetInstance()->FindModel("RightUpperArm"));
+	playerModels_[kRightLowerArm]->SetModel(ResourceManager::GetInstance()->FindModel("RightLowerArm"));
+	playerModels_[kLeftUpperLeg]->SetModel(ResourceManager::GetInstance()->FindModel("LeftUpperLeg"));
+	playerModels_[kLeftLowerLeg]->SetModel(ResourceManager::GetInstance()->FindModel("LeftLowerLeg"));
+	playerModels_[kRightUpperLeg]->SetModel(ResourceManager::GetInstance()->FindModel("RightUpperLeg"));
+	playerModels_[kRightLowerLeg]->SetModel(ResourceManager::GetInstance()->FindModel("RightLowerLeg"));
+
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("player_hp");
 
 	hpSprite_ = std::make_unique<Sprite>();
@@ -62,16 +82,46 @@ void Player::Initialize() {
 
 	input_ = Input::GetInstance();
 	
-	transform.translate = Vector3::zero;
-	transform.scale = Vector3::one;
-	transform.scale.z = 1.0f;
+	for (uint32_t i = 0; i < kMaxParts; i++) {
+		playerTransforms_[i]->translate = Vector3::zero;
+		playerTransforms_[i]->scale = Vector3::one;
+		playerTransforms_[i]->rotate = Quaternion::identity;
+	}
 
+	//腰から体に親子付け
+	playerTransforms_[kBody]->SetParent(playerTransforms_[kHip].get());
+	//体から頭に親子付け
+	playerTransforms_[kHead]->SetParent(playerTransforms_[kBody].get());
+	//体から両腕に順番に親子付け
+	playerTransforms_[kLeftShoulder]->SetParent(playerTransforms_[kBody].get());
+	playerTransforms_[kLeftUpperArm]->SetParent(playerTransforms_[kLeftShoulder].get());
+	playerTransforms_[kLeftLowerArm]->SetParent(playerTransforms_[kLeftUpperArm].get());
+	playerTransforms_[kRightShoulder]->SetParent(playerTransforms_[kBody].get());
+	playerTransforms_[kRightUpperArm]->SetParent(playerTransforms_[kRightShoulder].get());
+	playerTransforms_[kRightLowerArm]->SetParent(playerTransforms_[kRightUpperArm].get());
+	//腰から両足に順番に親子付け
+	playerTransforms_[kLeftUpperLeg]->SetParent(playerTransforms_[kHip].get());
+	playerTransforms_[kLeftLowerLeg]->SetParent(playerTransforms_[kLeftUpperLeg].get());
+	playerTransforms_[kRightUpperLeg]->SetParent(playerTransforms_[kHip].get());
+	playerTransforms_[kRightLowerLeg]->SetParent(playerTransforms_[kRightUpperLeg].get());
+
+	//座標設定
+	playerTransforms_[kHip]->translate = { 0.0f,8.0f,0.0f };
+	playerTransforms_[kBody]->translate = { 0.0f,2.0f,0.0f };
+	playerTransforms_[kHead]->translate = { 0.0f,2.0f,0.0f };
+	playerTransforms_[kLeftShoulder]->translate = { -3.0f,1.5f,0.0f };
+	playerTransforms_[kLeftUpperArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kLeftLowerArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kRightShoulder]->translate = { 3.0f,1.5f,0.0f };
+	playerTransforms_[kRightUpperArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kRightLowerArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kLeftUpperLeg]->translate = { -1.0f,-2.0f,0.0f };
+	playerTransforms_[kLeftLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kRightUpperLeg]->translate = { 1.0f,-2.0f,0.0f };
+	playerTransforms_[kRightLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
+
+	weapon_->modelBodyTransform_->SetParent(playerTransforms_[kRightLowerArm].get());
 	weapon_->Initialize();
-	weapon_->transform.SetParent(&transform);
-	weapon_->transform.translate = { 3.0f,1.0f,0.0f };
-	weapon_->transform.scale = Vector3::one;
-	weapon_->transform.rotate = Quaternion::MakeFromAngleAxis(-0.75f, Vector3{ 0.5f,0.5f,0.5f }.Normalized()) * Quaternion::identity;
-	weapon_->transform.UpdateMatrix();
 	weapon_->SetPlayer(this);
 
 	reticle_->Initialize();
@@ -82,9 +132,9 @@ void Player::Initialize() {
 	isDead_ = false;
 	hp_ = kMaxHp_;
 
-	collider_->SetCenter(transform.translate);
+	collider_->SetCenter(playerTransforms_[kHip]->translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
+	collider_->SetSize(playerTransforms_[kHip]->scale * 2.0f);
 	collider_->SetName("Player");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
@@ -98,10 +148,7 @@ void Player::Initialize() {
 
 	workDash_.speed_ = 2.0f;
 
-	/*workAttack_.attackFrame = 30;*/
-	workAttack_.attackTimer = 0;
-	workAttack_.attackType = kVertical;
-	workAttack_.velocity = { 0.0f,0.0f,0.0f };
+	attack_.attackType = kVertical;
 
 	workInvincible_.invincibleTimer = 0;
 	workInvincible_.isInvincible = false;
@@ -122,9 +169,9 @@ void Player::Update() {
 	ApplyGlobalVariables();
 
 	prePosition_ = Vector3{
-			transform.worldMatrix.m[3][0],
-			transform.worldMatrix.m[3][1],
-			transform.worldMatrix.m[3][2] };
+			playerTransforms_[kHip]->worldMatrix.m[3][0],
+			playerTransforms_[kHip]->worldMatrix.m[3][1],
+			playerTransforms_[kHip]->worldMatrix.m[3][2] };
 
 	isBreak_ = false;
 
@@ -180,14 +227,18 @@ void Player::Update() {
 
 	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
 
-	weapon_->Update();
+	for (uint32_t i = 0; i < kMaxParts; i++) {
+		playerTransforms_[i]->UpdateMatrix();
+		playerModels_[i]->SetWorldMatrix(playerTransforms_[i]->worldMatrix);
+	}
 
 	reticle_->Update();
 
-	transform.UpdateMatrix();
-	collider_->SetCenter(transform.translate);
-	collider_->SetOrientation(transform.rotate);
-	playerModel_->SetWorldMatrix(transform.worldMatrix);
+	weapon_->Update();
+
+	collider_->SetCenter(playerTransforms_[kHip]->translate);
+	collider_->SetOrientation(playerTransforms_[kHip]->rotate);
+	playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
 
 	if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
 		playerModel_->SetIsActive(true);
@@ -227,7 +278,7 @@ void Player::BehaviorRootUpdate() {
 	if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
 		(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
 		!weapon_->GetIsShot()) {
-		weapon_->transform.translate = { 3.0f,1.0f,0.0f };
+		weapon_->SetDefault();
 	}
 
 	//重力波発射
@@ -247,7 +298,7 @@ void Player::BehaviorRootUpdate() {
 		!weapon_->GetIsShot() && !weapon_->isThrust_) {
 
 
-		workAttack_.attackType = kHorizontal;
+		attack_.attackType = kHorizontal_1;
 
 		behaviorRequest_ = Behavior::kAttack;
 
@@ -285,21 +336,21 @@ void Player::BehaviorRootUpdate() {
 			move = move.Normalized() * (0.7f * workDash_.speed_);
 
 			// 親がいる場合親の空間にする
-			const Transform* parent = transform.GetParent();
+			const Transform* parent = playerTransforms_[kHip]->GetParent();
 			if (parent) {
 				move = parent->worldMatrix.Inverse().ApplyRotation(move);
 			}
 
 			// 移動
-			transform.translate += move;
+			playerTransforms_[kHip]->translate += move;
 			// 回転
-			//transform.rotate = Quaternion::Slerp(0.2f, transform.rotate, Quaternion::MakeLookRotation(move));
+			//playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.2f, playerTransforms_[kHip]->rotate, Quaternion::MakeLookRotation(move));
 
 			//武器を前に掲げている時は回転させない
 			if (!weapon_->isThrust_) {
-				move = transform.rotate.Conjugate() * move;
+				move = playerTransforms_[kHip]->rotate.Conjugate() * move;
 				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-				transform.rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * transform.rotate;
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
 			}
 			
 		}
@@ -326,8 +377,8 @@ void Player::Thrust() {
 			weapon_->AddGravity();
 		}
 
-		weapon_->transform.translate = { 0.0f,1.0f,10.0f };
-		weapon_->transform.rotate = Quaternion::identity;
+		weapon_->modelBodyTransform_->translate = { 0.0f,1.0f,10.0f };
+		/*weapon_->modelBodyTransform_->rotate = Quaternion::identity;*/
 		weapon_->isThrust_ = true;
 
 	}
@@ -339,69 +390,228 @@ void Player::Thrust() {
 
 void Player::BehaviorAttackUpdate() {
 
-	switch (workAttack_.attackType)
+	auto input = Input::GetInstance();
+
+	auto& xinputState = input->GetXInputState();
+
+	auto& preXInputState = input->GetPreXInputState();
+
+	switch (attack_.attackType)
 	{
 	default:
-	case AttackType::kHorizontal:
+	case AttackType::kHorizontal_1:
+
+		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
+		if (attack_.attackTimer >= workAttack_01_.allFrame / 4) {
+
+			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
+				attack_.currentCombo_ < 2 &&
+				(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+				!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+				attack_.isCombo_ = true;
+			}
+
+		}
 
 		//攻撃中
-		if (workAttack_.attackTimer >= workAttack_.waitFrameBefore + workAttack_.preFrame &&
-			workAttack_.attackTimer - workAttack_.waitFrameBefore - workAttack_.preFrame < workAttack_.attackFrame) {
-			transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_.attackFrame),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.attackRotate)) * transform.rotate;
+		if (attack_.attackTimer >= workAttack_01_.waitFrameBefore + workAttack_01_.preFrame &&
+			attack_.attackTimer - workAttack_01_.waitFrameBefore - workAttack_01_.preFrame < workAttack_01_.attackFrame) {
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
 		//攻撃開始前
-		else if (workAttack_.attackTimer < workAttack_.preFrame) {
-			transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_.preFrame),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_.preRotate)) * transform.rotate;
+		else if (attack_.attackTimer < workAttack_01_.preFrame) {
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(1.0f / float(workAttack_01_.preFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.preRotate)) * playerTransforms_[kHip]->rotate;
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
 		}
-
-		if (++workAttack_.attackTimer >= workAttack_.allFrame) {
-			weapon_->transform.translate = { 3.0f,1.0f,0.0f };
-			/*weapon_->transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) * 
-				Quaternion::identity;*/
-			transform.rotate = workAttack_.playerRotate;
-			workAttack_.isAttack = false;
+		else {
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
-			behaviorRequest_ = Behavior::kRoot;
+		}
+		//振り終わりの攻撃硬直中に次の攻撃の方向を決める
+		//else if (workAttack_.attackTimer - workAttack_.waitFrameBefore - workAttack_.preFrame >= workAttack_.attackFrame) {
+
+		//	Vector3 rotate{};
+		//	// Gamepad入力
+		//	{
+		//		const float margin = 0.8f;
+		//		const float shortMaxReci = 1.0f / float(SHRT_MAX);
+		//		rotate = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
+		//		rotate *= shortMaxReci;
+		//		if (rotate.Length() < margin) {
+		//			rotate = Vector3::zero;
+		//		}
+		//	}
+
+		//	if(rotate != Vector3::zero) {
+		//		rotate = workAttack_.playerRotate.Conjugate() * rotate;
+		//		Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, rotate);
+		//		workAttack_.playerRotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * workAttack_.playerRotate;
+		//	}
+
+		//}
+
+		if (++attack_.attackTimer >= workAttack_01_.allFrame) {
+
+			//コンボ継続中なら次の攻撃を出す
+			if (attack_.isCombo_) {
+
+				attack_.currentCombo_++;
+
+				attack_.isCombo_ = false;
+
+				attack_.attackType = kHorizontal_2;
+
+				BehaviorAttackInitialize();
+
+			}
+			//コンボ継続中でなかったら通常状態に戻る
+			else {
+
+				weapon_->SetDefault();
+				/*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
+					Quaternion::identity;*/
+				playerTransforms_[kHip]->rotate = attack_.playerRotate;
+				attack_.currentCombo_ = 0;
+				attack_.isCombo_ = false;
+				weapon_->GetCollider()->SetIsActive(false);
+				weapon_->isAttack_ = false;
+				behaviorRequest_ = Behavior::kRoot;
+
+			}
+			
 		}
 
 		break;
-	
+	case AttackType::kHorizontal_2:
+
+		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
+		if (attack_.attackTimer >= workAttack_02_.allFrame / 4) {
+
+			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
+				attack_.currentCombo_ < 2 &&
+				(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+				!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+				attack_.isCombo_ = true;
+			}
+
+		}
+
+		//攻撃中
+		if (attack_.attackTimer < workAttack_02_.attackFrame) {
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_02_.attackFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_02_.attackRotate)) * playerTransforms_[kHip]->rotate;
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
+		}
+		else {
+			weapon_->GetCollider()->SetIsActive(false);
+			weapon_->isAttack_ = false;
+		}
+
+		if (++attack_.attackTimer >= workAttack_02_.allFrame) {
+
+			//コンボ継続中なら次の攻撃を出す
+			if (attack_.isCombo_) {
+
+				attack_.currentCombo_++;
+
+				attack_.isCombo_ = false;
+
+				attack_.attackType = kRotateAttack;
+
+				BehaviorAttackInitialize();
+
+			}
+			//コンボ継続中でなかったら通常状態に戻る
+			else {
+
+				weapon_->SetDefault();
+				/*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
+					Quaternion::identity;*/
+				playerTransforms_[kHip]->rotate = attack_.playerRotate;
+				attack_.currentCombo_ = 0;
+				attack_.isCombo_ = false;
+				weapon_->GetCollider()->SetIsActive(false);
+				weapon_->isAttack_ = false;
+				behaviorRequest_ = Behavior::kRoot;
+
+			}
+
+		}
+
+		break;
+	case AttackType::kRotateAttack:
+
+		//攻撃中
+		if (attack_.attackTimer < workAttack_03_.attackFrame) {
+
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 2)),
+				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
+
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
+		}
+		else {
+			weapon_->GetCollider()->SetIsActive(false);
+			weapon_->isAttack_ = false;
+		}
+
+		if (++attack_.attackTimer >= workAttack_03_.allFrame) {
+
+			//コンボ継続中でなかったら通常状態に戻る
+			{
+
+				weapon_->SetDefault();
+				/*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
+					Quaternion::identity;*/
+				playerTransforms_[kHip]->rotate = attack_.playerRotate;
+				attack_.currentCombo_ = 0;
+				attack_.isCombo_ = false;
+				weapon_->GetCollider()->SetIsActive(false);
+				weapon_->isAttack_ = false;
+				behaviorRequest_ = Behavior::kRoot;
+
+			}
+
+		}
+
+		break;
+
 	}
 
 }
 
 void Player::BehaviorAttackInitialize() {
 	
-	workAttack_.attackTimer = 0;
-	workAttack_.isAttack = true;
-	workAttack_.isHit = false;
-	workAttack_.playerRotate = transform.rotate;
+	attack_.attackTimer = 0;
+	attack_.isCombo_ = false;
 	weapon_->isHit_ = false;
 
-	switch (workAttack_.attackType)
+	switch (attack_.attackType)
 	{
 	default:
-	case AttackType::kHorizontal:
+	case AttackType::kHorizontal_1:
 
-		
+		attack_.playerRotate = playerTransforms_[kHip]->rotate;
 
-		if (workAttack_.preFrame == 0) {
-			weapon_->transform.translate = { 10.0f,1.0f,0.0f };
-		}
-		else {
-			weapon_->transform.translate = { 0.0f,1.0f,10.0f };
-		}
-
-		workAttack_.velocity = { 0.4f,0.0f,0.0f };
+		weapon_->modelBodyTransform_->translate = { 10.0f,1.0f,0.0f };
 
 		break;
+	case AttackType::kHorizontal_2:
+
+
+		break;
+	case AttackType::kRotateAttack:
+		
+		
+		
+		break;
+
 	}
 
 	
@@ -438,12 +648,12 @@ void Player::RegisterGlobalVariables() {
 	if (!globalVariables.HasGroup(kGroupName)) {
 		auto& group = globalVariables[kGroupName];
 		group["Dush Speed"] = workDash_.speed_;
-		group["Attack PreFrame"] = workAttack_.preFrame;
-		group["Attack WaitFrameBefore"] = workAttack_.waitFrameBefore;
-		group["Attack WaitFrameAfter"] = workAttack_.waitFrameAfter;
-		group["Attack AttackFrame"] = workAttack_.attackFrame;
-		group["Attack PreRotate"] = workAttack_.preRotate;
-		group["Attack AttackRotate"] = workAttack_.attackRotate;
+		group["Attack PreFrame"] = workAttack_01_.preFrame;
+		group["Attack WaitFrameBefore"] = workAttack_01_.waitFrameBefore;
+		group["Attack WaitFrameAfter"] = workAttack_01_.waitFrameAfter;
+		group["Attack AttackFrame"] = workAttack_01_.attackFrame;
+		group["Attack PreRotate"] = workAttack_01_.preRotate;
+		group["Attack AttackRotate"] = workAttack_01_.attackRotate;
 	}
 
 }
@@ -451,23 +661,23 @@ void Player::RegisterGlobalVariables() {
 void Player::ApplyGlobalVariables() {
 
 	//攻撃中は変数を変更しない
-	if (!workAttack_.isAttack) {
+	if (behavior_ != Behavior::kAttack) {
 
 		GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
 
 		auto& group = globalVariables[kGroupName];
 
 		workDash_.speed_ = group["Dush Speed"].Get<float>();
-		workAttack_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
-		workAttack_.preRotate = group["Attack PreRotate"].Get<float>();
-		workAttack_.attackRotate = group["Attack AttackRotate"].Get<float>();
+		workAttack_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
+		workAttack_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
+		workAttack_01_.preRotate = group["Attack PreRotate"].Get<float>();
+		workAttack_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
 
 		//攻撃に使う合計フレームを設定
-		workAttack_.allFrame = workAttack_.preFrame + workAttack_.waitFrameBefore +
-			workAttack_.attackFrame + workAttack_.waitFrameAfter;
+		workAttack_01_.allFrame = workAttack_01_.preFrame + workAttack_01_.waitFrameBefore +
+			workAttack_01_.attackFrame + workAttack_01_.waitFrameAfter;
 
 	}
 
