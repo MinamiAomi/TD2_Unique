@@ -15,6 +15,7 @@
 enum class Behavior {
 	kRoot, //通常状態
 	kAttack, //攻撃中
+	kShot, //重力発射
 };
 
 class Block;
@@ -190,6 +191,16 @@ private:
 		float attackRotate = -3.14f;
 	};
 
+	//弾発射時のワーク
+	struct WorkShot {
+		//腕の回転制御フレーム
+		int32_t shotTimer = 0;
+		//使用フレーム数
+		int32_t maxShotFrame = 60;
+		//回転量
+		float shotRotate = 2.32f;
+	};
+
 	//無敵状態ワーク
 	struct WorkInvincible {
 		//無敵中かどうか
@@ -207,6 +218,8 @@ private:
 	WorkAttack_02 workAttack_02_;
 
 	WorkAttack_03 workAttack_03_;
+
+	WorkShot workShot_;
 
 	WorkInvincible workInvincible_;
 
@@ -249,6 +262,12 @@ private:
 
 	//攻撃行動初期化
 	void BehaviorAttackInitialize();
+
+	//発射行動更新
+	void BehaviorShotUpdate();
+
+	//発射行動初期化
+	void BehaviorShotInitialize();
 
 	//死亡フラグ
 	bool isDead_ = false;

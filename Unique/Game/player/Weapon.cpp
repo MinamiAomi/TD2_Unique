@@ -24,12 +24,12 @@ Weapon::~Weapon()
 
 void Weapon::SetDefault() {
 
-	modelBodyTransform_->translate = { 5.0f,0.0f,0.0f };
+	modelBodyTransform_->translate = { 0.0f,-3.0f,0.0f };
 	modelBodyTransform_->scale = Vector3::one;
-	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.0f,0.0f,1.0f }.Normalized()) * Quaternion::identity;
+	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
 	modelBodyTransform_->UpdateMatrix();
 	transform.SetParent(modelBodyTransform_.get());
-	transform.translate = { 0.0f,5.0f,0.0f };
+	transform.translate = { 0.0f,7.0f,0.0f };
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
@@ -174,10 +174,6 @@ void Weapon::Shot(const Vector3& velocity) {
 	velocity_ = velocity;
 	velocity_.Normalize();
 	
-	if (velocity_.y < 0.0f) {
-		velocity_.y = 0.0f;
-	}
-
 	velocity_ *= 3.0f;
 	isShot_ = true;
 	shotTimer_ = kMaxShotTime_;
@@ -279,6 +275,10 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			isHit_ = true;
 
+		}
+		//地面に衝突したらフレームカウントを0にして破裂
+		else if (collisionInfo.collider->GetName() == "Stage") {
+			shotTimer_ = 0;
 		}
 
 	}

@@ -111,10 +111,10 @@ void Player::Initialize() {
 	playerTransforms_[kHead]->translate = { 0.0f,2.0f,0.0f };
 	playerTransforms_[kLeftShoulder]->translate = { -3.0f,1.5f,0.0f };
 	playerTransforms_[kLeftUpperArm]->translate = { 0.0f,-2.0f,0.0f };
-	playerTransforms_[kLeftLowerArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kLeftLowerArm]->translate = { 0.0f,-3.0f,0.0f };
 	playerTransforms_[kRightShoulder]->translate = { 3.0f,1.5f,0.0f };
 	playerTransforms_[kRightUpperArm]->translate = { 0.0f,-2.0f,0.0f };
-	playerTransforms_[kRightLowerArm]->translate = { 0.0f,-2.0f,0.0f };
+	playerTransforms_[kRightLowerArm]->translate = { 0.0f,-3.0f,0.0f };
 	playerTransforms_[kLeftUpperLeg]->translate = { -1.0f,-2.0f,0.0f };
 	playerTransforms_[kLeftLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
 	playerTransforms_[kRightUpperLeg]->translate = { 1.0f,-2.0f,0.0f };
@@ -197,6 +197,9 @@ void Player::Update() {
 			case Behavior::kAttack:
 				BehaviorAttackInitialize();
 				break;
+			case Behavior::kShot:
+				BehaviorShotInitialize();
+				break;
 			}
 			//振る舞いリクエストをリセット
 			behaviorRequest_ = std::nullopt;
@@ -209,6 +212,9 @@ void Player::Update() {
 			break;
 		case Behavior::kAttack:
 			BehaviorAttackUpdate();
+			break;
+		case Behavior::kShot:
+			BehaviorShotUpdate();
 			break;
 		}
 
@@ -281,12 +287,24 @@ void Player::BehaviorRootUpdate() {
 		weapon_->SetDefault();
 	}
 
-	//重力波発射
+	//重力波発射準備
 	if (xinputState.Gamepad.bRightTrigger) {
+
+		//重力付与状態で構える
+		if (weapon_->GetIsGravity()) {
+			playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
+			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
+		}
+
+	}
+
+	//トリガーを離した時に重力波発射
+	if (preXInputState.Gamepad.bRightTrigger && !xinputState.Gamepad.bRightTrigger) {
 
 		//重力付与状態で発射していなかったら
 		if (weapon_->GetIsGravity() && !weapon_->GetIsShot()) {
 			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
+			behaviorRequest_ = Behavior::kShot;
 		}
 
 	}
@@ -346,8 +364,8 @@ void Player::BehaviorRootUpdate() {
 			// 回転
 			//playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.2f, playerTransforms_[kHip]->rotate, Quaternion::MakeLookRotation(move));
 
-			//武器を前に掲げている時は回転させない
-			if (!weapon_->isThrust_) {
+			//武器を前に掲げている時、重力発射の構え中は回転させない
+			if (!weapon_->isThrust_ && !(weapon_->GetIsGravity() && xinputState.Gamepad.bRightTrigger)) {
 				move = playerTransforms_[kHip]->rotate.Conjugate() * move;
 				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
 				playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
@@ -377,8 +395,8 @@ void Player::Thrust() {
 			weapon_->AddGravity();
 		}
 
-		weapon_->modelBodyTransform_->translate = { 0.0f,1.0f,10.0f };
-		/*weapon_->modelBodyTransform_->rotate = Quaternion::identity;*/
+		weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
+		weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.57f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
 		weapon_->isThrust_ = true;
 
 	}
@@ -615,6 +633,41 @@ void Player::BehaviorAttackInitialize() {
 	}
 
 	
+
+}
+
+void Player::BehaviorShotUpdate() {
+
+	if (workShot_.shotTimer < 15) {
+
+		//武器を持っている腕を動かす
+		playerTransforms_[kRightUpperArm]->rotate = Quaternion::Slerp(1.0f / 15.0f, Quaternion::identity,
+			Quaternion::MakeFromAngleAxis(workShot_.shotRotate, Vector3{ 1.0f,0.0f,0.0f }.Normalized())) * playerTransforms_[kRightUpperArm]->rotate;
+
+	}
+	//else if (workShot_.shotTimer > 45) {
+
+	//	//武器を持っている腕を動かす
+	//	playerTransforms_[kRightLowerArm]->rotate = Quaternion::Slerp(1.0f / 15.0f, Quaternion::identity,
+	//		Quaternion::MakeFromAngleAxis(workShot_.shotRotate, Vector3{ 1.0f,0.5f,0.5f }.Normalized())) * playerTransforms_[kRightLowerArm]->rotate;
+
+	//}
+
+	if (++workShot_.shotTimer >= workShot_.maxShotFrame) {
+
+		playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
+
+		workShot_.shotTimer = 0;
+
+		behaviorRequest_ = Behavior::kRoot;
+
+	}
+
+}
+
+void Player::BehaviorShotInitialize() {
+
+	workShot_.shotTimer = 0;
 
 }
 

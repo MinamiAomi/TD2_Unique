@@ -61,7 +61,7 @@ void GameScene::SetEnemy(uint32_t num) {
 
         std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
         newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-40.0f,40.0f),
-        0.0f, randomNumberGenerator.NextFloatRange(-40.0f, 40.0f), });
+        8.0f, randomNumberGenerator.NextFloatRange(-40.0f, 40.0f), });
         newEnemy->SetPlayer(player_.get());
         SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
         enemies_.push_back(newEnemy);

@@ -16,7 +16,7 @@ Stage::~Stage()
 void Stage::Initialize() {
 
 	transform.translate = { 0.0f,-2.0f,0.0f };
-	transform.scale = { 100.0f,1.0f, 100.0f };
+	transform.scale = { 500.0f,1.0f, 500.0f };
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
 	
@@ -29,6 +29,7 @@ void Stage::Initialize() {
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Stage");
+	collider_->SetGameObject(this);
 
 }
 
