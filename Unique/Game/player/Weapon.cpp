@@ -121,9 +121,11 @@ void Weapon::Update() {
 		gravityCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
 		collider_->SetIsActive(false);
+		gravityModel_->SetColor({ 1.0f,0.0f,0.0f });
 	}
 	else {
 		gravityCollider_->SetIsActive(false);
+		gravityModel_->SetColor({ 1.0f,1.0f,1.0f });
 	}
 
 	//重力波のレベルに応じて当たり判定を肥大化

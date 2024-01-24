@@ -247,9 +247,19 @@ void Player::Update() {
 	playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
 
 	if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
-		playerModel_->SetIsActive(true);
+
+		for (uint32_t i = 0; i < kMaxParts; i++) {
+			playerModels_[i]->SetIsActive(true);
+		}
+
+		playerModel_->SetIsActive(false);
 	}
 	else {
+
+		for (uint32_t i = 0; i < kMaxParts; i++) {
+			playerModels_[i]->SetIsActive(false);
+		}
+
 		playerModel_->SetIsActive(false);
 	}
 
@@ -434,8 +444,17 @@ void Player::BehaviorAttackUpdate() {
 		//攻撃中
 		if (attack_.attackTimer >= workAttack_01_.waitFrameBefore + workAttack_01_.preFrame &&
 			attack_.attackTimer - workAttack_01_.waitFrameBefore - workAttack_01_.preFrame < workAttack_01_.attackFrame) {
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+
+			//重力付与時は範囲拡大
+			if (weapon_->GetIsGravity()) {
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.5f / workAttack_01_.attackFrame),
+					Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+			}
+			else {
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
+					Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+			}
+
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
@@ -617,7 +636,7 @@ void Player::BehaviorAttackInitialize() {
 
 		attack_.playerRotate = playerTransforms_[kHip]->rotate;
 
-		weapon_->modelBodyTransform_->translate = { 10.0f,1.0f,0.0f };
+		weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
 
 		break;
 	case AttackType::kHorizontal_2:
