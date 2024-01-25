@@ -8,6 +8,10 @@ Stage::Stage()
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
 	skydome_ = std::make_shared<ModelInstance>();
 	skydome_->SetModel(ResourceManager::GetInstance()->FindModel("Skydome"));
+	skydome_->SetCastShadow(false);
+	skydome_->SetReciveShadow(false);
+	skydome_->SetReflection(false);
+	skydome_->SetUseLighting(false);
 	collider_ = std::make_unique<BoxCollider>();
 	skydomeTransform_ = std::make_shared<Transform>();
 }
