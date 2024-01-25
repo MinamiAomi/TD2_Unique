@@ -390,7 +390,7 @@ void Player::BehaviorRootUpdate() {
 	if (preXInputState.Gamepad.bRightTrigger && !xinputState.Gamepad.bRightTrigger) {
 
 		//重力付与状態で発射していなかったら
-		if (weapon_->GetIsGravity() && !weapon_->GetIsShot() && isPoseShot_) {
+		if (/*weapon_->GetIsGravity() && */!weapon_->GetIsShot() && isPoseShot_) {
 			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
 			camera_->SetRockY(false);
 			isPoseShot_ = false;

@@ -117,7 +117,7 @@ void Weapon::Update() {
 			gravityTransform_->rotate;
 	}
 
-	if ((isThrust_ || isShot_ || isAttack_) && isGravity_) {
+	if ((isThrust_ || isShot_ || isAttack_ || isBreak_) && isGravity_) {
 		gravityCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
 		collider_->SetIsActive(false);
@@ -176,7 +176,7 @@ void Weapon::Shot(const Vector3& velocity) {
 	velocity_ = velocity;
 	velocity_.Normalize();
 	
-	velocity_ *= 3.0f;
+	velocity_ *= 6.0f;
 	isShot_ = true;
 	shotTimer_ = kMaxShotTime_;
 	
@@ -187,6 +187,7 @@ void Weapon::Shot(const Vector3& velocity) {
 void Weapon::Break() {
 
 	isBreak_ = true;
+	isShot_ = false;
 
 	breakTimer_ = kMaxBreakTime_;
 
@@ -236,7 +237,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		enemy->Damage(0, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+		enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
 	}
 

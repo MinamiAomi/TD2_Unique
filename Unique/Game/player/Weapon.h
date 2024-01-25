@@ -106,7 +106,7 @@ private:
 
 	bool isShot_ = false;
 
-	uint32_t kMaxShotTime_ = 60;
+	uint32_t kMaxShotTime_ = 30;
 
 	int32_t shotTimer_ = kMaxShotTime_;
 

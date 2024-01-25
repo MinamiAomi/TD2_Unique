@@ -37,7 +37,7 @@ private:
 
 	std::unique_ptr<BoxCollider> collider_;
 
-	uint32_t kMaxHp_ = 1;
+	uint32_t kMaxHp_ = 3;
 
 	int32_t hp_ = kMaxHp_;
 

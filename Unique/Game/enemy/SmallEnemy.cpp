@@ -65,7 +65,8 @@ void SmallEnemy::Update() {
 	else {
 
 		//移動中の敵の場合
-		if (collider_->GetName() == "Small_Enemy") {
+		if (collider_->GetName() == "Small_Enemy" ||
+			collider_->GetName() == "Small_Enemy_Damaged") {
 
 			if (knockBackCount_ > 0) {
 
@@ -77,7 +78,9 @@ void SmallEnemy::Update() {
 					knockBackVelocity_ = Vector3::zero;
 				}
 
-				knockBackCount_--;
+				if (--knockBackCount_ <= 0) {
+					collider_->SetName("Small_Enemy");
+				}
 
 			}
 			else {
