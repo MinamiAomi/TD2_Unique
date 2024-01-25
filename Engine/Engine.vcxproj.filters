@@ -267,6 +267,9 @@
     <ClCompile Include="Math\AnimationNode.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Animation.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
