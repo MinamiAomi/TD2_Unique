@@ -680,7 +680,9 @@ void Player::BehaviorAttackUpdate() {
 		//攻撃中
 		if (attack_.attackTimer < workAttack_03_.attackFrame) {
 
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 2)),
+			playerTransforms_[kHip]->translate += workAttack_03_.velocity;
+
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 4)),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
 
 			weapon_->GetCollider()->SetIsActive(true);
@@ -738,8 +740,11 @@ void Player::BehaviorAttackInitialize() {
 		break;
 	case AttackType::kRotateAttack:
 		
+		workAttack_03_.velocity = { 0.0f,0.0f,1.0f };
+
+		workAttack_03_.velocity = workAttack_03_.velocity = attack_.playerRotate * workAttack_03_.velocity;
 		
-		
+
 		break;
 
 	}

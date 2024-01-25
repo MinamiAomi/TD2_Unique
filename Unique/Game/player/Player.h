@@ -180,14 +180,16 @@ private:
 
 	//攻撃用ワーク
 	struct WorkAttack_03 {
+		//プレイヤーの移動速度
+		Vector3 velocity{};
 		//攻撃中の時間
-		int32_t attackFrame = 20;
+		int32_t attackFrame = 40;
 		//攻撃後の待ち時間
 		int32_t waitFrameAfter = 40;
 		//合計待ち時間
 		int32_t waitFrameAll = 40;
 		//合計フレーム数
-		int32_t allFrame = 60;
+		int32_t allFrame = 80;
 		//攻撃時のY回転量
 		float attackRotate = -3.14f;
 	};
