@@ -88,9 +88,6 @@
     <ClInclude Include="Game\player\Player.h">
       <Filter>Game\player</Filter>
     </ClInclude>
-    <ClInclude Include="Game\player\Weapon.h">
-      <Filter>Game\player</Filter>
-    </ClInclude>
     <ClInclude Include="Game\followCamera\FollowCamera.h">
       <Filter>Game\followCamera</Filter>
     </ClInclude>
@@ -115,6 +112,9 @@
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Game\enemy\SmallEnemyManager.h">
       <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player\Weapon.h">
+      <Filter>Game\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

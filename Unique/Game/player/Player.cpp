@@ -682,7 +682,7 @@ void Player::BehaviorAttackUpdate() {
 
 			playerTransforms_[kHip]->translate += workAttack_03_.velocity;
 
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 4)),
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 8)),
 				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
 
 			weapon_->GetCollider()->SetIsActive(true);
@@ -723,6 +723,7 @@ void Player::BehaviorAttackInitialize() {
 	attack_.attackTimer = 0;
 	attack_.isCombo_ = false;
 	weapon_->isHit_ = false;
+	weapon_->GetGravityCollider()->SetName("Gravity_Attack");
 
 	switch (attack_.attackType)
 	{

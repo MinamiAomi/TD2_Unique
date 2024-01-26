@@ -142,12 +142,14 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 		hp_ = 0;
 	}
 
+	collider_->SetName("Small_Enemy_Damaged");
+
 	//攻撃を受けた地点からノックバック
 	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
 
 	knockBackVelocity_.y = 0.0f;
 
-	knockBackVelocity_ = knockBackVelocity_.Normalized() * 1.5f;
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
 
 	knockBackCount_ = kKnockBackTime_;
 

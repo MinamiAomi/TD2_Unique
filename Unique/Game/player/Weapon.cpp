@@ -12,7 +12,9 @@ Weapon::Weapon()
 	gravityModel_ = std::make_shared<ModelInstance>();
 	gravityModel_->SetModel(ResourceManager::GetInstance()->FindModel("Sphere"));
 	collider_ = std::make_unique<BoxCollider>();
+	spaceCollider_ = std::make_unique<SphereCollider>();
 	gravityCollider_ = std::make_unique<SphereCollider>();
+	gravitySpaceCollider_ = std::make_unique<SphereCollider>();
 	gravityTransform_ = std::make_shared<Transform>();
 	gravityScaleTransform_ = std::make_shared<Transform>();
 	modelBodyTransform_ = std::make_shared<Transform>();
@@ -33,6 +35,10 @@ void Weapon::SetDefault() {
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
+	
+	if (isGravity_) {
+		gravityCollider_->SetName("Gravity");
+	}
 
 }
 
@@ -64,6 +70,15 @@ void Weapon::Initialize() {
 	collider_->SetCollisionAttribute(0xfffffffe);
 	collider_->SetCollisionMask(0x00000001);
 
+	spaceCollider_->SetCenter(transform.translate);
+	spaceCollider_->SetRadius(1.0f);
+	spaceCollider_->SetName("Weapon");
+	spaceCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	spaceCollider_->SetGameObject(this);
+	spaceCollider_->SetIsActive(false);
+	spaceCollider_->SetCollisionAttribute(0xfffffffe);
+	spaceCollider_->SetCollisionMask(0x00000001);
+
 	gravityCollider_->SetCenter(gravityTransform_->translate);
 	gravityCollider_->SetRadius(gravityTransform_->scale.x);
 	gravityCollider_->SetName("Gravity");
@@ -71,6 +86,14 @@ void Weapon::Initialize() {
 	gravityCollider_->SetGameObject(this);
 	gravityCollider_->SetCollisionAttribute(0xfffffffe);
 	gravityCollider_->SetCollisionMask(0x00000001);
+
+	gravitySpaceCollider_->SetCenter(gravityTransform_->translate);
+	gravitySpaceCollider_->SetRadius(2.0f);
+	gravitySpaceCollider_->SetName("Gravity");
+	gravitySpaceCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {GravityOnCollision(collisionInfo); });
+	gravitySpaceCollider_->SetGameObject(this);
+	gravitySpaceCollider_->SetCollisionAttribute(0xfffffffe);
+	gravitySpaceCollider_->SetCollisionMask(0x00000001);
 
 	gravityModel_->SetIsActive(false);
 
@@ -117,14 +140,26 @@ void Weapon::Update() {
 			gravityTransform_->rotate;
 	}
 
+	if (isAttack_ && !isGravity_) {
+		collider_->SetIsActive(true);
+		spaceCollider_->SetIsActive(true);
+		model_->SetColor({ 1.0f,0.0f,0.0f });
+	}
+	else {
+		collider_->SetIsActive(false);
+		spaceCollider_->SetIsActive(false);
+		model_->SetColor({ 1.0f,1.0f,1.0f });
+	}
+
 	if ((isThrust_ || isShot_ || isAttack_ || isBreak_) && isGravity_) {
 		gravityCollider_->SetIsActive(true);
+		gravitySpaceCollider_->SetIsActive(true);
 		gravityModel_->SetIsActive(true);
-		collider_->SetIsActive(false);
 		gravityModel_->SetColor({ 1.0f,0.0f,0.0f });
 	}
 	else {
 		gravityCollider_->SetIsActive(false);
+		gravitySpaceCollider_->SetIsActive(false);
 		gravityModel_->SetColor({ 1.0f,1.0f,1.0f });
 	}
 
@@ -158,10 +193,14 @@ void Weapon::Update() {
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
 	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x);
+	gravitySpaceCollider_->SetCenter(player_->GetPosition() + (gravityTransform_->worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
+	gravitySpaceCollider_->SetRadius(gravityScaleTransform_->scale.x / 2.0f);
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
+	spaceCollider_->SetCenter(player_->GetPosition() + (transform.worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
+
 	model_->SetWorldMatrix(transform.worldMatrix);
 	modelBody_->SetWorldMatrix(modelBodyTransform_->worldMatrix);
 	gravityModel_->SetWorldMatrix(gravityScaleTransform_->worldMatrix);
@@ -294,6 +333,20 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			enemy->Damage(3 + gravityLevel_, transform.worldMatrix.GetTranslate());
 
 			isHit_ = true;
+
+		}
+
+	}
+	//殴った時
+	else if (gravityCollider_->GetName() == "Gravity_Attack") {
+
+		if (collisionInfo.collider->GetName() == "Small_Enemy") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+			enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
 		}
 

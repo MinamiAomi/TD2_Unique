@@ -91,7 +91,13 @@ private:
 
 	std::unique_ptr<BoxCollider> collider_;
 
+	//武器とプレイヤーの間を攻撃判定にするためのコライダー
+	std::unique_ptr<SphereCollider> spaceCollider_;
+
 	std::unique_ptr<SphereCollider> gravityCollider_;
+
+	//武器とプレイヤーの間を攻撃判定にするためのコライダー
+	std::unique_ptr<SphereCollider> gravitySpaceCollider_;
 
 	uint32_t energyCount_;
 
