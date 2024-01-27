@@ -514,11 +514,13 @@ void Player::BehaviorAttackUpdate() {
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
 		if (attack_.attackTimer >= workAttack_01_.allFrame / 4) {
 
-			if (weapon_->GetIsGravity()) {
+			/*if (weapon_->GetIsGravity()) {
 				ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
-			}
+			}*/
 
-			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
+			ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
+
+			if (/*weapon_->GetIsGravity() && */!attack_.isCombo_ &&
 				attack_.currentCombo_ < 2 &&
 				(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
 				!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
@@ -617,11 +619,13 @@ void Player::BehaviorAttackUpdate() {
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
 		if (attack_.attackTimer >= workAttack_02_.allFrame / 4) {
 
-			if (weapon_->GetIsGravity()) {
+			/*if (weapon_->GetIsGravity()) {
 				ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
-			}
+			}*/
 
-			if (weapon_->GetIsGravity() && !attack_.isCombo_ &&
+			ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+
+			if (/*weapon_->GetIsGravity() && */!attack_.isCombo_ &&
 				attack_.currentCombo_ < 2 &&
 				(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
 				!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
