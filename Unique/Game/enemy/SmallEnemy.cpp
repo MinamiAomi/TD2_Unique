@@ -166,7 +166,7 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 BarrierEnemy::BarrierEnemy()
 {
 
-	SmallEnemy::SmallEnemy();
+	
 
 }
 
