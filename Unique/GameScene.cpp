@@ -59,7 +59,7 @@ void GameScene::SetEnemy(uint32_t num) {
 
     for (uint32_t i = 0; i < num; i++) {
 
-        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
+        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<BarrierEnemy>();
         newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-200.0f,200.0f),
         10.0f, randomNumberGenerator.NextFloatRange(-200.0f, 200.0f), });
         newEnemy->SetPlayer(player_.get());

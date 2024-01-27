@@ -3,6 +3,10 @@
 #include "SmallEnemyManager.h"
 #include "Game/player/Player.h"
 
+///----------------------------------------------------------------
+/// 通常の雑魚敵
+///----------------------------------------------------------------
+
 SmallEnemy::SmallEnemy()
 {
 
@@ -152,5 +156,34 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
 
 	knockBackCount_ = kKnockBackTime_;
+
+}
+
+///----------------------------------------------------------------
+/// バリア持ちの敵
+///----------------------------------------------------------------
+
+BarrierEnemy::BarrierEnemy()
+{
+
+	SmallEnemy::SmallEnemy();
+
+}
+
+void BarrierEnemy::Initialize(const Vector3& startPosition) {
+
+	SmallEnemy::Initialize(startPosition);
+
+}
+
+void BarrierEnemy::Update() {
+
+	SmallEnemy::Update();
+
+}
+
+void BarrierEnemy::OnCollision(const CollisionInfo& collisionInfo) {
+
+	SmallEnemy::OnCollision(collisionInfo);
 
 }

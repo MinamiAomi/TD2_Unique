@@ -9,11 +9,11 @@ class SmallEnemy : public GameObject
 {
 public:
 	SmallEnemy();
-	~SmallEnemy();
+	virtual ~SmallEnemy();
 
-	void Initialize(const Vector3& startPosition);
+	virtual void Initialize(const Vector3& startPosition);
 
-	void Update();
+	virtual void Update();
 
 	void SetPlayer(Player* player) { player_ = player; }
 
@@ -23,13 +23,13 @@ public:
 
 	BoxCollider* GetCollider() { return collider_.get(); }
 
-	void Damage(uint32_t val, const Vector3& affectPosition);
+	virtual void Damage(uint32_t val, const Vector3& affectPosition);
 
-private:
+protected:
 
-	void OnCollision(const CollisionInfo& collisionInfo);
+	virtual void OnCollision(const CollisionInfo& collisionInfo);
 
-private:
+protected:
 
 	Player* player_ = nullptr;
 
@@ -67,4 +67,22 @@ private:
 
 };
 
+class BarrierEnemy : public SmallEnemy
+{
+public:
+	BarrierEnemy();
+
+	void Initialize(const Vector3& startPosition) override;
+
+	void Update() override;
+
+protected:
+
+	void OnCollision(const CollisionInfo& collisionInfo) override;
+
+private:
+
+	int32_t barrierHp_ = 3;
+
+};
 
