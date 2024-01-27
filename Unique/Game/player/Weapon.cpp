@@ -270,7 +270,8 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 		isHit_ = true;
 
 	}
-	else if (collisionInfo.collider->GetName() == "Small_Enemy") {
+	else if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+		collisionInfo.collider->GetName() == "Barrier_Enemy") {
 
 		auto object = collisionInfo.collider->GetGameObject();
 
@@ -340,7 +341,8 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 	//殴った時
 	else if (gravityCollider_->GetName() == "Gravity_Attack") {
 
-		if (collisionInfo.collider->GetName() == "Small_Enemy") {
+		if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+			collisionInfo.collider->GetName() == "Barrier_Enemy") {
 
 			auto object = collisionInfo.collider->GetGameObject();
 

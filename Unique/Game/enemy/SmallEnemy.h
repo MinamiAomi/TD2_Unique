@@ -76,11 +76,15 @@ public:
 
 	void Update() override;
 
+	void Damage(uint32_t val, const Vector3& affectPosition) override;
+
 protected:
 
 	void OnCollision(const CollisionInfo& collisionInfo) override;
 
 private:
+
+	/*std::shared_ptr<ModelInstance> barrierModel_;*/
 
 	int32_t barrierHp_ = 3;
 

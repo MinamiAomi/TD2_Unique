@@ -168,6 +168,7 @@ void Player::Initialize() {
 	workDash_.speed_ = 2.0f;
 
 	attack_.attackType = kVertical;
+	attack_.isCombo_ = false;
 
 	workInvincible_.invincibleTimer = 0;
 	workInvincible_.isInvincible = false;
@@ -802,7 +803,8 @@ void Player::Damage(uint32_t val) {
 void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
 	if (collisionInfo.collider->GetName() == "Enemy_Bullet" ||
-		collisionInfo.collider->GetName() == "Small_Enemy") {
+		collisionInfo.collider->GetName() == "Small_Enemy" ||
+		collisionInfo.collider->GetName() == "Barrier_Enemy") {
 
 		Damage(1);
 
