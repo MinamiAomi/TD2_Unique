@@ -135,6 +135,12 @@ void SmallEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 		knockBackCount_ = kKnockBackTime_ / 2;
 
 	}
+	else if (collisionInfo.collider->GetName() == "ShockWave") {
+
+		//プレイヤーと当たった地点からノックバックしてダメージ
+		Damage(1, player_->GetPosition());
+
+	}
 
 }
 
@@ -283,6 +289,12 @@ void BarrierEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 		knockBackVelocity_ = knockBackVelocity_.Normalized();
 
 		knockBackCount_ = kKnockBackTime_ / 2;
+
+	}
+	else if (collisionInfo.collider->GetName() == "ShockWave") {
+
+		//プレイヤーと当たった地点からノックバックしてダメージ
+		Damage(1, player_->GetPosition());
 
 	}
 

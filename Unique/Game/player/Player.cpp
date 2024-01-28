@@ -80,6 +80,8 @@ Player::Player()
 
 	collider_ = std::make_unique<BoxCollider>();
 
+	shockWaveCollider_ = std::make_unique<SphereCollider>();
+
 	weapon_ = std::make_unique<Weapon>();
 
 	reticle_ = std::make_shared<Reticle3D>();
@@ -160,6 +162,14 @@ void Player::Initialize() {
 	collider_->SetGameObject(this);
 	collider_->SetCollisionAttribute(0xfffffffe);
 	collider_->SetCollisionMask(0x00000001);
+
+	shockWaveCollider_->SetCenter(playerTransforms_[kHip]->worldMatrix.GetTranslate());
+	shockWaveCollider_->SetRadius(10.0f);
+	shockWaveCollider_->SetName("ShockWave");
+	shockWaveCollider_->SetIsActive(false);
+	shockWaveCollider_->SetGameObject(this);
+	shockWaveCollider_->SetCollisionAttribute(0xfffffffe);
+	shockWaveCollider_->SetCollisionMask(0x00000001);
 
 	velocity_ = { 0.0f,0.0f,1.0f };
 
@@ -264,6 +274,7 @@ void Player::Update() {
 
 	collider_->SetCenter(playerTransforms_[kHip]->translate);
 	collider_->SetOrientation(playerTransforms_[kHip]->rotate);
+	shockWaveCollider_->SetCenter(playerTransforms_[kHip]->translate);
 	playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
 
 	if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
@@ -693,7 +704,16 @@ void Player::BehaviorAttackUpdate() {
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
+		else if (attack_.attackTimer < workAttack_03_.attackFrame + workAttack_03_.shockWaveFrame) {
+			shockWaveCollider_->SetIsActive(true);
+			//時間経過で範囲拡大
+			shockWaveCollider_->SetRadius(5.0f + float(attack_.attackTimer - workAttack_03_.attackFrame));
+			weapon_->GetCollider()->SetIsActive(false);
+			weapon_->isAttack_ = false;
+
+		}
 		else {
+			shockWaveCollider_->SetIsActive(false);
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
 		}

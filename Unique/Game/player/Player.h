@@ -186,6 +186,8 @@ private:
 		int32_t attackFrame = 40;
 		//攻撃後の待ち時間
 		int32_t waitFrameAfter = 40;
+		//攻撃後の衝撃波発生時間
+		int32_t shockWaveFrame = 10;
 		//合計待ち時間
 		int32_t waitFrameAll = 40;
 		//合計フレーム数
@@ -278,9 +280,12 @@ private:
 	//発射準備中かどうか
 	bool isPoseShot_ = false;
 
-	//当たり判定(球)
+	//当たり判定(OBB)
 	std::unique_ptr<BoxCollider> collider_;
 
+	//プレイヤーの衝撃波当たり判定。三撃目の最後に発動
+	std::unique_ptr<SphereCollider> shockWaveCollider_;
+ 
 	std::shared_ptr<Texture> hpTex_;
 
 	std::unique_ptr<Sprite> hpSprite_;

@@ -51,7 +51,7 @@ void GameScene::Reset() {
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
-    SetEnemy(40);
+    SetEnemy(20);
 
 }
 
@@ -103,8 +103,8 @@ void GameScene::OnUpdate() {
 
     if (++spawn_.spawnTimer >= spawn_.spawnFrame) {
 
-        //敵の数が100体未満の時にスポーン処理
-        if (enemies_.size() < 100) {
+        //敵の数が30体未満の時にスポーン処理
+        if (enemies_.size() < 30) {
             SetEnemy(spawn_.spawnCount);
         }
 
