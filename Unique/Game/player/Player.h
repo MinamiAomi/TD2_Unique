@@ -208,7 +208,16 @@ private:
 
 	//重力を構えるときのワーク
 	struct WorkGravity {
-
+		//重力の制御フレーム
+		int32_t gravityTimer = 0;
+		//重力を用意するまでにかかるフレーム
+		int32_t gravityFrame = 15;
+		//重力の持続時間
+		int32_t keepTime = 120;
+		//重力を使用している時の制御変数
+		int32_t overHeatTimer = 0;
+		//重力を使用しすぎた場合の制御フラグ
+		bool isOverHeat = false;
 	};
 
 	//無敵状態ワーク
@@ -230,6 +239,8 @@ private:
 	WorkAttack_03 workAttack_03_;
 
 	WorkShot workShot_;
+
+	WorkGravity workGravity_;
 
 	WorkInvincible workInvincible_;
 

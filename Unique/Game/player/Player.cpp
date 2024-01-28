@@ -180,6 +180,9 @@ void Player::Initialize() {
 	attack_.attackType = kVertical;
 	attack_.isCombo_ = false;
 
+	workGravity_.gravityTimer = 0;
+	workGravity_.isOverHeat = false;
+
 	workInvincible_.invincibleTimer = 0;
 	workInvincible_.isInvincible = false;
 
@@ -316,7 +319,7 @@ void Player::Update() {
 	else {
 
 		//ダッシュ、攻撃UI
-		if (!weapon_->isThrust_ && !isPoseShot_) {
+		if (workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 			ui_LB_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 			ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 		}
@@ -326,7 +329,7 @@ void Player::Update() {
 		}
 
 		//突き立てUI
-		if (!isPoseShot_) {
+		if (!isPoseShot_ && !workGravity_.isOverHeat) {
 			ui_RB_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
 		}
 		else {
@@ -334,7 +337,7 @@ void Player::Update() {
 		}
 		
 		//重力発射UI
-		if (!weapon_->isThrust_ && weapon_->GetIsGravity()) {
+		if (workGravity_.gravityTimer <= 0 && weapon_->GetIsGravity()) {
 			
 			//重力の大きさに応じてUIの色変更
 			switch (weapon_->GetLevel())
@@ -369,24 +372,11 @@ void Player::BehaviorRootUpdate() {
 
 	auto& preXInputState = input->GetPreXInputState();
 
-	//重力付与、前に突き立て
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && 
-		!weapon_->GetIsShot() && !isPoseShot_) {
-		Thrust();
-	}
-	else {
-		weapon_->isThrust_ = false;
-	}
-
-	//突き立て終了時
-	if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
-		(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
-		!weapon_->GetIsShot()) {
-		weapon_->SetDefault();
-	}
+	//突き立て処理まとめ
+	Thrust();
 
 	//重力波発射準備
-	if (xinputState.Gamepad.bRightTrigger && !weapon_->isThrust_) {
+	if (xinputState.Gamepad.bRightTrigger && workGravity_.gravityTimer <= 0) {
 
 		//重力付与状態で構える
 		if (weapon_->GetIsGravity()) {
@@ -413,7 +403,7 @@ void Player::BehaviorRootUpdate() {
 	// 重力波発射中と突き出し中は遷移不可
 	if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
 		!(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) && 
-		!weapon_->GetIsShot() && !weapon_->isThrust_ && !isPoseShot_) {
+		!weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 
 
 		attack_.attackType = kHorizontal_1;
@@ -423,7 +413,7 @@ void Player::BehaviorRootUpdate() {
 	}
 	// ダッシュ
 	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) &&
-		!weapon_->isThrust_ && !isPoseShot_) {
+		workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 		
 		//ディレイの値に応じてスピード調整
 		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f);
@@ -492,21 +482,91 @@ void Player::BehaviorRootInitialize() {
 
 void Player::Thrust() {
 
-	//重力波が発射されていない時
-	if (!weapon_->GetIsShot()) {
+	auto input = Input::GetInstance();
 
-		//重力が付与されていなかったら重力付与
-		if (!weapon_->GetIsGravity()) {
-			weapon_->AddGravity();
+	auto& xinputState = input->GetXInputState();
+
+	//重力波が発射されていない時、オーバーヒートしていない時
+	if (!weapon_->GetIsShot() && !workGravity_.isOverHeat) {
+
+		//重力を付けるまでに若干のラグを設ける
+		if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+			!weapon_->GetIsShot() && !isPoseShot_) {
+			
+			if (workGravity_.gravityTimer < workGravity_.gravityFrame) {
+				workGravity_.gravityTimer++;
+			}
+
+		}
+		else {
+
+			if (workGravity_.gravityTimer > 0) {
+				workGravity_.gravityTimer--;
+
+				if (workGravity_.gravityTimer <= 0) {
+					weapon_->SetDefault();
+				}
+
+			}
+
 		}
 
-		weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
-		weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.57f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
-		weapon_->isThrust_ = true;
+		//重力機能がオンになった状態
+		if (workGravity_.gravityTimer >= workGravity_.gravityFrame) {
+
+			//重力が付与されていなかったら重力付与
+			if (!weapon_->GetIsGravity()) {
+				weapon_->AddGravity();
+			}
+
+			weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
+			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.57f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
+			weapon_->isThrust_ = true;
+
+			//規定時間以上重力を続けると一定時間強制的に使えなくなる
+			if (workGravity_.overHeatTimer < workGravity_.keepTime) {
+				
+				workGravity_.overHeatTimer++;
+
+				if (workGravity_.overHeatTimer >= workGravity_.keepTime) {
+					workGravity_.isOverHeat = true;
+					workGravity_.gravityTimer = 0;
+					weapon_->SetDefault();
+				}
+
+			}
+
+		}
+		else {
+
+			//持続していない間は重力時間を回復
+			if (workGravity_.overHeatTimer > 0) {
+				workGravity_.overHeatTimer--;
+
+			}
+
+			weapon_->isThrust_ = false;
+		}
 
 	}
 	else {
 		weapon_->isThrust_ = false;
+	}
+
+	//オーバーヒート中はタイマーを回復
+	if (workGravity_.isOverHeat) {
+
+		//規定時間到達で解除
+		if (workGravity_.overHeatTimer > 0) {
+
+			workGravity_.overHeatTimer--;
+
+			if (workGravity_.overHeatTimer <= 0) {
+				workGravity_.isOverHeat = false;
+			}
+
+		}
+
 	}
 
 }
