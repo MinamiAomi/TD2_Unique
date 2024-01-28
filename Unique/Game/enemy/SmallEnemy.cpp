@@ -123,22 +123,26 @@ void SmallEnemy::Update() {
 
 void SmallEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Player") {
+	if (collider_->GetName() != "Small_Enemy_Affected") {
 
-		//プレイヤーと当たった地点からノックバック
-		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - player_->GetPosition();
+		if (collisionInfo.collider->GetName() == "Player") {
 
-		knockBackVelocity_.y = 0.0f;
+			//プレイヤーと当たった地点からノックバック
+			knockBackVelocity_ = transform.worldMatrix.GetTranslate() - player_->GetPosition();
 
-		knockBackVelocity_ = knockBackVelocity_.Normalized();
+			knockBackVelocity_.y = 0.0f;
 
-		knockBackCount_ = kKnockBackTime_ / 2;
+			knockBackVelocity_ = knockBackVelocity_.Normalized();
 
-	}
-	else if (collisionInfo.collider->GetName() == "ShockWave") {
+			knockBackCount_ = kKnockBackTime_ / 2;
 
-		//プレイヤーと当たった地点からノックバックしてダメージ
-		Damage(1, player_->GetPosition());
+		}
+		else if (collisionInfo.collider->GetName() == "ShockWave") {
+
+			//プレイヤーと当たった地点からノックバックしてダメージ
+			Damage(1, player_->GetPosition());
+
+		}
 
 	}
 
@@ -279,22 +283,26 @@ void BarrierEnemy::Update() {
 
 void BarrierEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Player") {
+	if (collider_->GetName() != "Small_Enemy_Affected") {
 
-		//プレイヤーと当たった地点からノックバック
-		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - player_->GetPosition();
+		if (collisionInfo.collider->GetName() == "Player") {
 
-		knockBackVelocity_.y = 0.0f;
+			//プレイヤーと当たった地点からノックバック
+			knockBackVelocity_ = transform.worldMatrix.GetTranslate() - player_->GetPosition();
 
-		knockBackVelocity_ = knockBackVelocity_.Normalized();
+			knockBackVelocity_.y = 0.0f;
 
-		knockBackCount_ = kKnockBackTime_ / 2;
+			knockBackVelocity_ = knockBackVelocity_.Normalized();
 
-	}
-	else if (collisionInfo.collider->GetName() == "ShockWave") {
+			knockBackCount_ = kKnockBackTime_ / 2;
 
-		//プレイヤーと当たった地点からノックバックしてダメージ
-		Damage(1, player_->GetPosition());
+		}
+		else if (collisionInfo.collider->GetName() == "ShockWave") {
+
+			//プレイヤーと当たった地点からノックバックしてダメージ
+			Damage(1, player_->GetPosition());
+
+		}
 
 	}
 

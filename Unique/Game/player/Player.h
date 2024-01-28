@@ -206,6 +206,11 @@ private:
 		float shotRotate = 2.32f;
 	};
 
+	//重力を構えるときのワーク
+	struct WorkGravity {
+
+	};
+
 	//無敵状態ワーク
 	struct WorkInvincible {
 		//無敵中かどうか

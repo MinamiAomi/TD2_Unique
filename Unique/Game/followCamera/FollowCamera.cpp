@@ -37,11 +37,7 @@ void FollowCamera::Update() {
             std::abs(xinputState.Gamepad.sThumbRY) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
             const float rotateSpeed = 4.0f * Math::ToRadian;
             euler_.x += -float(xinputState.Gamepad.sThumbRY) / float(SHRT_MAX) * rotateSpeed;
-
-            //ロックされていない時のみ回転
-            if (!isRockY_) {
-                euler_.y += float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed;
-            }
+            euler_.y += float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed;
 
             if (euler_.x > 0.2f) {
                 euler_.x = 0.2f;

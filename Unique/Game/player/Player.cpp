@@ -392,7 +392,6 @@ void Player::BehaviorRootUpdate() {
 		if (weapon_->GetIsGravity()) {
 			playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
 			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
-			camera_->SetRockY(true);
 			isPoseShot_ = true;
 		}
 
@@ -404,7 +403,6 @@ void Player::BehaviorRootUpdate() {
 		//重力付与状態で発射していなかったら
 		if (/*weapon_->GetIsGravity() && */!weapon_->GetIsShot() && isPoseShot_) {
 			weapon_->Shot(reticle_->GetReticlePosition() - weapon_->GetPosition());
-			camera_->SetRockY(false);
 			isPoseShot_ = false;
 			behaviorRequest_ = Behavior::kShot;
 		}
@@ -467,12 +465,16 @@ void Player::BehaviorRootUpdate() {
 			// 回転
 			//playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.2f, playerTransforms_[kHip]->rotate, Quaternion::MakeLookRotation(move));
 
-			//武器を前に掲げている時、重力発射の構え中は回転させない
-			if (!weapon_->isThrust_ && !(weapon_->GetIsGravity() && xinputState.Gamepad.bRightTrigger)) {
-				move = playerTransforms_[kHip]->rotate.Conjugate() * move;
-				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-				playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
+			if (weapon_->isThrust_ || isPoseShot_) {
+
 			}
+			else {
+
+			}
+
+			move = playerTransforms_[kHip]->rotate.Conjugate() * move;
+			Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
 			
 		}
 	}
