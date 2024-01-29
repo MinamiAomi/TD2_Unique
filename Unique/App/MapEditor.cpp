@@ -75,7 +75,11 @@ void MapEditor::Edit() {
 
 			if (ImGui::TreeNode(showObjName.c_str())) {
 
-				if (ImGui::DragFloat3("position", &mapObjectData->transform->translate.x, 0.1f)) {
+				if (ImGui::DragFloat("translate.x", &mapObjectData->transform->translate.x, 0.1f)) {
+					isSave_ = false;
+				}
+
+				if (ImGui::DragFloat("translate.z", &mapObjectData->transform->translate.z, 0.1f)) {
 					isSave_ = false;
 				}
 
@@ -321,7 +325,7 @@ void MapEditor::Load(const std::string& filename) {
 				mapObject->objName = objectName;
 				mapObject->transform = std::make_shared<Transform>();
 				mapObject->transform->rotate = Quaternion::identity;
-				mapObject->transform->scale = Vector3::one;
+				mapObject->transform->scale = Vector3::one * 2.0f;
 
 				uint32_t roopCount = 0;
 
@@ -433,8 +437,9 @@ void MapEditor::AddObject(char* name) {
 	mapObject->objName = objectName;
 	mapObject->transform = std::make_shared<Transform>();
 	mapObject->transform->translate = spawnPoint_;
+	mapObject->transform->translate.y = 10.0f;
 	mapObject->transform->rotate = Quaternion::identity;
-	mapObject->transform->scale = Vector3::one;
+	mapObject->transform->scale = Vector3::one * 2.0f;
 
 	mapObjData_.push_back(mapObject);
 

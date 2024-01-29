@@ -44,9 +44,7 @@ void GameScene::OnInitialize() {
     //セット
     player_->SetCamera(followCamera_);
     followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
-   /* enemy_->SetPlayer(player_.get());*/
-    /*enemy_->SetBlockList(&blocks_);*/
-    SetEnemy(40);
+  
 
 }
 
@@ -56,9 +54,6 @@ void GameScene::Reset() {
     player_->Initialize();
     /*enemy_->Initialize();*/
     stage_->Initialize();
-    SmallEnemyManager::GetInstance()->Clear();
-    enemies_.clear();
-    SetEnemy(20);
 
 }
 
@@ -95,61 +90,9 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
-    enemies_.remove_if([](auto& enemy) {
-
-        if (enemy->GetIsDead()) {
-            SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
-            return true;
-        }
-
-        return false;
-
-       });
-
     GlobalVariables::GetInstance()->Update();
 
-    Input* input = Input::GetInstance();
-
-    if (++spawn_.spawnTimer >= spawn_.spawnFrame) {
-
-        //敵の数が30体未満の時にスポーン処理
-        if (enemies_.size() < 30) {
-            SetEnemy(spawn_.spawnCount);
-        }
-
-        spawn_.spawnTimer = 0;
-
-    }
-
-    if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
-        Reset();
-    }
-
-    //敵召喚
-    if (input->IsKeyTrigger(DIK_E)) {
-        SetEnemy(10);
-    }
-
-    if (input->IsKeyTrigger(DIK_C)) {
-
-        //コライダーを非アクティブ(ctrl + C)
-        if (input->IsKeyPressed(DIK_LCONTROL)) {
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(false);
-            }
-        }
-        //コライダーをアクティブ(shift + C)
-        else if(input->IsKeyPressed(DIK_LSHIFT)){
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(true);
-            }
-        }
-       
-    }
-
-    for (auto& enemy : enemies_) {
-        enemy->Update();
-    }
+    /*Input* input = Input::GetInstance();*/
 
     player_->Update();
    /* enemy_->Update();*/
