@@ -14,6 +14,13 @@ static Random::RandomNumberGenerator randomNumberGenerator;
 
 void GameScene::OnInitialize() {
 
+#ifdef _DEBUG
+
+    editor_ = MapEditor::GetInstance();
+    editor_->Initialize();
+
+#endif // _DEBUG
+
     GlobalVariables::GetInstance()->LoadFiles();
 
     followCamera_ = std::make_shared<FollowCamera>();
@@ -84,6 +91,8 @@ void GameScene::OnUpdate() {
 
     ImGui::End();
 
+    editor_->Edit();
+
 #endif // _DEBUG
 
     enemies_.remove_if([](auto& enemy) {
@@ -117,26 +126,26 @@ void GameScene::OnUpdate() {
     }
 
     //敵召喚
-    //if (input->IsKeyTrigger(DIK_E)) {
-    //    SetEnemy(10);
-    //}
+    if (input->IsKeyTrigger(DIK_E)) {
+        SetEnemy(10);
+    }
 
-    //if (input->IsKeyTrigger(DIK_C)) {
+    if (input->IsKeyTrigger(DIK_C)) {
 
-    //    //コライダーを非アクティブ(ctrl + C)
-    //    if (input->IsKeyPressed(DIK_LCONTROL)) {
-    //        for (auto& enemy : enemies_) {
-    //            enemy->GetCollider()->SetIsActive(false);
-    //        }
-    //    }
-    //    //コライダーをアクティブ(C)
-    //    else {
-    //        for (auto& enemy : enemies_) {
-    //            enemy->GetCollider()->SetIsActive(true);
-    //        }
-    //    }
-    //   
-    //}
+        //コライダーを非アクティブ(ctrl + C)
+        if (input->IsKeyPressed(DIK_LCONTROL)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(false);
+            }
+        }
+        //コライダーをアクティブ(shift + C)
+        else if(input->IsKeyPressed(DIK_LSHIFT)){
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(true);
+            }
+        }
+       
+    }
 
     for (auto& enemy : enemies_) {
         enemy->Update();

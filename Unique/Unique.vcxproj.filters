@@ -19,6 +19,9 @@
     <Filter Include="Game\followCamera">
       <UniqueIdentifier>{1e287115-be46-48f6-a7c4-4536e216f1eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{70db69d4-d73d-48d6-b448-c6650e5237db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -68,6 +71,9 @@
     <ClCompile Include="Game\enemy\SmallEnemyManager.cpp">
       <Filter>Game\enemy</Filter>
     </ClCompile>
+    <ClCompile Include="App\MapEditor.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="Game\player\Weapon.h">
       <Filter>Game\player</Filter>
+    </ClInclude>
+    <ClInclude Include="App\MapEditor.h">
+      <Filter>App</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

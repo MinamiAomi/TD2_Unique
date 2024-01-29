@@ -14,6 +14,7 @@
 #include "Game/block/Block.h"
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/enemy/SmallEnemy.h"
+#include "App/MapEditor.h"
 
 class GameScene :
     public BaseScene {
@@ -30,6 +31,8 @@ private:
     void SetEnemy(uint32_t num);
 
 private:
+
+    MapEditor* editor_ = nullptr;
 
     struct Spawn {
         //自動スポーンに利用する変数
