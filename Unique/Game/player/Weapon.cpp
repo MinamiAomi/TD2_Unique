@@ -6,30 +6,58 @@
 Weapon::Weapon()
 {
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon_Head"));
+	modelBody_ = std::make_shared<ModelInstance>();
+	modelBody_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon"));
 	gravityModel_ = std::make_shared<ModelInstance>();
 	gravityModel_->SetModel(ResourceManager::GetInstance()->FindModel("Sphere"));
 	collider_ = std::make_unique<BoxCollider>();
+	spaceCollider_ = std::make_unique<SphereCollider>();
 	gravityCollider_ = std::make_unique<SphereCollider>();
+	gravitySpaceCollider_ = std::make_unique<SphereCollider>();
 	gravityTransform_ = std::make_shared<Transform>();
+	gravityScaleTransform_ = std::make_shared<Transform>();
+	modelBodyTransform_ = std::make_shared<Transform>();
 }
 
 Weapon::~Weapon()
 {
 }
 
+void Weapon::SetDefault() {
+
+	modelBodyTransform_->translate = { 0.0f,-3.0f,0.0f };
+	modelBodyTransform_->scale = Vector3::one;
+	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
+	modelBodyTransform_->UpdateMatrix();
+	transform.SetParent(modelBodyTransform_.get());
+	transform.translate = { 0.0f,7.0f,0.0f };
+	transform.scale = Vector3::one;
+	transform.rotate = Quaternion::identity;
+	transform.UpdateMatrix();
+	
+	if (isGravity_) {
+		gravityCollider_->SetName("Gravity");
+	}
+
+}
+
 void Weapon::Initialize() {
 
 	SetName("Weapon");
 
-	transform.translate = Vector3::zero;
-	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::identity;
+	SetDefault();
 
+	gravityTransform_->SetParent(&transform);
 	gravityTransform_->translate = Vector3::zero;
 	gravityTransform_->scale = Vector3::one;
 	gravityTransform_->rotate = Quaternion::identity;
-	gravityTransform_->SetParent(&transform);
+	gravityTransform_->UpdateMatrix();
+
+	gravityScaleTransform_->SetParent(gravityTransform_.get());
+	gravityScaleTransform_->translate = Vector3::zero;
+	gravityScaleTransform_->scale = Vector3::one;
+	gravityScaleTransform_->rotate = Quaternion::identity;
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
@@ -39,12 +67,33 @@ void Weapon::Initialize() {
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
 	collider_->SetIsActive(false);
+	collider_->SetCollisionAttribute(0xfffffffe);
+	collider_->SetCollisionMask(0x00000001);
+
+	spaceCollider_->SetCenter(transform.translate);
+	spaceCollider_->SetRadius(1.0f);
+	spaceCollider_->SetName("Weapon");
+	spaceCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+	spaceCollider_->SetGameObject(this);
+	spaceCollider_->SetIsActive(false);
+	spaceCollider_->SetCollisionAttribute(0xfffffffe);
+	spaceCollider_->SetCollisionMask(0x00000001);
 
 	gravityCollider_->SetCenter(gravityTransform_->translate);
 	gravityCollider_->SetRadius(gravityTransform_->scale.x);
 	gravityCollider_->SetName("Gravity");
 	gravityCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {GravityOnCollision(collisionInfo); });
 	gravityCollider_->SetGameObject(this);
+	gravityCollider_->SetCollisionAttribute(0xfffffffe);
+	gravityCollider_->SetCollisionMask(0x00000001);
+
+	gravitySpaceCollider_->SetCenter(gravityTransform_->translate);
+	gravitySpaceCollider_->SetRadius(2.0f);
+	gravitySpaceCollider_->SetName("Gravity");
+	gravitySpaceCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {GravityOnCollision(collisionInfo); });
+	gravitySpaceCollider_->SetGameObject(this);
+	gravitySpaceCollider_->SetCollisionAttribute(0xfffffffe);
+	gravitySpaceCollider_->SetCollisionMask(0x00000001);
 
 	gravityModel_->SetIsActive(false);
 
@@ -91,15 +140,27 @@ void Weapon::Update() {
 			gravityTransform_->rotate;
 	}
 
-	transform.UpdateMatrix();
-
-	if ((isThrust_ || isShot_ || isAttack_) && isGravity_) {
-		gravityCollider_->SetIsActive(true);
-		gravityModel_->SetIsActive(true);
+	if (isAttack_ && !isGravity_) {
+		collider_->SetIsActive(true);
+		spaceCollider_->SetIsActive(true);
+		model_->SetColor({ 1.0f,0.0f,0.0f });
+	}
+	else {
 		collider_->SetIsActive(false);
+		spaceCollider_->SetIsActive(false);
+		model_->SetColor({ 1.0f,1.0f,1.0f });
+	}
+
+	if ((isThrust_ || isShot_ || isAttack_ || isBreak_) && isGravity_) {
+		gravityCollider_->SetIsActive(true);
+		gravitySpaceCollider_->SetIsActive(true);
+		gravityModel_->SetIsActive(true);
+		gravityModel_->SetColor({ 1.0f,0.0f,0.0f });
 	}
 	else {
 		gravityCollider_->SetIsActive(false);
+		gravitySpaceCollider_->SetIsActive(false);
+		gravityModel_->SetColor({ 1.0f,1.0f,1.0f });
 	}
 
 	//重力波のレベルに応じて当たり判定を肥大化
@@ -107,34 +168,42 @@ void Weapon::Update() {
 	{
 	default:
 	case Weapon::kSmall:
-		gravityTransform_->scale = { 3.0f,3.0f,3.0f };
+		gravityScaleTransform_->scale = { 3.0f,3.0f,3.0f };
 		break;
 	case Weapon::kMedium:
-		gravityTransform_->scale = { 5.0f,5.0f,5.0f };
+		gravityScaleTransform_->scale = { 5.0f,5.0f,5.0f };
 		break;
 	case Weapon::kWide:
-		gravityTransform_->scale = { 8.0f,8.0f,8.0f };
+		gravityScaleTransform_->scale = { 8.0f,8.0f,8.0f };
 		break;
 	}
 
 	//重力をまとっている間
 	if (isGravity_ && !isShot_) {
-		gravityDelay_ = int32_t(gravityLevel_ * 5);
+		gravityDelay_ = int32_t(gravityLevel_ * 5) + 5;
 	}
 	else {
 		gravityDelay_ = 0;
 	}
 
 	gravityTransform_->UpdateMatrix();
+	gravityScaleTransform_->UpdateMatrix();
+	modelBodyTransform_->UpdateMatrix();
+	transform.UpdateMatrix();
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
-	gravityCollider_->SetRadius(gravityTransform_->scale.x);
+	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x);
+	gravitySpaceCollider_->SetCenter(player_->GetPosition() + (gravityTransform_->worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
+	gravitySpaceCollider_->SetRadius(gravityScaleTransform_->scale.x / 2.0f);
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
+	spaceCollider_->SetCenter(player_->GetPosition() + (transform.worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
+
 	model_->SetWorldMatrix(transform.worldMatrix);
-	gravityModel_->SetWorldMatrix(gravityTransform_->worldMatrix);
+	modelBody_->SetWorldMatrix(modelBodyTransform_->worldMatrix);
+	gravityModel_->SetWorldMatrix(gravityScaleTransform_->worldMatrix);
 
 }
 
@@ -145,8 +214,8 @@ void Weapon::Shot(const Vector3& velocity) {
 
 	velocity_ = velocity;
 	velocity_.Normalize();
-
-	velocity_ *= 3.0f;
+	
+	velocity_ *= 6.0f;
 	isShot_ = true;
 	shotTimer_ = kMaxShotTime_;
 	
@@ -157,6 +226,7 @@ void Weapon::Shot(const Vector3& velocity) {
 void Weapon::Break() {
 
 	isBreak_ = true;
+	isShot_ = false;
 
 	breakTimer_ = kMaxBreakTime_;
 
@@ -185,12 +255,10 @@ void Weapon::Reset() {
 
 	gravityCollider_->SetName("Gravity");
 	gravityCollider_->SetIsActive(false);
+	gravityLevel_ = kSmall;
 	
-	transform.SetParent(&player_->transform);
+	SetDefault();
 
-	transform.translate = { 0.0f,0.0f,3.0f };
-	transform.scale = Vector3::one;
-	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
 
 }
@@ -202,13 +270,14 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 		isHit_ = true;
 
 	}
-	else if (collisionInfo.collider->GetName() == "Small_Enemy") {
+	else if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+		collisionInfo.collider->GetName() == "Barrier_Enemy") {
 
 		auto object = collisionInfo.collider->GetGameObject();
 
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		enemy->Damage(0, player_->transform.worldMatrix.GetTranslate());
+		enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
 	}
 
@@ -245,6 +314,10 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			isHit_ = true;
 
 		}
+		//地面に衝突したらフレームカウントを0にして破裂
+		else if (collisionInfo.collider->GetName() == "Stage") {
+			shotTimer_ = 0;
+		}
 
 	}
 	//発射して破裂した時
@@ -261,6 +334,21 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			enemy->Damage(3 + gravityLevel_, transform.worldMatrix.GetTranslate());
 
 			isHit_ = true;
+
+		}
+
+	}
+	//殴った時
+	else if (gravityCollider_->GetName() == "Gravity_Attack") {
+
+		if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+			collisionInfo.collider->GetName() == "Barrier_Enemy") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+			enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
 		}
 

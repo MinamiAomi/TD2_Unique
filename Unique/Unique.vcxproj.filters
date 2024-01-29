@@ -64,9 +64,6 @@
     <ClCompile Include="Game\enemy\SmallEnemy.cpp">
       <Filter>Game\enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Game\player\Gravity.cpp">
-      <Filter>Game\player</Filter>
-    </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="Game\enemy\SmallEnemyManager.cpp">
       <Filter>Game\enemy</Filter>
@@ -91,9 +88,6 @@
     <ClInclude Include="Game\player\Player.h">
       <Filter>Game\player</Filter>
     </ClInclude>
-    <ClInclude Include="Game\player\Weapon.h">
-      <Filter>Game\player</Filter>
-    </ClInclude>
     <ClInclude Include="Game\followCamera\FollowCamera.h">
       <Filter>Game\followCamera</Filter>
     </ClInclude>
@@ -115,12 +109,12 @@
     <ClInclude Include="Game\enemy\SmallEnemy.h">
       <Filter>Game\enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Game\player\Gravity.h">
-      <Filter>Game\player</Filter>
-    </ClInclude>
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Game\enemy\SmallEnemyManager.h">
       <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\player\Weapon.h">
+      <Filter>Game\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

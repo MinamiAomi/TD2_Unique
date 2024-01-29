@@ -27,9 +27,9 @@ PSOutput main(PSInput input) {
     // 拡散反射
     float3 diffuse = g_Material.diffuse * Lighting::HalfLambertReflection(normal, g_Scene.sunLightDirection);
     // 鏡面反射
-    float3 specular = g_Material.specular * Lighting::BlinnPhongReflection(normal, pixelToCamera, g_Scene.sunLightDirection, g_Material.shininess);
+    //float3 specular = g_Material.specular * Lighting::BlinnPhongReflection(normal, pixelToCamera, g_Scene.sunLightDirection, g_Material.shininess);
     // シェーディングによる色
-    float3 shadeColor = (diffuse + specular) * g_Scene.sunLightColor * g_Scene.sunLightIntensity;
+    float3 shadeColor = diffuse * g_Scene.sunLightColor * g_Scene.sunLightIntensity;
     
     // ライティングを使用しない場合テクスチャの色をそのまま使う
     shadeColor = lerp(float3(1.0f, 1.0f, 1.0f), shadeColor, float(g_Instance.useLighting));

@@ -9,11 +9,11 @@ class SmallEnemy : public GameObject
 {
 public:
 	SmallEnemy();
-	~SmallEnemy();
+	virtual ~SmallEnemy();
 
-	void Initialize(const Vector3& startPosition);
+	virtual void Initialize(const Vector3& startPosition);
 
-	void Update();
+	virtual void Update();
 
 	void SetPlayer(Player* player) { player_ = player; }
 
@@ -23,13 +23,13 @@ public:
 
 	BoxCollider* GetCollider() { return collider_.get(); }
 
-	void Damage(uint32_t val, const Vector3& affectPosition);
+	virtual void Damage(uint32_t val, const Vector3& affectPosition);
 
-private:
+protected:
 
-	void OnCollision(const CollisionInfo& collisionInfo);
+	virtual void OnCollision(const CollisionInfo& collisionInfo);
 
-private:
+protected:
 
 	Player* player_ = nullptr;
 
@@ -37,7 +37,7 @@ private:
 
 	std::unique_ptr<BoxCollider> collider_;
 
-	uint32_t kMaxHp_ = 1;
+	uint32_t kMaxHp_ = 3;
 
 	int32_t hp_ = kMaxHp_;
 
@@ -45,11 +45,48 @@ private:
 
 	bool isAffectedGravity_ = false;
 
+	Vector3 knockBackVelocity_{};
+
 	Vector3 velocity_{};
 
 	//死亡までのフレーム
 	int32_t deadCount_ = 10;
 
+	//ノックバック中のタイムカウント
+	uint32_t kKnockBackTime_ = 30;
+
+	int32_t knockBackCount_ = 0;
+
+	uint32_t kMaxMoveTime_ = 30;
+
+	int32_t moveTimer_ = 0;
+
+	uint32_t kMaxCoolTime_ = 30;
+
+	int32_t coolTimer_ = kMaxCoolTime_;
+
 };
 
+class BarrierEnemy : public SmallEnemy
+{
+public:
+	BarrierEnemy();
+
+	void Initialize(const Vector3& startPosition) override;
+
+	void Update() override;
+
+	void Damage(uint32_t val, const Vector3& affectPosition) override;
+
+protected:
+
+	void OnCollision(const CollisionInfo& collisionInfo) override;
+
+private:
+
+	/*std::shared_ptr<ModelInstance> barrierModel_;*/
+
+	int32_t barrierHp_ = 3;
+
+};
 

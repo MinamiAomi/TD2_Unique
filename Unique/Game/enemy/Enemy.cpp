@@ -88,11 +88,11 @@ void Enemy::Initialize() {
 	}*/
 
 	attackInterval_ = 150;
-	workAttack_.attackCount = 3;
+	workAttack_01_.attackCount = 3;
 	attackTimer_ = attackInterval_;
 	isStartAttack_ = false;
-	workAttack_.startAttackInterval = 90;
-	workAttack_.startAttackTimer = 0;
+	workAttack_01_.startAttackInterval = 90;
+	workAttack_01_.startAttackTimer = 0;
 
 	workShot_.shotInterval = 180;
 	workShot_.shotCount = 10;
@@ -262,14 +262,14 @@ void Enemy::Update() {
 	//地面攻撃中
 	if (isStartAttack_ && attackNumber_ == 0) {
 
-		for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
+		for (uint32_t i = 0; i < workAttack_01_.attackCount; i++) {
 			attackModels_[i]->SetIsActive(true);
 		}
 
 	}
 	else {
 
-		for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
+		for (uint32_t i = 0; i < workAttack_01_.attackCount; i++) {
 			attackModels_[i]->SetIsActive(false);
 		}
 
@@ -285,9 +285,9 @@ void Enemy::Attack() {
 	case 0:
 
 		//カウントが30を切ったら攻撃開始
-		if (--workAttack_.startAttackTimer < 30) {
+		if (--workAttack_01_.startAttackTimer < 30) {
 
-			for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
+			for (uint32_t i = 0; i < workAttack_01_.attackCount; i++) {
 
 				attackTransforms_[i].translate.y += attackSizes_[i].y * 2.0f / 30.0f;
 				attackTransforms_[i].UpdateMatrix();
@@ -300,7 +300,7 @@ void Enemy::Attack() {
 
 			}
 
-			if (workAttack_.startAttackTimer <= 0) {
+			if (workAttack_01_.startAttackTimer <= 0) {
 
 				/*if (blocksPtr_ && isStartAttack_) {
 
@@ -320,7 +320,7 @@ void Enemy::Attack() {
 		}
 		else {
 
-			if (workAttack_.startAttackTimer == 30) {
+			if (workAttack_01_.startAttackTimer == 30) {
 				Audio::GetInstance()->SoundPlayWave(groundAttackSE_);
 			}
 
@@ -401,9 +401,9 @@ void Enemy::AttackInitialize() {
 	{
 	case 0:
 
-		workAttack_.attackCount = randomNumberGenerator.NextIntRange(3, 6);
+		workAttack_01_.attackCount = randomNumberGenerator.NextIntRange(3, 6);
 
-		for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
+		for (uint32_t i = 0; i < workAttack_01_.attackCount; i++) {
 			attackSizes_[i] = { float(randomNumberGenerator.NextIntRange(1,5)), float(randomNumberGenerator.NextIntRange(2,5)),
 				float(randomNumberGenerator.NextIntRange(1,5)) };
 			attackPositions_[i] = Vector3{ float(randomNumberGenerator.NextIntRange(-30,30)),
@@ -419,7 +419,7 @@ void Enemy::AttackInitialize() {
 
 		isStartAttack_ = true;
 		attackTimer_ = attackInterval_;
-		workAttack_.startAttackTimer = workAttack_.startAttackInterval;
+		workAttack_01_.startAttackTimer = workAttack_01_.startAttackInterval;
 
 		break;
 	default:

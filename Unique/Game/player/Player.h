@@ -9,13 +9,13 @@
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/player/Weapon.h"
 #include "Reticle3D.h"
-#include "Gravity.h"
+#include <array>
 
 //振る舞い
 enum class Behavior {
 	kRoot, //通常状態
 	kAttack, //攻撃中
-	kDash, //ダッシュ
+	kShot, //重力発射
 };
 
 class Block;
@@ -28,21 +28,35 @@ public:
 
 	enum AttackType {
 		kVertical, //縦攻撃
-		kHorizontal, //横攻撃
-		kAddBlock, //壁追加
+		kHorizontal_1, //横攻撃_1
+		kHorizontal_2, //横攻撃_2
+		kRotateAttack, //回転攻撃
+	};
+
+	//プレイヤーパーツのナンバリング
+	enum PlayerParts {
+		kHip, //腰
+		kBody, //体
+		kHead, //頭
+		kLeftShoulder, //左肩
+		kLeftUpperArm, //左腕上部
+		kLeftLowerArm, //左腕下部
+		kRightShoulder, //右肩
+		kRightUpperArm, //右腕上部
+		kRightLowerArm, //右腕下部
+		kLeftUpperLeg, //左足上部
+		kLeftLowerLeg, //左足下部
+		kRightUpperLeg, //右足上部
+		kRightLowerLeg, //右足下部
+		kMaxParts, //最大パーツ数。配列の数を設定する時等に使用
 	};
 
 	void Initialize();
 
 	void Update();
 
-	const Vector3& GetLocalPosition() { return transform.translate; }
-
 	Vector3 GetPosition() {
-		return Vector3{ 
-			transform.worldMatrix.m[3][0],
-			transform.worldMatrix.m[3][1] ,
-			transform.worldMatrix.m[3][2] };
+		return playerTransforms_[kBody]->worldMatrix.GetTranslate();
 	}
 
 	Vector3 GetPrePosition() const {
@@ -61,17 +75,9 @@ public:
 		return weapon_->GetPosition() + (direction_ * 3.5f);
 	}
 
-	void SetPosition(const Vector3& position) { transform.translate = position; }
+	void SetPosition(const Vector3& position) { playerTransforms_[kHip]->translate = position; }
 
 	bool GetIsBreak() const { return isBreak_; }
-
-	bool GetIsAttack() const { return workAttack_.isAttack; }
-
-	bool GetIsHit() const { return workAttack_.isHit; }
-
-	void SetIsHit(bool flag) { workAttack_.isHit = flag; }
-
-	const AttackType& GetAttackType() { return workAttack_.attackType; }
 
 	void Damage(uint32_t val);
 
@@ -83,6 +89,11 @@ public:
 	}
 
 	std::shared_ptr<Reticle3D> GetReticle() { return reticle_; }
+
+	std::array<std::shared_ptr<Transform>, kMaxParts> playerTransforms_;
+
+	//死んだかどうか
+	bool GetIsDead() { return isDead_; }
 
 private:
 
@@ -100,33 +111,41 @@ private:
 
 	std::shared_ptr<ModelInstance> playerModel_;
 
+	std::array<std::shared_ptr<ModelInstance>, kMaxParts> playerModels_;
+
 	std::shared_ptr<FollowCamera> camera_;
 
 	std::unique_ptr<Weapon> weapon_;
 
 	std::shared_ptr<Reticle3D> reticle_;
 
-	std::list<std::shared_ptr<Block>> blocks_;
-
 	//前フレームの位置
 	Vector3 prePosition_{};
 
 	//ダッシュ用ワーク
 	struct WorkDash {
-		//ダッシュ用の媒介変数
-		uint32_t dashParamater_ = 0;
 		//ダッシュのスピード
 		float speed_ = 2.0f;
-		//ダッシュ時間
-		int32_t dashTime_ = 5;
+	};
+
+	//攻撃全体で使う変数
+	struct Attack {
+		//攻撃時間の媒介変数
+		int32_t attackTimer = 0;
+		//攻撃方法
+		AttackType attackType;
+		//プレイヤーの回転保存
+		Quaternion playerRotate;
+		//コンボを繋げるか
+		bool isCombo_ = false;
+		//最大コンボ数
+		const uint32_t kMaxCombo_ = 3;
+		//現在のコンボ
+		uint32_t currentCombo_ = 0;
 	};
 
 	//攻撃用ワーク
-	struct WorkAttack {
-		//速度
-		Vector3 velocity;
-		//攻撃時間の媒介変数
-		int32_t attackTimer;
+	struct WorkAttack_01 {
 		//攻撃前の振りを溜める時間
 		int32_t preFrame = 10;
 		//攻撃前の待ち時間
@@ -139,18 +158,66 @@ private:
 		int32_t waitFrameAll = 30;
 		//合計フレーム数
 		int32_t allFrame = 40;
-		//攻撃タイプ
-		AttackType attackType;
-		//攻撃中かどうか
-		bool isAttack = false;
-		//攻撃が当たったかどうか
-		bool isHit = false;
 		//攻撃前のY回転量
 		float preRotate = 1.57f;
 		//攻撃時のY回転量
 		float attackRotate = -3.14f;
-		//プレイヤーの回転保存
-		Quaternion playerRotate;
+	};
+
+	//攻撃用ワーク
+	struct WorkAttack_02 {
+		//攻撃中の時間
+		int32_t attackFrame = 10;
+		//攻撃後の待ち時間
+		int32_t waitFrameAfter = 20;
+		//合計待ち時間
+		int32_t waitFrameAll = 20;
+		//合計フレーム数
+		int32_t allFrame = 30;
+		//攻撃時のY回転量
+		float attackRotate = 3.14f;
+	};
+
+	//攻撃用ワーク
+	struct WorkAttack_03 {
+		//プレイヤーの移動速度
+		Vector3 velocity{};
+		//攻撃中の時間
+		int32_t attackFrame = 40;
+		//攻撃後の待ち時間
+		int32_t waitFrameAfter = 40;
+		//攻撃後の衝撃波発生時間
+		int32_t shockWaveFrame = 10;
+		//合計待ち時間
+		int32_t waitFrameAll = 40;
+		//合計フレーム数
+		int32_t allFrame = 80;
+		//攻撃時のY回転量
+		float attackRotate = -3.14f;
+	};
+
+	//弾発射時のワーク
+	struct WorkShot {
+		//腕の回転制御フレーム
+		int32_t shotTimer = 0;
+		//使用フレーム数
+		int32_t maxShotFrame = 60;
+		//回転量
+		float shotRotate = 2.32f;
+	};
+
+	//重力を構えるときのワーク
+	struct WorkGravity {
+		//重力の制御フレーム
+		int32_t gravityTimer = 0;
+		//重力を用意するまでにかかるフレーム
+		int32_t gravityFrame = 15;
+		//重力の持続時間
+		int32_t keepTime = 120;
+		//重力を使用している時の制御変数
+		int32_t overHeatTimer = 0;
+		//重力を使用しすぎた場合の制御フラグ
+		bool isOverHeat = false;
 	};
 
 	//無敵状態ワーク
@@ -163,7 +230,17 @@ private:
 
 	WorkDash workDash_;
 
-	WorkAttack workAttack_;
+	Attack attack_;
+
+	WorkAttack_01 workAttack_01_;
+
+	WorkAttack_02 workAttack_02_;
+
+	WorkAttack_03 workAttack_03_;
+
+	WorkShot workShot_;
+
+	WorkGravity workGravity_;
 
 	WorkInvincible workInvincible_;
 
@@ -207,18 +284,24 @@ private:
 	//攻撃行動初期化
 	void BehaviorAttackInitialize();
 
-	//ダッシュ更新
-	void BehaviorDashUpdate();
+	//発射行動更新
+	void BehaviorShotUpdate();
 
-	//ダッシュ初期化
-	void BehaviorDashInitialize();
+	//発射行動初期化
+	void BehaviorShotInitialize();
 
 	//死亡フラグ
 	bool isDead_ = false;
 
-	//当たり判定(球)
+	//発射準備中かどうか
+	bool isPoseShot_ = false;
+
+	//当たり判定(OBB)
 	std::unique_ptr<BoxCollider> collider_;
 
+	//プレイヤーの衝撃波当たり判定。三撃目の最後に発動
+	std::unique_ptr<SphereCollider> shockWaveCollider_;
+ 
 	std::shared_ptr<Texture> hpTex_;
 
 	std::unique_ptr<Sprite> hpSprite_;
@@ -227,11 +310,16 @@ private:
 	std::shared_ptr<Texture> ui_RB_Tex_;
 	std::shared_ptr<Texture> ui_LB_Tex_;
 	std::shared_ptr<Texture> ui_RT_Tex_;
+	std::shared_ptr<Texture> ui_RS_Tex_;
+	std::shared_ptr<Texture> ui_LS_Tex_;
+
 
 	std::unique_ptr<Sprite> ui_A_;
 	std::unique_ptr<Sprite> ui_LB_;
 	std::unique_ptr<Sprite> ui_RB_;
 	std::shared_ptr<Sprite> ui_RT_;
+	std::unique_ptr<Sprite> ui_LS_;
+	std::unique_ptr<Sprite> ui_RS_;
 
 	size_t dashSE_;
 	size_t deathSE_;

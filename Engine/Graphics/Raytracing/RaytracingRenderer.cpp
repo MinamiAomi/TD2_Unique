@@ -190,6 +190,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
 
     commandContext.UAVBarrier(shadowBuffer_);
     commandContext.UAVBarrier(specularBuffer_);
+    commandContext.FlushResourceBarriers();
 }
 
 void RaytracingRenderer::CreateRootSignature() {

@@ -11,6 +11,12 @@ public:
 	Weapon();
 	~Weapon();
 
+	enum GravityLevel {
+		kSmall = 1, //小範囲
+		kMedium, //中範囲
+		kWide, //広範囲
+	};
+
 	void Initialize();
 
 	void Update();
@@ -45,9 +51,16 @@ public:
 	//遅延量取得
 	const int32_t& GetDelay() { return gravityDelay_; }
 
+	const GravityLevel& GetLevel() { return gravityLevel_; }
+
 	bool isThrust_ = false;
 
 	bool isAttack_ = false;
+
+	std::shared_ptr<Transform> modelBodyTransform_;
+
+	//武器の初期SRTへ戻す
+	void SetDefault();
 
 private:
 
@@ -63,25 +76,28 @@ private:
 
 private:
 
-	enum GravityLevel {
-		kSmall = 1, //小範囲
-		kMedium, //中範囲
-		kWide, //広範囲
-	};
-
 	Player* player_ = nullptr;
 
 	std::shared_ptr<Transform> gravityTransform_;
+	std::shared_ptr<Transform> gravityScaleTransform_;
 
 	Vector3 velocity_{};
 
 	std::shared_ptr<ModelInstance> model_;
 
+	std::shared_ptr<ModelInstance> modelBody_;
+
 	std::shared_ptr<ModelInstance> gravityModel_;
 
 	std::unique_ptr<BoxCollider> collider_;
 
+	//武器とプレイヤーの間を攻撃判定にするためのコライダー
+	std::unique_ptr<SphereCollider> spaceCollider_;
+
 	std::unique_ptr<SphereCollider> gravityCollider_;
+
+	//武器とプレイヤーの間を攻撃判定にするためのコライダー
+	std::unique_ptr<SphereCollider> gravitySpaceCollider_;
 
 	uint32_t energyCount_;
 
@@ -96,7 +112,7 @@ private:
 
 	bool isShot_ = false;
 
-	uint32_t kMaxShotTime_ = 60;
+	uint32_t kMaxShotTime_ = 30;
 
 	int32_t shotTimer_ = kMaxShotTime_;
 

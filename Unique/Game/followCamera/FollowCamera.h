@@ -19,6 +19,8 @@ public:
     void SetTarget(const Transform* target) { target_ = target; Reset(); }
    /* void SetLookOn(const std::shared_ptr<LookOn>& lookOn) { lookOn_ = lookOn; }*/
 
+    void SetRockY(bool flag) { isRockY_ = flag; }
+
 private:
     void Reset();
     Vector3 CalcOffset() const;
@@ -31,6 +33,8 @@ private:
     Quaternion destinationRotate_;
 
     float followDelay_;
+
+    bool isRockY_ = false;
 
     Vector3 euler_{};
 

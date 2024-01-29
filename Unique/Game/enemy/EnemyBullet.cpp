@@ -30,6 +30,8 @@ void EnemyBullet::Initialize(const Vector3& position) {
 	collider_->SetName("Enemy_Bullet");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
+	collider_->SetCollisionAttribute(0xfffffffd);
+	collider_->SetCollisionMask(0x00000002);
 
 	Vector3 EulerRotate = { randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f,
 		randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f, randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f };

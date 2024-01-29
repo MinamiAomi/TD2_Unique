@@ -63,7 +63,7 @@ private:
 		kRightTopBack,//右上奥
 	};
 
-	struct WorkAttack
+	struct WorkAttack_01
 	{
 		uint32_t attackCount; //攻撃回数(ブロックを出す数)
 		uint32_t startAttackInterval; //攻撃中のフレーム数
@@ -116,7 +116,7 @@ private:
 
 	std::list<std::shared_ptr<EnemyBullet>> bigBullets_;
 
-	WorkAttack workAttack_;
+	WorkAttack_01 workAttack_01_;
 
 	WorkShot workShot_;
 

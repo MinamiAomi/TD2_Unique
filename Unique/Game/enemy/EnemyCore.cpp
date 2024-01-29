@@ -34,6 +34,8 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
 	collider_->SetGameObject(this);
+	collider_->SetCollisionAttribute(0xfffffffd);
+	collider_->SetCollisionMask(0x00000002);
 	model_->SetWorldMatrix(transform.worldMatrix);
 	model_->SetColor({ 1.0f,1.0f,1.0f });
 

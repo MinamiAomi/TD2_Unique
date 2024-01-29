@@ -36,7 +36,7 @@ void GameScene::OnInitialize() {
 
     //セット
     player_->SetCamera(followCamera_);
-    followCamera_->SetTarget(&player_->transform);
+    followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
    /* enemy_->SetPlayer(player_.get());*/
     /*enemy_->SetBlockList(&blocks_);*/
     SetEnemy(40);
@@ -51,7 +51,7 @@ void GameScene::Reset() {
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
-    SetEnemy(40);
+    SetEnemy(20);
 
 }
 
@@ -59,9 +59,9 @@ void GameScene::SetEnemy(uint32_t num) {
 
     for (uint32_t i = 0; i < num; i++) {
 
-        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
-        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-40.0f,40.0f),
-        0.0f, randomNumberGenerator.NextFloatRange(-40.0f, 40.0f), });
+        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<BarrierEnemy>();
+        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-200.0f,200.0f),
+        10.0f, randomNumberGenerator.NextFloatRange(-200.0f, 200.0f), });
         newEnemy->SetPlayer(player_.get());
         SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
         enemies_.push_back(newEnemy);
@@ -86,7 +86,6 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
-
     enemies_.remove_if([](auto& enemy) {
 
         if (enemy->GetIsDead()) {
@@ -102,14 +101,42 @@ void GameScene::OnUpdate() {
 
     Input* input = Input::GetInstance();
 
-    if (input->IsKeyTrigger(DIK_R)) {
+    if (++spawn_.spawnTimer >= spawn_.spawnFrame) {
+
+        //敵の数が30体未満の時にスポーン処理
+        if (enemies_.size() < 30) {
+            SetEnemy(spawn_.spawnCount);
+        }
+
+        spawn_.spawnTimer = 0;
+
+    }
+
+    if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
         Reset();
     }
 
     //敵召喚
-    if (input->IsKeyTrigger(DIK_E)) {
-        SetEnemy(10);
-    }
+    //if (input->IsKeyTrigger(DIK_E)) {
+    //    SetEnemy(10);
+    //}
+
+    //if (input->IsKeyTrigger(DIK_C)) {
+
+    //    //コライダーを非アクティブ(ctrl + C)
+    //    if (input->IsKeyPressed(DIK_LCONTROL)) {
+    //        for (auto& enemy : enemies_) {
+    //            enemy->GetCollider()->SetIsActive(false);
+    //        }
+    //    }
+    //    //コライダーをアクティブ(C)
+    //    else {
+    //        for (auto& enemy : enemies_) {
+    //            enemy->GetCollider()->SetIsActive(true);
+    //        }
+    //    }
+    //   
+    //}
 
     for (auto& enemy : enemies_) {
         enemy->Update();
