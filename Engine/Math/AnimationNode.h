@@ -19,6 +19,10 @@ namespace Animation {
         explicit Node(const KeyFrame& keyFrames) { keyFrames_.emplace_back(keyFrames); }
         explicit Node(const std::vector<KeyFrame>& keyFrames) { keyFrames_ = keyFrames; }
         explicit Node(std::vector<KeyFrame>&& keyFrames) { keyFrames_ = std::move(keyFrames); }
+        Node(const Node&) = default;
+        Node& operator=(const Node&) = default;
+        Node(Node&&) = default;
+        Node& operator=(Node&&) = default;
 
         virtual ~Node() {}
         virtual Value GetInterpolatedValue(float animationTime) = 0;

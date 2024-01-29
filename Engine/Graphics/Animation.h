@@ -28,11 +28,13 @@ public:
     Matrix4x4 GetNodeWorldMatrix(const std::string& node) const;
 
 private:
-    struct Animation {
+    struct AnimationSet {
         std::unordered_map<std::string, NodeSet> nodes;
     };
 
-    std::unordered_map<std::string, Animation> animations;
+    std::unordered_map<std::string, AnimationSet> animations_;
+    std::unordered_map<std::string, Node> nodes_;
+    std::string currentName_;
     
 
 };
