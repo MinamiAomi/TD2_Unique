@@ -23,6 +23,7 @@ void Reticle3D::Initialize() {
 	sprite_->SetPosition({ 640.0f,360.0f });
 	sprite_->SetTexcoordRect({ 128.0f,128.0f }, { 128.0f,128.0f });
 	sprite_->SetScale({ 64.0f,64.0f });
+	transform.scale = { 0.0f,0.0f,0.0f };
 
 }
 

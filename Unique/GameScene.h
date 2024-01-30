@@ -34,6 +34,8 @@ private:
 
     void EditorCameraMove();
 
+    void LoadEnemyPopData(uint32_t waveNumber);
+
 private:
 
     MapEditor* editor_ = nullptr;
@@ -62,6 +64,7 @@ private:
     float upperLimit_ = 300.0f;
     //エディターカメラのY軸下制限
     float lowerLimit_ = 15.0f;
+
     std::shared_ptr<Stage> stage_;
 
     std::shared_ptr<Texture> reticleTex_;

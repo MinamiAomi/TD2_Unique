@@ -6,6 +6,27 @@
 #include <vector>
 #include "Math/Transform.h"
 
+//マップに配置されているオブジェクトの構造体
+struct MapObject {
+
+	//オブジェクト名
+	std::string objName;
+
+	//モデル
+	std::shared_ptr<ModelInstance> model;
+
+	//トランスフォーム
+	std::shared_ptr<Transform> transform;
+
+	//オブジェクトの役割を表すタグ
+	std::string tag;
+
+	int32_t tagNumber = 0;
+
+	bool isSelect = false;
+
+};
+
 class MapEditor
 {
 public:
@@ -43,28 +64,6 @@ private:
 
 //変数
 private:
-
-
-	//マップに配置されているオブジェクトの構造体
-	struct MapObject {
-
-		//オブジェクト名
-		std::string objName;
-
-		//モデル
-		std::shared_ptr<ModelInstance> model;
-
-		//トランスフォーム
-		std::shared_ptr<Transform> transform;
-
-		//オブジェクトの役割を表すタグ
-		std::string tag;
-
-		int32_t tagNumber = 0;
-
-		bool isSelect = false;
-
-	};
 
 	std::list<std::shared_ptr<MapObject>> mapObjData_;
 
