@@ -19,14 +19,18 @@ namespace Animation {
         explicit Node(const KeyFrame& keyFrames) { keyFrames_.emplace_back(keyFrames); }
         explicit Node(const std::vector<KeyFrame>& keyFrames) { keyFrames_ = keyFrames; }
         explicit Node(std::vector<KeyFrame>&& keyFrames) { keyFrames_ = std::move(keyFrames); }
+        Node(const Node&) = default;
+        Node& operator=(const Node&) = default;
+        Node(Node&&) = default;
+        Node& operator=(Node&&) = default;
 
         virtual ~Node() {}
-        virtual Value GetInterpolatedValue(float animationTime) = 0;
+        virtual Value GetInterpolatedValue(float animationTime) const = 0;
 
         void AddKeyFrame(const Value& value, float timeStamp) { keyFrames_.emplace_back(value, timeStamp); }
         void AddKeyFrames(const std::vector<KeyFrame>& keyFrames) { keyFrames_.insert(keyFrames_.end(), keyFrames.begin(), keyFrames.end()); }
 
-        size_t GetKeyFrameIndex(float animationTime) {
+        size_t GetKeyFrameIndex(float animationTime) const {
             for (size_t index = 0; index < keyFrames_.size() - 1; ++index) {
                 if (animationTime < keyFrames_[index + 1].timeStamp) {
                     return index;
@@ -37,7 +41,7 @@ namespace Animation {
 
         size_t GetNumKeyFrames() const { return keyFrames_.size(); }
 
-        float GetScaleFactor(float prevTimeStamp, float nextTimeStamp, float animationTime) {
+        float GetScaleFactor(float prevTimeStamp, float nextTimeStamp, float animationTime) const {
             float midWayLength = animationTime - prevTimeStamp;
             float framesDiff = nextTimeStamp - prevTimeStamp;
             return midWayLength / framesDiff;
@@ -54,7 +58,7 @@ namespace Animation {
         FloatNode(const KeyFrame& keyFrame) : Node(keyFrame) {}
         FloatNode(const std::vector<KeyFrame>& keyFrames) : Node(keyFrames) {}
         FloatNode(std::vector<KeyFrame>&& keyFrames) : Node(std::move(keyFrames)) {}
-        float GetInterpolatedValue(float animationTime) override;
+        float GetInterpolatedValue(float animationTime) const override;
     };
 
     class Vector3Node :
@@ -64,7 +68,7 @@ namespace Animation {
         Vector3Node(const KeyFrame& keyFrame) : Node(keyFrame) {}
         Vector3Node(const std::vector<KeyFrame>& keyFrames) : Node(keyFrames) {}
         Vector3Node(std::vector<KeyFrame>&& keyFrames) : Node(std::move(keyFrames)) {}
-        Vector3 GetInterpolatedValue(float animationTime) override;
+        Vector3 GetInterpolatedValue(float animationTime) const override;
     };
 
     class QuaternionNode :
@@ -74,7 +78,7 @@ namespace Animation {
         QuaternionNode(const KeyFrame& keyFrame) : Node(keyFrame) {}
         QuaternionNode(const std::vector<KeyFrame>& keyFrames) : Node(keyFrames) {}
         QuaternionNode(std::vector<KeyFrame>&& keyFrames) : Node(std::move(keyFrames)) {}
-        Quaternion GetInterpolatedValue(float animationTime) override;
+        Quaternion GetInterpolatedValue(float animationTime) const override;
     };
 
 }
