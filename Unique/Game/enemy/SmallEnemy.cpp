@@ -71,19 +71,21 @@ void SmallEnemy::Update() {
 
 		//移動中の敵の場合
 		if (collider_->GetName() == "Small_Enemy" ||
+			collider_->GetName() == "Small_Enemy_Bounced" ||
 			collider_->GetName() == "Small_Enemy_Damaged") {
 
 			if (bounceCount_ > 0) {
 
 				transform.translate += bounceVelocity_;
 
-				bounceVelocity_.y -= 0.3f;
+				bounceVelocity_.y -= 0.2f;
 
 				if (bounceVelocity_.Length() < 0.05f) {
 					bounceVelocity_ = Vector3::zero;
 				}
 
 				if (--bounceCount_ <= 0) {
+					transform.translate.y = 10.0f;
 					collider_->SetName("Small_Enemy");
 				}
 
@@ -131,7 +133,7 @@ void SmallEnemy::Update() {
 
 			//跳ねている時に床にぶつかったら減速しつつY速度反転
 			bounceVelocity_.y *= -1.0f;
-			bounceVelocity_ *= 0.75f;
+			bounceVelocity_ *= 0.5f;
 
 		}
 
@@ -202,9 +204,11 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 	//攻撃を受けた地点に向かって集まるように跳ねる
 	bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
 
-	bounceVelocity_.y = 10.0f;
+	bounceVelocity_.y = 5.0f;
 
 	bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
+	bounceVelocity_.x /= 10.0f;
+	bounceVelocity_.z /= 10.0f;
 
 	bounceCount_ = kMaxBounceTime_;
 
@@ -268,24 +272,26 @@ void BarrierEnemy::Update() {
 		//移動中の敵の場合
 		if (collider_->GetName() == "Barrier_Enemy" ||
 			collider_->GetName() == "Small_Enemy" ||
+			collider_->GetName() == "Small_Enemy_Bounced" ||
 			collider_->GetName() == "Barrier_Enemy_Damaged") {
 
 			if (bounceCount_ > 0) {
 
 				transform.translate += bounceVelocity_;
 
-				bounceVelocity_.y -= 0.3f;
+				bounceVelocity_.y -= 0.2f;
 
 				if (bounceVelocity_.Length() < 0.05f) {
 					bounceVelocity_ = Vector3::zero;
 				}
 
 				if (--bounceCount_ <= 0) {
+					transform.translate.y = 10.0f;
 					collider_->SetName("Small_Enemy");
 				}
 
 			}
-			if (knockBackCount_ > 0) {
+			else if (knockBackCount_ > 0) {
 
 				transform.translate += knockBackVelocity_;
 
@@ -335,7 +341,7 @@ void BarrierEnemy::Update() {
 
 			//跳ねている時に床にぶつかったら減速しつつY速度反転
 			bounceVelocity_.y *= -1.0f;
-			bounceVelocity_ *= 0.75f;
+			bounceVelocity_ *= 0.5f;
 
 		}
 
@@ -365,12 +371,6 @@ void BarrierEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 			knockBackVelocity_ = knockBackVelocity_.Normalized();
 
 			knockBackCount_ = kKnockBackTime_ / 2;
-
-		}
-		else if (collisionInfo.collider->GetName() == "ShockWave") {
-
-			//プレイヤーと当たった地点からノックバックしてダメージ
-			Damage(1, player_->GetPosition());
 
 		}
 
@@ -470,9 +470,11 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 		//攻撃を受けた地点に向かって集まるように跳ねる
 		bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
 
-		bounceVelocity_.y = 10.0f;
+		bounceVelocity_.y = 5.0f;
 
 		bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
+		bounceVelocity_.x /= 10.0f;
+		bounceVelocity_.z /= 10.0f;
 
 		bounceCount_ = kMaxBounceTime_;
 
@@ -489,7 +491,7 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 		knockBackVelocity_.y = 0.0f;
 
-		knockBackVelocity_ = knockBackVelocity_.Normalized() * 2.0f;
+		knockBackVelocity_ = knockBackVelocity_.Normalized() * 3.0f;
 
 		knockBackCount_ = kKnockBackTime_;
 

@@ -69,7 +69,7 @@ protected:
 	int32_t coolTimer_ = kMaxCoolTime_;
 
 	//吹っ飛び中のクールタイム
-	int32_t kMaxBounceTime_ = 120;
+	int32_t kMaxBounceTime_ = 60;
 
 	int32_t bounceCount_ = 0;
 

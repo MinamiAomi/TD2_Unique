@@ -43,7 +43,7 @@ void GameScene::OnInitialize() {
     followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
     /* enemy_->SetPlayer(player_.get());*/
      /*enemy_->SetBlockList(&blocks_);*/
-    SetEnemy(40);
+    SetEnemy(20);
 
 }
 
