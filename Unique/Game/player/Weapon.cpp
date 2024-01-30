@@ -313,7 +313,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
 			enemy->transform.SetParent(gravityTransform_.get());
-			enemy->transform.translate /= 2.0f;
+			enemy->transform.translate *= 0.0f;
 			enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
 			if (energyCount_ >= 20) {

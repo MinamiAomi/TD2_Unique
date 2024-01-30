@@ -128,6 +128,9 @@ void SmallEnemy::Update() {
 
 		}
 
+		if (collider_->GetName() == "Small_Enemy_Affected") {
+			transform.translate.y = 0.0f;
+		}
 		if (transform.translate.y < 10.0f) {
 			transform.translate.y = 10.0f;
 
@@ -336,7 +339,10 @@ void BarrierEnemy::Update() {
 
 		}
 
-		if (transform.translate.y < 10.0f) {
+		if (collider_->GetName() == "Small_Enemy_Affected") {
+			transform.translate.y = 0.0f;
+		}
+		else if (transform.translate.y < 10.0f) {
 			transform.translate.y = 10.0f;
 
 			//跳ねている時に床にぶつかったら減速しつつY速度反転
