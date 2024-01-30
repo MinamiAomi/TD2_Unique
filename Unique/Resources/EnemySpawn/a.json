@@ -18,6 +18,15 @@
                 ],
                 "tag": "Barrier",
                 "tagNumber": 1
+            },
+            "Enemy2": {
+                "position": [
+                    19.700000762939453,
+                    10.0,
+                    27.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
             }
         },
         "tags": [

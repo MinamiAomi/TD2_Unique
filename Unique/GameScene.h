@@ -30,6 +30,10 @@ private:
 
     void SetEnemy(uint32_t num);
 
+    void Manual();
+
+    void EditorCameraMove();
+
 private:
 
     MapEditor* editor_ = nullptr;
@@ -50,6 +54,14 @@ private:
 
     std::shared_ptr<Player> player_;
 
+    std::shared_ptr<Camera> editorCamera_;
+
+    std::shared_ptr<Transform> editorCameraTransform_;
+
+    //エディターカメラのY軸上制限
+    float upperLimit_ = 300.0f;
+    //エディターカメラのY軸下制限
+    float lowerLimit_ = 15.0f;
     std::shared_ptr<Stage> stage_;
 
     std::shared_ptr<Texture> reticleTex_;
