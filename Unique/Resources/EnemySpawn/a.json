@@ -1,0 +1,28 @@
+{
+    "a": {
+        "objectData": {
+            "Enemy": {
+                "position": [
+                    1.2000000476837158,
+                    10.0,
+                    0.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy1": {
+                "position": [
+                    -12.899999618530273,
+                    10.0,
+                    0.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            }
+        },
+        "tags": [
+            "Normal",
+            "Barrier"
+        ]
+    }
+}

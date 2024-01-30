@@ -29,7 +29,7 @@ private:
 
 	void Load(const std::string& filename);
 
-	void AddObject(char* name);
+	void AddEnemy();
 
 	bool CheckIsEmpty(const std::string& name);
 
@@ -82,11 +82,9 @@ private:
 
 	char tagName_[256];
 
-	std::vector<std::string> tagData_ = { "None" };
+	std::vector<std::string> tagData_ = { "Normal", "Barrier"};
 
 	std::vector<const char*> tags_;
-
-	std::vector<const char*> meshNames_ = { "cube", "sphere", "plane" };
 
 private:
 

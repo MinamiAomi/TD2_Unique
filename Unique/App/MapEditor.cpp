@@ -41,22 +41,16 @@ void MapEditor::Edit() {
 			Close();
 		}
 
-		ImGui::InputText("Object name", name_, sizeof(name_));
+		if (ImGui::Button("Add Enemy")) {
 
-		if (ImGui::Button("Add Object")) {
+			AddEnemy();
+			isSave_ = false;
 
-			if (!CheckIsEmpty(name_)) {
-				AddObject(name_);
-				isSave_ = false;
-			}
-			else {
-				MessageBox(nullptr, L"オブジェクト名を入力してください。", L"Map Editor - Add Object", 0);
-			}
 		}
 
-		ImGui::InputText("Tag name", tagName_, sizeof(tagName_));
+		/*ImGui::InputText("Tag name", tagName_, sizeof(tagName_));*/
 
-		if (ImGui::Button("Add Tag")) {
+		/*if (ImGui::Button("Add Tag")) {
 
 			if (!CheckIsEmpty(tagName_)) {
 				AddTag(tagName_);
@@ -66,7 +60,7 @@ void MapEditor::Edit() {
 				MessageBox(nullptr, L"タグ名を入力してください。", L"Map Editor - Add Tag", 0);
 			}
 
-		}
+		}*/
 
 		for (auto& mapObjectData : mapObjData_) {
 
@@ -237,13 +231,13 @@ void MapEditor::Close() {
 
 	mapObjData_.clear();
 
-	tagData_.clear();
+	/*tagData_.clear();
 
 	tagData_ = { "None" };
 
 	tags_.clear();
 
-	tags_ = { "None" };
+	tags_ = { "None" };*/
 
 	isOpenFile_ = false;
 
@@ -423,9 +417,9 @@ void MapEditor::Create(const std::string& filename) {
 
 }
 
-void MapEditor::AddObject(char* name) {
+void MapEditor::AddEnemy() {
 
-	std::string objectName = name;
+	std::string objectName = "Enemy";
 
 	objectName = CheckSameName(objectName);
 
