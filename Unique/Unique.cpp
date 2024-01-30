@@ -6,7 +6,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Model.h"
 #include "Graphics/ResourceManager.h"
-#include "Graphics/Animation.h"
+#include "Graphics/HierarchicalAnimation.h"
 
 #include "GameScene.h"
 
@@ -15,6 +15,7 @@ void Unique::OnInitialize() {
 
 	auto resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
+	resourceManager->AddModel("Cube2", Model::Load("./Resources/cube/cube2.obj"));
 	resourceManager->AddModel("Sphere", Model::Load("./Resources/gravity/gravity.obj"));
 	//天球
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
@@ -22,19 +23,19 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_3.obj"));
 	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
 	//プレイヤーモデル読み込み
-	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel_2/Body.obj"));
-	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel_2/Head.obj"));
-	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel_2/Hip.obj"));
-	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel_2/LeftLowerArm.obj"));
-	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel_2/LeftLowerLeg.obj"));
-	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel_2/LeftShoulder.obj"));
-	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel_2/LeftUpperArm.obj"));
-	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel_2/LeftUpperLeg.obj"));
-	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel_2/RightLowerArm.obj"));
-	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel_2/RightLowerLeg.obj"));
-	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel_2/RightShoulder.obj"));
-	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel_2/RightUpperArm.obj"));
-	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel_2/RightUpperLeg.obj"));
+	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel3/Body.obj"));
+	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel3/Head.obj"));
+	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel3/Hip.obj"));
+	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel3/LeftLowerArm.obj"));
+	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel3/LeftLowerLeg.obj"));
+	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel3/LeftShoulder.obj"));
+	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel3/LeftUpperArm.obj"));
+	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel3/LeftUpperLeg.obj"));
+	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel3/RightLowerArm.obj"));
+	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel3/RightLowerLeg.obj"));
+	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel3/RightShoulder.obj"));
+	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel3/RightUpperArm.obj"));
+	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel3/RightUpperLeg.obj"));
 	//UI読み込み
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");
@@ -64,7 +65,11 @@ void Unique::OnInitialize() {
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
 
-	HierarchicalAnimation::Load("./Resources/PlayerAnimation.gltf");
+	resourceManager->AddHierarchicalAnimation("Test", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Test.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Wait", HierarchicalAnimation::Load("./Resources/PlayerAnimation/WaitNew.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack1", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack1.glb"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack2", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack2.glb"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack3", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack3.glb"));
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();

@@ -14,6 +14,7 @@ public:
         Animation::Vector3Node translate;
         Animation::QuaternionNode rotate;
         Animation::Vector3Node scale;
+        Matrix4x4 initialInverseMatrix;
     };
 
     static std::shared_ptr<HierarchicalAnimation> Load(const std::filesystem::path& path);  
@@ -25,4 +26,5 @@ private:
     ~HierarchicalAnimation() = default;
 
     std::unordered_map<std::string, Node> data_;
+    std::unordered_map<std::string, Matrix4x4> mat_;
 };

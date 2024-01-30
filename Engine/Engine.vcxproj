@@ -127,7 +127,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Framework\Engine.cpp" />
-    <ClCompile Include="Graphics\Animation.cpp" />
+    <ClCompile Include="Graphics\HierarchicalAnimation.cpp" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\ComputeShader.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
@@ -228,7 +228,7 @@
     <ClInclude Include="Externals\nlohmann\json_fwd.hpp" />
     <ClInclude Include="Framework\Engine.h" />
     <ClInclude Include="Framework\Game.h" />
-    <ClInclude Include="Graphics\Animation.h" />
+    <ClInclude Include="Graphics\HierarchicalAnimation.h" />
     <ClInclude Include="Graphics\Bloom.h" />
     <ClInclude Include="Graphics\ComputeShader.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />

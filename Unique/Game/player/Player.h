@@ -1,15 +1,18 @@
 #pragma once
-#include "Graphics/Model.h"
+#include "Collision/GameObject.h"
+
+#include <array>
 #include <optional>
+
+#include "Graphics/Model.h"
 #include "input/Input.h"
 #include "Graphics/Sprite.h"
 #include "Collision/Collider.h"
 #include "Audio/Audio.h"
-#include "Collision/GameObject.h"
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/player/Weapon.h"
 #include "Reticle3D.h"
-#include <array>
+#include "Graphics/HierarchicalAnimation.h"
 
 //振る舞い
 enum class Behavior {
@@ -44,8 +47,10 @@ public:
 		kRightShoulder, //右肩
 		kRightUpperArm, //右腕上部
 		kRightLowerArm, //右腕下部
+		kLeftPelvis, // 左足付け根(モデル無し)
 		kLeftUpperLeg, //左足上部
 		kLeftLowerLeg, //左足下部
+		kRightPelvis, // 右足付け根(モデル無し)
 		kRightUpperLeg, //右足上部
 		kRightLowerLeg, //右足下部
 		kMaxParts, //最大パーツ数。配列の数を設定する時等に使用
@@ -118,6 +123,11 @@ private:
 	std::unique_ptr<Weapon> weapon_;
 
 	std::shared_ptr<Reticle3D> reticle_;
+
+	std::shared_ptr<HierarchicalAnimation> waitAnimation_;
+	std::shared_ptr<HierarchicalAnimation> attack1Animation_;
+	std::shared_ptr<HierarchicalAnimation> attack2Animation_;
+	std::shared_ptr<HierarchicalAnimation> attack3Animation_;
 
 	//前フレームの位置
 	Vector3 prePosition_{};

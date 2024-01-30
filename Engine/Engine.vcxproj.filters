@@ -267,7 +267,7 @@
     <ClCompile Include="Math\AnimationNode.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Animation.cpp">
+    <ClCompile Include="Graphics\HierarchicalAnimation.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -530,7 +530,7 @@
     <ClInclude Include="Math\AnimationNode.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Animation.h">
+    <ClInclude Include="Graphics\HierarchicalAnimation.h">
       <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -190,9 +190,10 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
     if (reciveShadow) {
         // 衝突点からライトへのレイ
         RayDesc shadowRay;
-        shadowRay.Origin = vertex.position;
+        // 法線方向に少し移動する
+        shadowRay.Origin = vertex.position + vertex.normal * 0.001f;
         shadowRay.Direction = -g_Scene.sunLightDirection;
-        shadowRay.TMin = 0.001f; // 少し浮かす
+        shadowRay.TMin = 0.0f;
         shadowRay.TMax = 100000.0f; // 
         
         ShadowPayload shadowPayload;
