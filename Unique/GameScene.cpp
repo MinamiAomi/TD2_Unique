@@ -72,13 +72,21 @@ void GameScene::Reset() {
 
 }
 
-void GameScene::SetEnemy(uint32_t num) {
+void GameScene::SetEnemy(const std::string& tag, const Vector3& position) {
 
-    for (uint32_t i = 0; i < num; i++) {
+    if (tag == "Normal") {
+
+        std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
+        newEnemy->Initialize(position);
+        newEnemy->SetPlayer(player_.get());
+        SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
+        enemies_.push_back(newEnemy);
+
+    }
+    else if (tag == "Barrier") {
 
         std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<BarrierEnemy>();
-        newEnemy->Initialize({ randomNumberGenerator.NextFloatRange(-200.0f,200.0f),
-        10.0f, randomNumberGenerator.NextFloatRange(-200.0f, 200.0f), });
+        newEnemy->Initialize(position);
         newEnemy->SetPlayer(player_.get());
         SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
         enemies_.push_back(newEnemy);
@@ -321,7 +329,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
 
                 }
 
-               /* mapObjData_.push_back(mapObject);*/
+                SetEnemy(mapObject->tag, mapObject->transform->translate);
 
             }
 
