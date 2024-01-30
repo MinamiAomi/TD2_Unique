@@ -21,13 +21,13 @@ public:
 //関数
 private:
 
-	void Create(const std::string& filename);
+	void Create(uint32_t number);
 
-	void Save(const std::string& filename);
+	void Save(uint32_t number);
 
 	void Close();
 
-	void Load(const std::string& filename);
+	void Load(uint32_t number);
 
 	void AddEnemy();
 
@@ -76,7 +76,9 @@ private:
 
 	char name_[256];
 
-	char fileName_[256];
+	/*char fileName_[256];*/
+
+	int waveNumber_ = 1;
 
 	bool isSave_ = true;
 

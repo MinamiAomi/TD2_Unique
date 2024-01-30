@@ -34,7 +34,7 @@ void MapEditor::Edit() {
 	if (isOpenFile_) {
 
 		if (ImGui::Button("Save")) {
-			Save(fileName_);
+			Save(waveNumber_);
 		}
 
 		if (ImGui::Button("Close")) {
@@ -90,35 +90,31 @@ void MapEditor::Edit() {
 	}
 	else {
 
-		ImGui::InputText(".json", fileName_, sizeof(fileName_));
+		ImGui::DragInt("wave[number].json", &waveNumber_, 0.1f, 1, 99);
 
 		if (ImGui::Button("Create")) {
 
-			//ファイル名が空の場合スキップ
-			if (!CheckIsEmpty(fileName_)) {
-				Create(fileName_);
-			}
-			else {
-				MessageBox(nullptr, L"ファイル名を入力してください。", L"Map Editor - Create", 0);
-			}
+			Create(waveNumber_);
 
 		}
 
 		if (ImGui::Button("Load")) {
 
-			//ファイル名が空の場合スキップ
-			if (!CheckIsEmpty(fileName_)) {
-				Load(fileName_);
-			}
-			else {
-				MessageBox(nullptr, L"ファイル名を入力してください。", L"Map Editor - Load", 0);
-			}
+			Load(waveNumber_);
 
 		}
 
 	}
 
 	ImGui::End();
+
+	//範囲外の数字入力を防ぐ
+	if (waveNumber_ <= 0) {
+		waveNumber_ = 1;
+	}
+	else if (waveNumber_ > 99) {
+		waveNumber_ = 99;
+	}
 
 #endif // _DEBUG
 
@@ -148,7 +144,11 @@ void MapEditor::Edit() {
 //
 //}
 
-void MapEditor::Save(const std::string& filename) {
+void MapEditor::Save(uint32_t number) {
+
+	std::string filename = "wave";
+
+	filename += std::to_string(number);
 
 	nlohmann::json root;
 
@@ -217,7 +217,7 @@ void MapEditor::Close() {
 
 		// OKの場合はセーブ
 		if (id == IDYES) {
-			Save(fileName_);
+			Save(waveNumber_);
 		}
 		// キャンセルした場合早期リターン
 		else if (id == IDCANCEL) {
@@ -243,7 +243,11 @@ void MapEditor::Close() {
 
 }
 
-void MapEditor::Load(const std::string& filename) {
+void MapEditor::Load(uint32_t number) {
+
+	std::string filename = "wave";
+
+	filename += std::to_string(number);
 
 	//読み込むJSONファイルのフルパスを合成する
 	std::string filePath = kDirectoryPath_ + filename + ".json";
@@ -384,7 +388,11 @@ void MapEditor::Load(const std::string& filename) {
 
 }
 
-void MapEditor::Create(const std::string& filename) {
+void MapEditor::Create(uint32_t number) {
+
+	std::string filename = "wave";
+
+	filename += std::to_string(number);
 
 	//読み込むJSONファイルのフルパスを合成する
 	std::string filePath = kDirectoryPath_ + filename + ".json";
