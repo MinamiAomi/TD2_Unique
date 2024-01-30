@@ -32,8 +32,6 @@ private:
 
 private:
 
-    MapEditor* editor_ = nullptr;
-
     struct Spawn {
         //自動スポーンに利用する変数
         int32_t spawnTimer = 0;
