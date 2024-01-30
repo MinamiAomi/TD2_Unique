@@ -184,6 +184,12 @@ private:
 		Vector3 velocity{};
 		//攻撃中の時間
 		int32_t attackFrame = 40;
+		//ジャンプ時のフレーム
+		int32_t jumpFrame = 20;
+		//ジャンプ中待機時間
+		int32_t waitFrameJump = 10;
+		//落下中のフレーム
+		int32_t fallFrame = 20;
 		//攻撃後の待ち時間
 		int32_t waitFrameAfter = 40;
 		//攻撃後の衝撃波発生時間
@@ -191,7 +197,7 @@ private:
 		//合計待ち時間
 		int32_t waitFrameAll = 40;
 		//合計フレーム数
-		int32_t allFrame = 80;
+		int32_t allFrame = 130;
 		//攻撃時のY回転量
 		float attackRotate = -3.14f;
 	};
@@ -232,11 +238,11 @@ private:
 
 	Attack attack_;
 
-	WorkAttack_01 workAttack_01_;
+	WorkAttack_01 WA_01_;
 
-	WorkAttack_02 workAttack_02_;
+	WorkAttack_02 WA_02_;
 
-	WorkAttack_03 workAttack_03_;
+	WorkAttack_03 WA_03_;
 
 	WorkShot workShot_;
 
@@ -298,9 +304,6 @@ private:
 
 	//当たり判定(OBB)
 	std::unique_ptr<BoxCollider> collider_;
-
-	//プレイヤーの衝撃波当たり判定。三撃目の最後に発動
-	std::unique_ptr<SphereCollider> shockWaveCollider_;
  
 	std::shared_ptr<Texture> hpTex_;
 

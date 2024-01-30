@@ -80,8 +80,6 @@ Player::Player()
 
 	collider_ = std::make_unique<BoxCollider>();
 
-	shockWaveCollider_ = std::make_unique<SphereCollider>();
-
 	weapon_ = std::make_unique<Weapon>();
 
 	reticle_ = std::make_shared<Reticle3D>();
@@ -162,14 +160,6 @@ void Player::Initialize() {
 	collider_->SetGameObject(this);
 	collider_->SetCollisionAttribute(0xfffffffe);
 	collider_->SetCollisionMask(0x00000001);
-
-	shockWaveCollider_->SetCenter(playerTransforms_[kHip]->worldMatrix.GetTranslate());
-	shockWaveCollider_->SetRadius(10.0f);
-	shockWaveCollider_->SetName("ShockWave");
-	shockWaveCollider_->SetIsActive(false);
-	shockWaveCollider_->SetGameObject(this);
-	shockWaveCollider_->SetCollisionAttribute(0xfffffffe);
-	shockWaveCollider_->SetCollisionMask(0x00000001);
 
 	velocity_ = { 0.0f,0.0f,1.0f };
 
@@ -277,7 +267,6 @@ void Player::Update() {
 
 	collider_->SetCenter(playerTransforms_[kHip]->translate);
 	collider_->SetOrientation(playerTransforms_[kHip]->rotate);
-	shockWaveCollider_->SetCenter(playerTransforms_[kHip]->translate);
 	playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
 
 	if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
@@ -585,7 +574,7 @@ void Player::BehaviorAttackUpdate() {
 	case AttackType::kHorizontal_1:
 
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
-		if (attack_.attackTimer >= workAttack_01_.allFrame / 4) {
+		if (attack_.attackTimer >= WA_01_.allFrame / 4) {
 
 			/*if (weapon_->GetIsGravity()) {
 				ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
@@ -603,26 +592,26 @@ void Player::BehaviorAttackUpdate() {
 		}
 
 		//攻撃中
-		if (attack_.attackTimer >= workAttack_01_.waitFrameBefore + workAttack_01_.preFrame &&
-			attack_.attackTimer - workAttack_01_.waitFrameBefore - workAttack_01_.preFrame < workAttack_01_.attackFrame) {
+		if (attack_.attackTimer >= WA_01_.waitFrameBefore + WA_01_.preFrame &&
+			attack_.attackTimer - WA_01_.waitFrameBefore - WA_01_.preFrame < WA_01_.attackFrame) {
 
 			//重力付与時は範囲拡大
 			if (weapon_->GetIsGravity()) {
-				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.5f / workAttack_01_.attackFrame),
-					Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.5f / WA_01_.attackFrame),
+					Quaternion::identity, Quaternion::MakeForYAxis(WA_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
 			}
 			else {
-				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
-					Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / WA_01_.attackFrame),
+					Quaternion::identity, Quaternion::MakeForYAxis(WA_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
 			}
 
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
 		//攻撃開始前
-		else if (attack_.attackTimer < workAttack_01_.preFrame) {
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(1.0f / float(workAttack_01_.preFrame),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.preRotate)) * playerTransforms_[kHip]->rotate;
+		else if (attack_.attackTimer < WA_01_.preFrame) {
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(1.0f / float(WA_01_.preFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(WA_01_.preRotate)) * playerTransforms_[kHip]->rotate;
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
 		}
@@ -653,7 +642,7 @@ void Player::BehaviorAttackUpdate() {
 
 		//}
 
-		if (++attack_.attackTimer >= workAttack_01_.allFrame) {
+		if (++attack_.attackTimer >= WA_01_.allFrame) {
 
 			//コンボ継続中なら次の攻撃を出す
 			if (attack_.isCombo_) {
@@ -690,7 +679,7 @@ void Player::BehaviorAttackUpdate() {
 	case AttackType::kHorizontal_2:
 
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
-		if (attack_.attackTimer >= workAttack_02_.allFrame / 4) {
+		if (attack_.attackTimer >= WA_02_.allFrame / 4) {
 
 			/*if (weapon_->GetIsGravity()) {
 				ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
@@ -708,9 +697,9 @@ void Player::BehaviorAttackUpdate() {
 		}
 
 		//攻撃中
-		if (attack_.attackTimer < workAttack_02_.attackFrame) {
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_02_.attackFrame),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_02_.attackRotate)) * playerTransforms_[kHip]->rotate;
+		if (attack_.attackTimer < WA_02_.attackFrame) {
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / WA_02_.attackFrame),
+				Quaternion::identity, Quaternion::MakeForYAxis(WA_02_.attackRotate)) * playerTransforms_[kHip]->rotate;
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
@@ -719,7 +708,7 @@ void Player::BehaviorAttackUpdate() {
 			weapon_->isAttack_ = false;
 		}
 
-		if (++attack_.attackTimer >= workAttack_02_.allFrame) {
+		if (++attack_.attackTimer >= WA_02_.allFrame) {
 
 			//コンボ継続中なら次の攻撃を出す
 			if (attack_.isCombo_) {
@@ -756,31 +745,49 @@ void Player::BehaviorAttackUpdate() {
 	case AttackType::kRotateAttack:
 
 		//攻撃中
-		if (attack_.attackTimer < workAttack_03_.attackFrame) {
+		if (attack_.attackTimer < WA_03_.attackFrame) {
 
-			playerTransforms_[kHip]->translate += workAttack_03_.velocity;
+			/*playerTransforms_[kHip]->translate += WA_03_.velocity;*/
 
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 8)),
-				Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
+			playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (WA_03_.attackFrame / 4)),
+				Quaternion::identity, Quaternion::MakeForYAxis(WA_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
 
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 		}
-		else if (attack_.attackTimer < workAttack_03_.attackFrame + workAttack_03_.shockWaveFrame) {
-			shockWaveCollider_->SetIsActive(true);
-			//時間経過で範囲拡大
-			shockWaveCollider_->SetRadius(5.0f + float(attack_.attackTimer - workAttack_03_.attackFrame));
-			weapon_->GetCollider()->SetIsActive(false);
-			weapon_->isAttack_ = false;
+		//ジャンプ中
+		else if (attack_.attackTimer < WA_03_.attackFrame + WA_03_.jumpFrame) {
+			playerTransforms_[kHip]->translate.y += 1.0f;
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
+		}
+		//ジャンプ待機
+		else if (attack_.attackTimer < WA_03_.attackFrame + WA_03_.jumpFrame + WA_03_.waitFrameJump) {
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
+		}
+		//落下中
+		else if (attack_.attackTimer < WA_03_.attackFrame + WA_03_.jumpFrame
+			+ WA_03_.waitFrameJump + WA_03_.fallFrame) {
+			playerTransforms_[kHip]->translate.y -= 1.0f;
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
+		}
+		//落下後衝撃波
+		else if (attack_.attackTimer < WA_03_.attackFrame + WA_03_.jumpFrame
+			+ WA_03_.waitFrameJump + WA_03_.fallFrame + WA_03_.shockWaveFrame) {
+			weapon_->shockWaveCollider_->SetIsActive(true);
+			weapon_->GetCollider()->SetIsActive(true);
+			weapon_->isAttack_ = true;
 
 		}
 		else {
-			shockWaveCollider_->SetIsActive(false);
+			weapon_->shockWaveCollider_->SetIsActive(false);
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
 		}
 
-		if (++attack_.attackTimer >= workAttack_03_.allFrame) {
+		if (++attack_.attackTimer >= WA_03_.allFrame) {
 
 			//コンボ継続中でなかったら通常状態に戻る
 			{
@@ -828,9 +835,9 @@ void Player::BehaviorAttackInitialize() {
 		break;
 	case AttackType::kRotateAttack:
 		
-		workAttack_03_.velocity = { 0.0f,0.0f,1.0f };
+		WA_03_.velocity = { 0.0f,0.0f,1.0f };
 
-		workAttack_03_.velocity = workAttack_03_.velocity = attack_.playerRotate * workAttack_03_.velocity;
+		WA_03_.velocity = WA_03_.velocity = attack_.playerRotate * WA_03_.velocity;
 		
 
 		break;
@@ -907,12 +914,12 @@ void Player::RegisterGlobalVariables() {
 	if (!globalVariables.HasGroup(kGroupName)) {
 		auto& group = globalVariables[kGroupName];
 		group["Dush Speed"] = workDash_.speed_;
-		group["Attack PreFrame"] = workAttack_01_.preFrame;
-		group["Attack WaitFrameBefore"] = workAttack_01_.waitFrameBefore;
-		group["Attack WaitFrameAfter"] = workAttack_01_.waitFrameAfter;
-		group["Attack AttackFrame"] = workAttack_01_.attackFrame;
-		group["Attack PreRotate"] = workAttack_01_.preRotate;
-		group["Attack AttackRotate"] = workAttack_01_.attackRotate;
+		group["Attack PreFrame"] = WA_01_.preFrame;
+		group["Attack WaitFrameBefore"] = WA_01_.waitFrameBefore;
+		group["Attack WaitFrameAfter"] = WA_01_.waitFrameAfter;
+		group["Attack AttackFrame"] = WA_01_.attackFrame;
+		group["Attack PreRotate"] = WA_01_.preRotate;
+		group["Attack AttackRotate"] = WA_01_.attackRotate;
 	}
 
 }
@@ -927,16 +934,16 @@ void Player::ApplyGlobalVariables() {
 		auto& group = globalVariables[kGroupName];
 
 		workDash_.speed_ = group["Dush Speed"].Get<float>();
-		workAttack_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
-		workAttack_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
-		workAttack_01_.preRotate = group["Attack PreRotate"].Get<float>();
-		workAttack_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
+		WA_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
+		WA_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
+		WA_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
+		WA_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
+		WA_01_.preRotate = group["Attack PreRotate"].Get<float>();
+		WA_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
 
 		//攻撃に使う合計フレームを設定
-		workAttack_01_.allFrame = workAttack_01_.preFrame + workAttack_01_.waitFrameBefore +
-			workAttack_01_.attackFrame + workAttack_01_.waitFrameAfter;
+		WA_01_.allFrame = WA_01_.preFrame + WA_01_.waitFrameBefore +
+			WA_01_.attackFrame + WA_01_.waitFrameAfter;
 
 	}
 

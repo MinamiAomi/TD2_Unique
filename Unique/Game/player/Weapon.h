@@ -62,13 +62,16 @@ public:
 	//武器の初期SRTへ戻す
 	void SetDefault();
 
+	//ウェポンの衝撃波当たり判定。三撃目の最後に発動
+	std::unique_ptr<SphereCollider> shockWaveCollider_;
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
 
 	void GravityOnCollision(const CollisionInfo& collisionInfo);
 
-	void GravityDamageOnCollision(const CollisionInfo& collisionInfo);
+	void ShockWaveCollision(const CollisionInfo& collisionInfo);
 
 	void Break();
 

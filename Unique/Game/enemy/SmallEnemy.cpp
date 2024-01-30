@@ -46,6 +46,7 @@ void SmallEnemy::Update() {
 	if (coolTimer_ > 0) {
 
 		velocity_ = player_->GetPosition() - transform.translate;
+		velocity_.y = 0.0f;
 		velocity_ = velocity_.Normalized();
 		velocity_ /= 3.0f;
 		coolTimer_--;
@@ -72,7 +73,22 @@ void SmallEnemy::Update() {
 		if (collider_->GetName() == "Small_Enemy" ||
 			collider_->GetName() == "Small_Enemy_Damaged") {
 
-			if (knockBackCount_ > 0) {
+			if (bounceCount_ > 0) {
+
+				transform.translate += bounceVelocity_;
+
+				bounceVelocity_.y -= 0.3f;
+
+				if (bounceVelocity_.Length() < 0.05f) {
+					bounceVelocity_ = Vector3::zero;
+				}
+
+				if (--bounceCount_ <= 0) {
+					collider_->SetName("Small_Enemy");
+				}
+
+			}
+			else if (knockBackCount_ > 0) {
 
 				transform.translate += knockBackVelocity_;
 
@@ -103,9 +119,19 @@ void SmallEnemy::Update() {
 				}
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
+				diff.y = 0.0f;
 				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
 
 			}
+
+		}
+
+		if (transform.translate.y < 10.0f) {
+			transform.translate.y = 10.0f;
+
+			//跳ねている時に床にぶつかったら減速しつつY速度反転
+			bounceVelocity_.y *= -1.0f;
+			bounceVelocity_ *= 0.75f;
 
 		}
 
@@ -137,12 +163,6 @@ void SmallEnemy::OnCollision(const CollisionInfo& collisionInfo) {
 			knockBackCount_ = kKnockBackTime_ / 2;
 
 		}
-		else if (collisionInfo.collider->GetName() == "ShockWave") {
-
-			//プレイヤーと当たった地点からノックバックしてダメージ
-			Damage(1, player_->GetPosition());
-
-		}
 
 	}
 
@@ -166,6 +186,30 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
 
 	knockBackCount_ = kKnockBackTime_;
+
+}
+
+void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
+
+	hp_ -= 2;
+
+	if (hp_ < 0) {
+		hp_ = 0;
+	}
+
+	collider_->SetName("Small_Enemy_Bounced");
+
+	//攻撃を受けた地点に向かって集まるように跳ねる
+	bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
+
+	bounceVelocity_.y = 10.0f;
+
+	bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
+
+	bounceCount_ = kMaxBounceTime_;
+
+	//ノックバックとの重複を阻止
+	knockBackCount_ = 0;
 
 }
 
@@ -198,6 +242,7 @@ void BarrierEnemy::Update() {
 	if (coolTimer_ > 0) {
 
 		velocity_ = player_->GetPosition() - transform.translate;
+		velocity_.y = 0.0f;
 		velocity_ = velocity_.Normalized();
 		velocity_ /= 3.0f;
 		coolTimer_--;
@@ -225,6 +270,21 @@ void BarrierEnemy::Update() {
 			collider_->GetName() == "Small_Enemy" ||
 			collider_->GetName() == "Barrier_Enemy_Damaged") {
 
+			if (bounceCount_ > 0) {
+
+				transform.translate += bounceVelocity_;
+
+				bounceVelocity_.y -= 0.3f;
+
+				if (bounceVelocity_.Length() < 0.05f) {
+					bounceVelocity_ = Vector3::zero;
+				}
+
+				if (--bounceCount_ <= 0) {
+					collider_->SetName("Small_Enemy");
+				}
+
+			}
 			if (knockBackCount_ > 0) {
 
 				transform.translate += knockBackVelocity_;
@@ -263,9 +323,19 @@ void BarrierEnemy::Update() {
 				}
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
+				diff.y = 0.0f;
 				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
 
 			}
+
+		}
+
+		if (transform.translate.y < 10.0f) {
+			transform.translate.y = 10.0f;
+
+			//跳ねている時に床にぶつかったら減速しつつY速度反転
+			bounceVelocity_.y *= -1.0f;
+			bounceVelocity_ *= 0.75f;
 
 		}
 
@@ -354,5 +424,78 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
 
 	knockBackCount_ = kKnockBackTime_;
+
+}
+
+void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
+
+	//最終ダメージ
+	int32_t tmpDamage = 2;
+
+	//バリアがダメージと同等以上の場合
+	if (barrierHp_ >= tmpDamage) {
+
+		//バリアにダメージの値をそのまま与える
+		barrierHp_ -= tmpDamage;
+		//ダメージの値を0にする
+		tmpDamage = 0;
+
+	}
+	//バリアがダメージより低い場合
+	else if (barrierHp_ < tmpDamage) {
+
+		//ダメージをバリアの値分減らす
+		tmpDamage -= barrierHp_;
+		//バリアのライフを0にする
+		barrierHp_ = 0;
+
+	}
+
+	if (barrierHp_ <= 0) {
+		model_->SetColor({ 1.0f,0.0f,0.0f });
+	}
+
+	//最終的なダメージを本体に与える
+	hp_ -= tmpDamage;
+
+	if (hp_ < 0) {
+		hp_ = 0;
+	}
+
+	//バリアが無い場合、跳ねる処理
+	if (barrierHp_ <= 0) {
+
+		collider_->SetName("Small_Enemy_Bounced");
+
+		//攻撃を受けた地点に向かって集まるように跳ねる
+		bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
+
+		bounceVelocity_.y = 10.0f;
+
+		bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
+
+		bounceCount_ = kMaxBounceTime_;
+
+		//ノックバックとの重複を阻止
+		knockBackCount_ = 0;
+
+	}
+	else {
+
+		collider_->SetName("Barrier_Enemy_Damaged");
+
+		//攻撃を受けた地点からノックバック
+		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
+
+		knockBackVelocity_.y = 0.0f;
+
+		knockBackVelocity_ = knockBackVelocity_.Normalized() * 2.0f;
+
+		knockBackCount_ = kKnockBackTime_;
+
+		//跳ねとの重複阻止
+		bounceCount_ = 0;
+
+	}
 
 }
