@@ -10,31 +10,19 @@
 
 class HierarchicalAnimation {
 public:
-
-    struct NodeSet {
+    struct Node {
         Animation::Vector3Node translate;
         Animation::QuaternionNode rotate;
         Animation::Vector3Node scale;
     };
-    struct Node {
-        std::string name;
-        Matrix4x4 worldMatrix;
-        Node* parent;
-    };
 
     static std::shared_ptr<HierarchicalAnimation> Load(const std::filesystem::path& path);  
 
-    void Update(float duration);
-    Matrix4x4 GetNodeWorldMatrix(const std::string& node) const;
+    const Node& GetNode(const std::string& nodeName) const { return data_.at(nodeName); }
 
 private:
-    struct AnimationSet {
-        std::unordered_map<std::string, NodeSet> nodes;
-    };
+    HierarchicalAnimation() = default;
+    ~HierarchicalAnimation() = default;
 
-    std::unordered_map<std::string, AnimationSet> animations_;
-    std::unordered_map<std::string, Node> nodes_;
-    std::string currentName_;
-    
-
+    std::unordered_map<std::string, Node> data_;
 };

@@ -4,7 +4,7 @@
 
 namespace Animation {
 
-    float FloatNode::GetInterpolatedValue(float animationTime) {
+    float FloatNode::GetInterpolatedValue(float animationTime) const {
         // キーフレームは一つ以上存在する
         assert(!keyFrames_.empty());
         // 一つの場合はそれ
@@ -18,7 +18,7 @@ namespace Animation {
         return Math::Lerp(scaleFactor, keyFrames_[prevIndex].value, keyFrames_[nextIndex].value);
     }
 
-    Vector3 Vector3Node::GetInterpolatedValue(float animationTime) {
+    Vector3 Vector3Node::GetInterpolatedValue(float animationTime) const {
         // キーフレームは一つ以上存在する
         assert(!keyFrames_.empty());
         // 一つの場合はそれ
@@ -32,7 +32,7 @@ namespace Animation {
         return Vector3::Lerp(scaleFactor, keyFrames_[prevIndex].value, keyFrames_[nextIndex].value);
     }
 
-    Quaternion QuaternionNode::GetInterpolatedValue(float animationTime) {
+    Quaternion QuaternionNode::GetInterpolatedValue(float animationTime) const {
         // キーフレームは一つ以上存在する
         assert(!keyFrames_.empty());
         // 一つの場合はそれ

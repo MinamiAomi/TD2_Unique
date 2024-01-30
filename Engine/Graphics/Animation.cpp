@@ -1,12 +1,11 @@
 #include "Animation.h"
 
 #include <cassert>
+#include <stack>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
-#include <stack>
 
 namespace {
 
@@ -33,52 +32,45 @@ namespace {
 
 std::shared_ptr<HierarchicalAnimation> HierarchicalAnimation::Load(const std::filesystem::path& path) {
 
-    std::shared_ptr<HierarchicalAnimation> hierarchicalAnimation = std::make_shared<HierarchicalAnimation>();
+    // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
+    struct Helper : HierarchicalAnimation {
+        Helper() : HierarchicalAnimation() {}
+    };
+    std::shared_ptr<HierarchicalAnimation> hierarchicalAnimation = std::make_shared<Helper>();
 
     Assimp::Importer importer;
     int flags = 0;
     // 左手座標系に変換
     flags |= aiProcess_FlipUVs;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
+    assert(scene);
+    assert(scene->mNumAnimations != 0);
 
+    // 0番決め打ち
+    aiAnimation* animation = scene->mAnimations[0];
+    for (size_t channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex) {
+        auto& srcChannel = animation->mChannels[channelIndex];
+        auto& destNode = hierarchicalAnimation->data_[srcChannel->mNodeName.C_Str()];
 
-    for (size_t animIndex = 0; animIndex < scene->mNumAnimations; ++animIndex) {
-        aiAnimation* animation = scene->mAnimations[animIndex];
-        for (size_t channelIndex = 0; channelIndex < animation->mNumChannels; ++channelIndex) {
-            auto& srcChannel = animation->mChannels[channelIndex];
-            auto& destNode = hierarchicalAnimation->animations_[animation->mName.C_Str()].nodes[srcChannel->mNodeName.C_Str()];
+        float invDuration = 1.0f / static_cast<float>(animation->mDuration);
+        std::vector<Animation::Vector3Node::KeyFrame> positionKey;
+        std::vector<Animation::QuaternionNode::KeyFrame> rotateKey;
+        std::vector<Animation::Vector3Node::KeyFrame> scaleKey;
 
-            float invDuration = 1.0f / static_cast<float>(animation->mDuration);
-            std::vector<Animation::Vector3Node::KeyFrame> positionKey;
-            std::vector<Animation::QuaternionNode::KeyFrame> rotateKey;
-            std::vector<Animation::Vector3Node::KeyFrame> scaleKey;
-
-            for (size_t keyIndex = 0; keyIndex < srcChannel->mNumPositionKeys; ++keyIndex) {
-                positionKey.emplace_back(ConvertKeyframe(srcChannel->mPositionKeys[keyIndex], invDuration));
-            }
-            for (size_t keyIndex = 0; keyIndex < srcChannel->mNumRotationKeys; ++keyIndex) {
-                rotateKey.emplace_back(ConvertKeyframe(srcChannel->mRotationKeys[keyIndex], invDuration));
-            }
-            for (size_t keyIndex = 0; keyIndex < srcChannel->mNumScalingKeys; ++keyIndex) {
-                scaleKey.emplace_back(ConvertKeyframe(srcChannel->mScalingKeys[keyIndex], invDuration));
-            }
-
-            destNode.translate = std::move(Animation::Vector3Node(positionKey));
-            destNode.rotate = std::move(Animation::QuaternionNode(rotateKey));
-            destNode.scale = std::move(Animation::Vector3Node(scaleKey));
+        for (size_t keyIndex = 0; keyIndex < srcChannel->mNumPositionKeys; ++keyIndex) {
+            positionKey.emplace_back(ConvertKeyframe(srcChannel->mPositionKeys[keyIndex], invDuration));
         }
+        for (size_t keyIndex = 0; keyIndex < srcChannel->mNumRotationKeys; ++keyIndex) {
+            rotateKey.emplace_back(ConvertKeyframe(srcChannel->mRotationKeys[keyIndex], invDuration));
+        }
+        for (size_t keyIndex = 0; keyIndex < srcChannel->mNumScalingKeys; ++keyIndex) {
+            scaleKey.emplace_back(ConvertKeyframe(srcChannel->mScalingKeys[keyIndex], invDuration));
+        }
+
+        destNode.translate = std::move(Animation::Vector3Node(positionKey));
+        destNode.rotate = std::move(Animation::QuaternionNode(rotateKey));
+        destNode.scale = std::move(Animation::Vector3Node(scaleKey));
     }
 
-
-
-
-    return std::shared_ptr<HierarchicalAnimation>();
-}
-
-void HierarchicalAnimation::Update(float duration)
-{
-}
-
-Matrix4x4 HierarchicalAnimation::GetNodeWorldMatrix(const std::string& node) const {
-    return Matrix4x4();
+    return hierarchicalAnimation;
 }
