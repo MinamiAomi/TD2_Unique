@@ -68,7 +68,7 @@ private:
 
     uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 10;
+    uint32_t kMaxWave_ = 0;
 
    /* std::shared_ptr<Model> floor_;
     std::shared_ptr<Model> teapot_;
