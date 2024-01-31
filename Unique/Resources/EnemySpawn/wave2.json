@@ -1,0 +1,46 @@
+{
+    "wave2": {
+        "objectData": {
+            "Enemy": {
+                "position": [
+                    0.0,
+                    10.0,
+                    30.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            },
+            "Enemy1": {
+                "position": [
+                    0.0,
+                    10.0,
+                    24.299999237060547
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            },
+            "Enemy2": {
+                "position": [
+                    0.0,
+                    10.0,
+                    40.29999923706055
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            },
+            "Enemy3": {
+                "position": [
+                    0.0,
+                    10.0,
+                    50.29999923706055
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            }
+        },
+        "tags": [
+            "Normal",
+            "Barrier"
+        ]
+    }
+}

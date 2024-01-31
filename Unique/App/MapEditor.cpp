@@ -14,6 +14,22 @@ MapEditor* MapEditor::GetInstance() {
 	return &instance;
 }
 
+void MapEditor::SetAllModelIsActive(bool flag) {
+
+	for (auto& object : mapObjData_) {
+		object->model->SetIsActive(flag);
+	}
+
+}
+
+void MapEditor::EditorClose() {
+
+	if (isOpenFile_) {
+		Close();
+	}
+
+}
+
 void MapEditor::Initialize() {
 
 	for (const auto& tag : tagData_) {

@@ -36,6 +36,10 @@ private:
 
     void EditorCameraMove();
 
+    void Start();
+
+    void Stop();
+
 private:
 
     MapEditor* editor_ = nullptr;
@@ -79,9 +83,15 @@ private:
 
     Vector3 reticlePos_{};
 
-    uint32_t waveNumber_ = 0;
+    uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 0;
+    uint32_t maxWave_ = 1;
+
+    uint32_t tmpWaveNumber_ = 1;
+
+    bool isStart_ = false;
+
+    bool isStop_ = false;
 
    /* std::shared_ptr<Model> floor_;
     std::shared_ptr<Model> teapot_;

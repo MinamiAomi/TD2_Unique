@@ -39,6 +39,12 @@ public:
 
 	const std::string& kDirectoryPath_ = "./resources/EnemySpawn/";
 
+	//全モデルの描画のアクティブ状態を変更
+	void SetAllModelIsActive(bool flag);
+
+	//データを開いている時に強制終了させる
+	void EditorClose();
+
 //関数
 private:
 

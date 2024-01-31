@@ -122,7 +122,12 @@ void SmallEnemy::Update() {
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
 				diff.y = 0.0f;
-				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				if (diff.Normalized().z >= -0.99f) {
+					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				}
+				else {
+					transform.rotate = Quaternion::MakeForYAxis(3.14f);
+				}
 
 			}
 
@@ -131,7 +136,7 @@ void SmallEnemy::Update() {
 		if (collider_->GetName() == "Small_Enemy_Affected") {
 			transform.translate.y = 0.0f;
 		}
-		if (transform.translate.y < 10.0f) {
+		else if (transform.translate.y < 10.0f) {
 			transform.translate.y = 10.0f;
 
 			//跳ねている時に床にぶつかったら減速しつつY速度反転
@@ -333,7 +338,13 @@ void BarrierEnemy::Update() {
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
 				diff.y = 0.0f;
-				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				if (diff.Normalized().z >= -0.99f) {
+					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				}
+				else {
+					transform.rotate = Quaternion::MakeForYAxis(3.14f);
+				}
+				
 
 			}
 

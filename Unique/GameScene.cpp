@@ -67,7 +67,6 @@ void GameScene::Reset() {
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
-    waveNumber_ = 0;
 
 }
 
@@ -140,38 +139,67 @@ void GameScene::OnUpdate() {
 
 #ifdef _DEBUG
 
-    Manual();
+    ImGui::Begin("Game");
 
-    editor_->Edit();
-
-    //カメラの移動、切り替え処理
-    EditorCameraMove();
-
-#endif // _DEBUG
-
-
-    enemies_.remove_if([](auto& enemy) {
-
-        if (enemy->GetIsDead()) {
-            SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
-            return true;
-        }
-
-        return false;
-
-        });
-
-    //空になったらウェーブ進行、次のデータに沿って敵を配置
-    if (enemies_.empty()) {
-
-        //最大ウェーブ数までロード
-        if (waveNumber_ < kMaxWave_) {
-            waveNumber_++;
-            LoadEnemyPopData(waveNumber_);
-        }
+    if (!isStart_) {
+        int tmpNum = maxWave_;
+        ImGui::DragInt("Max Wave", &tmpNum, 0.1f, 1, 99);
+        maxWave_ = tmpNum;
+        int tmpNum2 = waveNumber_;
+        ImGui::DragInt("Start Wave", &tmpNum2, 0.1f, 1, 99);
+        waveNumber_ = tmpNum2;
 
     }
 
+    if (ImGui::Button("Start")) {
+        Start();
+    }
+
+    if (ImGui::Button("Stop")) {
+        Stop();
+    }
+
+    ImGui::End();
+
+    //ゲーム開始していない時
+    if (!isStart_) {
+
+        Manual();
+
+        editor_->Edit();
+
+        //カメラの移動、切り替え処理
+        EditorCameraMove();
+
+    }
+
+#endif // _DEBUG
+
+    if (isStart_) {
+
+        enemies_.remove_if([](auto& enemy) {
+
+            if (enemy->GetIsDead()) {
+                SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
+                return true;
+            }
+
+            return false;
+
+            });
+
+        //空になったらウェーブ進行、次のデータに沿って敵を配置
+        if (enemies_.empty()) {
+
+            //最大ウェーブ数までロード
+            if (waveNumber_ <= maxWave_) {
+                LoadEnemyPopData(waveNumber_);
+                waveNumber_++;
+            }
+
+        }
+
+    }
 
     GlobalVariables::GetInstance()->Update();
 
@@ -198,8 +226,12 @@ void GameScene::OnUpdate() {
 
     }
 
-    for (auto& enemy : enemies_) {
-        enemy->Update();
+    if (isStart_) {
+
+        for (auto& enemy : enemies_) {
+            enemy->Update();
+        }
+
     }
 
     player_->Update();
@@ -215,6 +247,47 @@ void GameScene::OnUpdate() {
 }
 
 void GameScene::OnFinalize() {
+}
+
+void GameScene::Start() {
+
+    if (!isStart_) {
+
+        editor_->EditorClose();
+
+        RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
+
+        Reset();
+
+        tmpWaveNumber_ = waveNumber_;
+
+        isStart_ = true;
+
+    }
+
+   
+
+}
+
+void GameScene::Stop() {
+
+    if (isStart_) {
+
+        Reset();
+
+        RenderManager::GetInstance()->SetCamera(editorCamera_);
+
+        editorCameraTransform_->UpdateMatrix();
+        editorCamera_->SetPosition(editorCameraTransform_->translate);
+        editorCamera_->SetRotate(editorCameraTransform_->rotate);
+        editorCamera_->UpdateMatrices();
+
+        waveNumber_ = tmpWaveNumber_;
+
+        isStart_ = false;
+
+    }
+
 }
 
 void GameScene::EditorCameraMove() {
