@@ -28,7 +28,11 @@ private:
 
     void Reset();
 
-    void SetEnemy(uint32_t num);
+    void Manual();
+
+    void SetEnemy(const std::string& tag, const Vector3& position);
+
+    void LoadEnemyPopData(uint32_t waveNumber);
 
 private:
 
