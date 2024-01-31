@@ -7,11 +7,8 @@
 #include "Game/enemy/EnemyCoreManager.h"
 #include "GlobalVariables.h"
 #include "Game/enemy/SmallEnemyManager.h"
-#include "Math/Random.h"
 #include "Graphics/ImGuiManager.h"
 #include "Externals/nlohmann/json.hpp"
-
-static Random::RandomNumberGenerator randomNumberGenerator;
 
 void GameScene::OnInitialize() {
 
@@ -42,9 +39,7 @@ void GameScene::OnInitialize() {
     //セット
     player_->SetCamera(followCamera_);
     followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
-    /* enemy_->SetPlayer(player_.get());*/
-     /*enemy_->SetBlockList(&blocks_);*/
-    SetEnemy(20);
+    LoadEnemyPopData(waveNumber_);
 
 }
 
@@ -56,7 +51,6 @@ void GameScene::Reset() {
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
-    SetEnemy(20);
 
 }
 
@@ -143,6 +137,18 @@ void GameScene::OnUpdate() {
 
         });
 
+    //空になったらウェーブ進行、次のデータに沿って敵を配置
+    if (enemies_.empty()) {
+
+        //最大ウェーブ数までロード
+        if (waveNumber_ < kMaxWave_) {
+            waveNumber_++;
+            LoadEnemyPopData(waveNumber_);
+        }
+
+    }
+
+
     GlobalVariables::GetInstance()->Update();
 
     Input* input = Input::GetInstance();
@@ -202,7 +208,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
 
     //ファイルオープン失敗したら表示
     if (ifs.fail()) {
-        MessageBox(nullptr, L"指定したファイルは存在しません。", L"Map Editor - Load", 0);
+        MessageBox(nullptr, L"スポーンデータが存在しません。", L"Map Editor - Load", 0);
         return;
     }
 
@@ -217,6 +223,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
     //未登録チェック
     if (itGroup == root.end()) {
         MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+        return;
     }
 
     //保険
@@ -234,6 +241,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
         //未登録チェック
         if (itObject == itGroup->end()) {
             MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+            return;
         }
 
         //保険
@@ -254,6 +262,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
                 //未登録チェック
                 if (itData == itObject->end()) {
                     MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+                    return;
                 }
 
                 //保険

@@ -66,6 +66,10 @@ private:
 
     Vector3 reticlePos_{};
 
+    uint32_t waveNumber_ = 1;
+
+    uint32_t kMaxWave_ = 10;
+
    /* std::shared_ptr<Model> floor_;
     std::shared_ptr<Model> teapot_;
     std::shared_ptr<Model> bunny_;
