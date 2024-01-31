@@ -122,7 +122,7 @@ void GameScene::Manual() {
         ImGui::Text("A or D : Move X");
         ImGui::Text("W or S : Move Z");
         ImGui::Text("Q or E : Move Y");
-        ImGui::Text("1 or 2 : Change Camera");
+        ImGui::Text("shift + 1 or 2 : Change Camera");
         ImGui::EndMenu();
     }
 
@@ -222,11 +222,11 @@ void GameScene::EditorCameraMove() {
     Input* input = Input::GetInstance();
 
     //エディター用のカメラに設定
-    if (input->IsKeyTrigger(DIK_1)) {
+    if (input->IsKeyTrigger(DIK_1) && (input->IsKeyPressed(DIK_LSHIFT) || input->IsKeyPressed(DIK_RSHIFT))) {
         RenderManager::GetInstance()->SetCamera(editorCamera_);
     }
     //プレイヤー目線のカメラに設定
-    else if (input->IsKeyTrigger(DIK_2)) {
+    else if (input->IsKeyTrigger(DIK_2) && (input->IsKeyPressed(DIK_LSHIFT) || input->IsKeyPressed(DIK_RSHIFT))) {
         RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
     }
 
