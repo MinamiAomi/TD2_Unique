@@ -28,13 +28,13 @@ private:
 
     void Reset();
 
-    void SetEnemy(const std::string& tag, const Vector3& position);
-
     void Manual();
 
-    void EditorCameraMove();
+    void SetEnemy(const std::string& tag, const Vector3& position);
 
     void LoadEnemyPopData(uint32_t waveNumber);
+
+    void EditorCameraMove();
 
 private:
 
@@ -78,6 +78,10 @@ private:
    /* std::shared_ptr<Enemy> enemy_;*/
 
     Vector3 reticlePos_{};
+
+    uint32_t waveNumber_ = 0;
+
+    uint32_t kMaxWave_ = 0;
 
    /* std::shared_ptr<Model> floor_;
     std::shared_ptr<Model> teapot_;

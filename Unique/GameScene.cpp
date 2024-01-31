@@ -7,18 +7,12 @@
 #include "Game/enemy/EnemyCoreManager.h"
 #include "GlobalVariables.h"
 #include "Game/enemy/SmallEnemyManager.h"
-#include "Math/Random.h"
 #include "Graphics/ImGuiManager.h"
 #include "Externals/nlohmann/json.hpp"
-
-static Random::RandomNumberGenerator randomNumberGenerator;
 
 void GameScene::OnInitialize() {
 
 #ifdef _DEBUG
-
-    editor_ = MapEditor::GetInstance();
-    editor_->Initialize();
 
 #endif // _DEBUG
 
@@ -30,13 +24,15 @@ void GameScene::OnInitialize() {
     reticleTex_ = ResourceManager::GetInstance()->FindTexture("reticle");
     reticle_ = std::make_unique<Sprite>();
     /*enemy_ = std::make_shared<Enemy>();*/
+    editor_ = MapEditor::GetInstance();
+    editor_->Initialize();
 
     EnemyCoreManager::GetInstance()->Clear();
 
     followCamera_->Initialize();
     player_->Initialize();
     stage_->Initialize();
-   /* enemy_->Initialize();*/
+    /* enemy_->Initialize();*/
 
     RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
     sunLight_ = std::make_shared<DirectionalLight>();
@@ -69,6 +65,9 @@ void GameScene::Reset() {
     player_->Initialize();
     /*enemy_->Initialize();*/
     stage_->Initialize();
+    SmallEnemyManager::GetInstance()->Clear();
+    enemies_.clear();
+    waveNumber_ = 0;
 
 }
 
@@ -131,6 +130,7 @@ void GameScene::Manual() {
     ImGui::EndMenuBar();
     ImGui::End();
 
+    
 #endif // _DEBUG
 
 
@@ -149,10 +149,61 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
+
+    enemies_.remove_if([](auto& enemy) {
+
+        if (enemy->GetIsDead()) {
+            SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
+            return true;
+        }
+
+        return false;
+
+        });
+
+    //空になったらウェーブ進行、次のデータに沿って敵を配置
+    if (enemies_.empty()) {
+
+        //最大ウェーブ数までロード
+        if (waveNumber_ < kMaxWave_) {
+            waveNumber_++;
+            LoadEnemyPopData(waveNumber_);
+        }
+
+    }
+
+
     GlobalVariables::GetInstance()->Update();
 
+    Input* input = Input::GetInstance();
+
+    if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
+        Reset();
+    }
+
+    if (input->IsKeyTrigger(DIK_C)) {
+
+        //コライダーを非アクティブ(ctrl + C)
+        if (input->IsKeyPressed(DIK_LCONTROL)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(false);
+            }
+        }
+        //コライダーをアクティブ(shift + C)
+        else if (input->IsKeyPressed(DIK_LSHIFT)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(true);
+            }
+        }
+
+    }
+
+    for (auto& enemy : enemies_) {
+        enemy->Update();
+    }
+
     player_->Update();
-   /* enemy_->Update();*/
+    /* enemy_->Update();*/
     stage_->Update();
 
     CollisionManager::GetInstance()->CheckCollision();
@@ -211,6 +262,7 @@ void GameScene::EditorCameraMove() {
 
 }
 
+
 void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
 
     std::string filename = "wave";
@@ -226,7 +278,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
 
     //ファイルオープン失敗したら表示
     if (ifs.fail()) {
-        MessageBox(nullptr, L"指定したファイルは存在しません。", L"Map Editor - Load", 0);
+        MessageBox(nullptr, L"スポーンデータが存在しません。", L"Map Editor - Load", 0);
         return;
     }
 
@@ -241,6 +293,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
     //未登録チェック
     if (itGroup == root.end()) {
         MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+        return;
     }
 
     //保険
@@ -258,6 +311,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
         //未登録チェック
         if (itObject == itGroup->end()) {
             MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+            return;
         }
 
         //保険
@@ -278,6 +332,7 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
                 //未登録チェック
                 if (itData == itObject->end()) {
                     MessageBox(nullptr, L"ファイルの構造が正しくありません。", L"Map Editor - Load", 0);
+                    return;
                 }
 
                 //保険
@@ -337,3 +392,5 @@ void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
     }
 
 }
+
+

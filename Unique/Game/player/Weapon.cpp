@@ -18,6 +18,7 @@ Weapon::Weapon()
 	gravityTransform_ = std::make_shared<Transform>();
 	gravityScaleTransform_ = std::make_shared<Transform>();
 	modelBodyTransform_ = std::make_shared<Transform>();
+	shockWaveCollider_ = std::make_unique<SphereCollider>();
 }
 
 Weapon::~Weapon()
@@ -95,6 +96,15 @@ void Weapon::Initialize() {
 	gravitySpaceCollider_->SetCollisionAttribute(0xfffffffe);
 	gravitySpaceCollider_->SetCollisionMask(0x00000001);
 
+	shockWaveCollider_->SetCenter(transform.translate);
+	shockWaveCollider_->SetRadius(15.0f);
+	shockWaveCollider_->SetName("ShockWave");
+	shockWaveCollider_->SetIsActive(false);
+	shockWaveCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {ShockWaveCollision(collisionInfo); });
+	shockWaveCollider_->SetGameObject(this);
+	shockWaveCollider_->SetCollisionAttribute(0xfffffffe);
+	shockWaveCollider_->SetCollisionMask(0x00000001);
+
 	gravityModel_->SetIsActive(false);
 
 	energyCount_ = 0;
@@ -123,6 +133,10 @@ void Weapon::Update() {
 	else if (isShot_) {
 
 		transform.translate += velocity_;
+
+		if (transform.translate.y < 10.0f) {
+			transform.translate.y = 10.0f;
+		}
 
 		if (--shotTimer_ <= 0) {
 			Break();
@@ -200,6 +214,8 @@ void Weapon::Update() {
 	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
 	spaceCollider_->SetCenter(player_->GetPosition() + (transform.worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
+
+	shockWaveCollider_->SetCenter(transform.worldMatrix.GetTranslate());
 
 	model_->SetWorldMatrix(transform.worldMatrix);
 	modelBody_->SetWorldMatrix(modelBodyTransform_->worldMatrix);
@@ -286,8 +302,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 	//重力をまとっている、発射している途中
-	if (gravityCollider_->GetName() == "Gravity" || 
-		gravityCollider_->GetName() == "Gravity_Shot") {
+	if (gravityCollider_->GetName() == "Gravity") {
 
 		if (collisionInfo.collider->GetName() == "Small_Enemy") {
 
@@ -298,7 +313,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
 			enemy->transform.SetParent(gravityTransform_.get());
-			enemy->transform.translate /= 2.0f;
+			enemy->transform.translate *= 0.0f;
 			enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
 			if (energyCount_ >= 20) {
@@ -320,10 +335,26 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 		}
 
 	}
+	//発射した時
+	else if (gravityCollider_->GetName() == "Gravity_Shot") {
+
+		if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+			collisionInfo.collider->GetName() == "Barrier_Enemy") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
+
+		}
+
+	}
 	//発射して破裂した時
 	else if (gravityCollider_->GetName() == "Gravity_Break") {
 
 		if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+			collisionInfo.collider->GetName() == "Barrier_Enemy" ||
 			collisionInfo.collider->GetName() == "Small_Enemy_Affected") {
 
 			auto object = collisionInfo.collider->GetGameObject();
@@ -358,8 +389,17 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 }
 
-void Weapon::GravityDamageOnCollision(const CollisionInfo& collisionInfo) {
+void Weapon::ShockWaveCollision(const CollisionInfo& collisionInfo) {
 
-	collisionInfo;
+	if (collisionInfo.collider->GetName() == "Small_Enemy" ||
+		collisionInfo.collider->GetName() == "Barrier_Enemy") {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+		enemy->BounceAndGather(transform.worldMatrix.GetTranslate());
+
+	}
 
 }

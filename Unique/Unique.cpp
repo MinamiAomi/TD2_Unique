@@ -6,6 +6,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Model.h"
 #include "Graphics/ResourceManager.h"
+#include "Graphics/Animation.h"
 
 #include "GameScene.h"
 
@@ -62,6 +63,8 @@ void Unique::OnInitialize() {
 	std::shared_ptr<Texture> UI_RS = std::make_shared<Texture>();
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
+
+	HierarchicalAnimation::Load("./Resources/PlayerAnimation.gltf");
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();

@@ -264,6 +264,12 @@
     <ClCompile Include="Graphics\ComputeShader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Math\AnimationNode.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Animation.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -519,6 +525,12 @@
       <Filter>Graphics\Raymarching</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ComputeShader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\AnimationNode.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Animation.h">
       <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>

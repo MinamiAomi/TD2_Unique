@@ -116,7 +116,7 @@ private:
 
 	std::list<std::shared_ptr<EnemyBullet>> bigBullets_;
 
-	WorkAttack_01 workAttack_01_;
+	WorkAttack_01 WA_01_;
 
 	WorkShot workShot_;
 

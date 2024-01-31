@@ -3,12 +3,21 @@
         "objectData": {
             "Enemy": {
                 "position": [
-                    16.700000762939453,
+                    20.0,
                     10.0,
-                    0.0
+                    20.0
                 ],
                 "tag": "Normal",
                 "tagNumber": 0
+            },
+            "Enemy1": {
+                "position": [
+                    50.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
             }
         },
         "tags": [

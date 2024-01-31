@@ -25,6 +25,9 @@ public:
 
 	virtual void Damage(uint32_t val, const Vector3& affectPosition);
 
+	//衝撃波を受けたときの処理、跳ねて集まる
+	virtual void BounceAndGather(const Vector3& goalPosition);
+
 protected:
 
 	virtual void OnCollision(const CollisionInfo& collisionInfo);
@@ -65,6 +68,13 @@ protected:
 
 	int32_t coolTimer_ = kMaxCoolTime_;
 
+	//吹っ飛び中のクールタイム
+	int32_t kMaxBounceTime_ = 60;
+
+	int32_t bounceCount_ = 0;
+
+	Vector3 bounceVelocity_{};
+
 };
 
 class BarrierEnemy : public SmallEnemy
@@ -77,6 +87,9 @@ public:
 	void Update() override;
 
 	void Damage(uint32_t val, const Vector3& affectPosition) override;
+
+	//衝撃波を受けたときの処理、跳ねて集まる
+	void BounceAndGather(const Vector3& goalPosition) override;
 
 protected:
 
