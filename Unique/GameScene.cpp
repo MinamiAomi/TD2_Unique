@@ -52,7 +52,7 @@ void GameScene::OnInitialize() {
 
 #ifdef _DEBUG
 
-    RenderManager::GetInstance()->SetCamera(editorCamera_);
+    /*RenderManager::GetInstance()->SetCamera(editorCamera_);*/
 
 #endif // _DEBUG
 
@@ -142,10 +142,10 @@ void GameScene::OnUpdate() {
 
     Manual();
 
-    editor_->Edit();
+    //editor_->Edit();
 
-    //カメラの移動、切り替え処理
-    EditorCameraMove();
+    ////カメラの移動、切り替え処理
+    //EditorCameraMove();
 
 #endif // _DEBUG
 
