@@ -405,11 +405,11 @@ void Player::BehaviorRootUpdate() {
 		workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 		
 		//ディレイの値に応じてスピード調整
-		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f);
+		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f) - workGravity_.decel;
 
 	}
 	else {
-		workDash_.speed_ = 1.0f - (weapon_->GetDelay() / 40.0f);
+		workDash_.speed_ = 1.0f - (weapon_->GetDelay() / 40.0f) - workGravity_.decel;
 	}
 
 	Vector3 move{};
@@ -511,6 +511,7 @@ void Player::Thrust() {
 			weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
 			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.57f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
 			weapon_->isThrust_ = true;
+			workGravity_.decel = workGravity_.decelVal;
 
 			//規定時間以上重力を続けると一定時間強制的に使えなくなる
 			if (workGravity_.overHeatTimer < workGravity_.keepTime) {
@@ -535,6 +536,8 @@ void Player::Thrust() {
 			}
 
 			weapon_->isThrust_ = false;
+			workGravity_.decel = 0.0f;
+
 		}
 
 	}
@@ -574,7 +577,7 @@ void Player::BehaviorAttackUpdate() {
 	case AttackType::kHorizontal_1:
 
 		//一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
-		if (attack_.attackTimer >= WA_01_.allFrame / 4) {
+		if (attack_.attackTimer > 0) {
 
 			/*if (weapon_->GetIsGravity()) {
 				ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
@@ -920,6 +923,14 @@ void Player::RegisterGlobalVariables() {
 		group["Attack AttackFrame"] = WA_01_.attackFrame;
 		group["Attack PreRotate"] = WA_01_.preRotate;
 		group["Attack AttackRotate"] = WA_01_.attackRotate;
+		group["Attack_2 AttackFrame"] = WA_02_.attackFrame;
+		group["Attack_2 WaitFrameAfter"] = WA_02_.waitFrameAfter;
+		group["Attack_3 AttackFrame"] = WA_03_.attackFrame;
+		group["Attack_3 JumpFrame"] = WA_03_.jumpFrame;
+		group["Attack_3 WaitFrameJump"] = WA_03_.waitFrameJump;
+		group["Attack_3 FallFrame"] = WA_03_.fallFrame;
+		group["Attack_3 WaitFrameAfter"] = WA_03_.waitFrameAfter;
+
 	}
 
 }
@@ -940,10 +951,22 @@ void Player::ApplyGlobalVariables() {
 		WA_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
 		WA_01_.preRotate = group["Attack PreRotate"].Get<float>();
 		WA_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
+		WA_02_.attackFrame = group["Attack_2 AttackFrame"].Get<int32_t>();
+		WA_02_.waitFrameAfter = group["Attack_2 WaitFrameAfter"].Get<int32_t>();
+		WA_03_.attackFrame = group["Attack_3 AttackFrame"].Get<int32_t>();
+		WA_03_.jumpFrame = group["Attack_3 JumpFrame"].Get<int32_t>();
+		WA_03_.waitFrameJump = group["Attack_3 WaitFrameJump"].Get<int32_t>();
+		WA_03_.fallFrame = group["Attack_3 FallFrame"].Get<int32_t>();
+		WA_03_.waitFrameAfter = group["Attack_3 WaitFrameAfter"].Get<int32_t>();
 
 		//攻撃に使う合計フレームを設定
 		WA_01_.allFrame = WA_01_.preFrame + WA_01_.waitFrameBefore +
 			WA_01_.attackFrame + WA_01_.waitFrameAfter;
+
+		WA_02_.allFrame = WA_02_.attackFrame + WA_02_.waitFrameAfter;
+
+		WA_03_.allFrame = WA_03_.attackFrame + WA_03_.jumpFrame + WA_03_.waitFrameJump +
+			WA_03_.fallFrame + WA_03_.waitFrameAfter;
 
 	}
 

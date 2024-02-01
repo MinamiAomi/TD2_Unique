@@ -4,8 +4,15 @@
         "Attack AttackRotate": -3.140000104904175,
         "Attack PreFrame": 0,
         "Attack PreRotate": 1.5700000524520874,
-        "Attack WaitFrameAfter": 5,
+        "Attack WaitFrameAfter": 10,
         "Attack WaitFrameBefore": 0,
+        "Attack_2 AttackFrame": 10,
+        "Attack_2 WaitFrameAfter": 20,
+        "Attack_3 AttackFrame": 40,
+        "Attack_3 FallFrame": 20,
+        "Attack_3 JumpFrame": 20,
+        "Attack_3 WaitFrameAfter": 40,
+        "Attack_3 WaitFrameJump": 10,
         "Dush Speed": 2.0
     }
 }

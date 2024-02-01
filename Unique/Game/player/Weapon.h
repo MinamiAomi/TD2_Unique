@@ -51,7 +51,7 @@ public:
 	//遅延量取得
 	const int32_t& GetDelay() { return gravityDelay_; }
 
-	const GravityLevel& GetLevel() { return gravityLevel_; }
+	const GravityLevel& GetLevel() const { return gravityLevel_; }
 
 	bool isThrust_ = false;
 

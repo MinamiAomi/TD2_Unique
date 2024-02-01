@@ -97,7 +97,7 @@ void Weapon::Initialize() {
 	gravitySpaceCollider_->SetCollisionMask(0x00000001);
 
 	shockWaveCollider_->SetCenter(transform.translate);
-	shockWaveCollider_->SetRadius(15.0f);
+	shockWaveCollider_->SetRadius(25.0f);
 	shockWaveCollider_->SetName("ShockWave");
 	shockWaveCollider_->SetIsActive(false);
 	shockWaveCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {ShockWaveCollision(collisionInfo); });

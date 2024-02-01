@@ -93,7 +93,7 @@ public:
 	std::array<std::shared_ptr<Transform>, kMaxParts> playerTransforms_;
 
 	//死んだかどうか
-	bool GetIsDead() { return isDead_; }
+	bool GetIsDead() const { return isDead_; }
 
 private:
 
@@ -144,18 +144,16 @@ private:
 		uint32_t currentCombo_ = 0;
 	};
 
-	//攻撃用ワーク
+	//攻撃用ワーク(デフォ値)
 	struct WorkAttack_01 {
 		//攻撃前の振りを溜める時間
-		int32_t preFrame = 10;
+		int32_t preFrame = 0;
 		//攻撃前の待ち時間
-		int32_t waitFrameBefore = 10;
+		int32_t waitFrameBefore = 0;
 		//攻撃中の時間
 		int32_t attackFrame = 10;
 		//攻撃後の待ち時間
-		int32_t waitFrameAfter = 10;
-		//合計待ち時間
-		int32_t waitFrameAll = 30;
+		int32_t waitFrameAfter = 0;
 		//合計フレーム数
 		int32_t allFrame = 40;
 		//攻撃前のY回転量
@@ -164,21 +162,19 @@ private:
 		float attackRotate = -3.14f;
 	};
 
-	//攻撃用ワーク
+	//攻撃用ワーク(デフォ値)
 	struct WorkAttack_02 {
 		//攻撃中の時間
 		int32_t attackFrame = 10;
 		//攻撃後の待ち時間
 		int32_t waitFrameAfter = 20;
-		//合計待ち時間
-		int32_t waitFrameAll = 20;
 		//合計フレーム数
 		int32_t allFrame = 30;
 		//攻撃時のY回転量
 		float attackRotate = 3.14f;
 	};
 
-	//攻撃用ワーク
+	//攻撃用ワーク(デフォ値)
 	struct WorkAttack_03 {
 		//プレイヤーの移動速度
 		Vector3 velocity{};
@@ -194,8 +190,6 @@ private:
 		int32_t waitFrameAfter = 40;
 		//攻撃後の衝撃波発生時間
 		int32_t shockWaveFrame = 10;
-		//合計待ち時間
-		int32_t waitFrameAll = 40;
 		//合計フレーム数
 		int32_t allFrame = 130;
 		//攻撃時のY回転量
@@ -224,6 +218,10 @@ private:
 		int32_t overHeatTimer = 0;
 		//重力を使用しすぎた場合の制御フラグ
 		bool isOverHeat = false;
+		//重力を使用している時の減速量
+		float decelVal = 0.2f;
+		//実際に速度に影響を与える変数
+		float decel = 0.0f;
 	};
 
 	//無敵状態ワーク
