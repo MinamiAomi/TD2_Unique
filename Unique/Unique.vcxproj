@@ -18,6 +18,7 @@
   <ItemGroup>
     <ClCompile Include="App\MapEditor.cpp" />
     <ClCompile Include="Game\block\Block.cpp" />
+    <ClCompile Include="Game\Effect\Effect.cpp" />
     <ClCompile Include="Game\enemy\Enemy.cpp" />
     <ClCompile Include="Game\enemy\EnemyBullet.cpp" />
     <ClCompile Include="Game\enemy\EnemyCore.cpp" />
@@ -39,6 +40,7 @@
   <ItemGroup>
     <ClInclude Include="App\MapEditor.h" />
     <ClInclude Include="Game\block\Block.h" />
+    <ClInclude Include="Game\Effect\Effect.h" />
     <ClInclude Include="Game\enemy\Enemy.h" />
     <ClInclude Include="Game\enemy\EnemyBullet.h" />
     <ClInclude Include="Game\enemy\EnemyCore.h" />

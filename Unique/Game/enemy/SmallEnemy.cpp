@@ -208,21 +208,44 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 		hp_ = 0;
 	}
 
-	collider_->SetName("Small_Enemy_Bounced");
+	//体力がある場合、跳ねる処理
+	if (hp_ > 0) {
 
-	//攻撃を受けた地点に向かって集まるように跳ねる
-	bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
+		collider_->SetName("Small_Enemy_Bounced");
 
-	bounceVelocity_.y = 5.0f;
+		//攻撃を受けた地点に向かって集まるように跳ねる
+		bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
 
-	bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
-	bounceVelocity_.x /= 10.0f;
-	bounceVelocity_.z /= 10.0f;
+		bounceVelocity_.y = 5.0f;
 
-	bounceCount_ = kMaxBounceTime_;
+		bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
+		bounceVelocity_.x /= 10.0f;
+		bounceVelocity_.z /= 10.0f;
 
-	//ノックバックとの重複を阻止
-	knockBackCount_ = 0;
+		bounceCount_ = kMaxBounceTime_;
+
+		//ノックバックとの重複を阻止
+		knockBackCount_ = 0;
+
+	}
+	//体力が無い時は吹っ飛び処理
+	else {
+
+		collider_->SetName("Barrier_Enemy_Damaged");
+
+		//攻撃を受けた地点からノックバック
+		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
+
+		knockBackVelocity_.y = 0.0f;
+
+		knockBackVelocity_ = knockBackVelocity_.Normalized() * 3.0f;
+
+		knockBackCount_ = kKnockBackTime_;
+
+		//跳ねとの重複阻止
+		bounceCount_ = 0;
+
+	}
 
 }
 
@@ -489,8 +512,8 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 		hp_ = 0;
 	}
 
-	//バリアが無い場合、跳ねる処理
-	if (barrierHp_ <= 0) {
+	//バリアが無い場合かつ体力がある場合、跳ねる処理
+	if (barrierHp_ <= 0 && hp_ > 0) {
 
 		collider_->SetName("Small_Enemy_Bounced");
 
@@ -509,6 +532,7 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 		knockBackCount_ = 0;
 
 	}
+	//体力が無い時、バリアがある時は吹っ飛び処理
 	else {
 
 		collider_->SetName("Barrier_Enemy_Damaged");

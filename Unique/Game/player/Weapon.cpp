@@ -11,7 +11,7 @@ Weapon::Weapon()
 	modelBody_ = std::make_shared<ModelInstance>();
 	modelBody_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon"));
 	gravityModel_ = std::make_shared<ModelInstance>();
-	gravityModel_->SetModel(ResourceManager::GetInstance()->FindModel("Sphere"));
+	gravityModel_->SetModel(ResourceManager::GetInstance()->FindModel("Gravity"));
 	collider_ = std::make_unique<BoxCollider>();
 	spaceCollider_ = std::make_unique<SphereCollider>();
 	gravityCollider_ = std::make_unique<SphereCollider>();

@@ -25,6 +25,9 @@
     <Filter Include="Game\HitStop">
       <UniqueIdentifier>{0a686d88-1e53-49a2-acad-b80988446ba7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Effect">
+      <UniqueIdentifier>{d7488c2c-bafa-4998-94d5-ee5a9abb8caa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -80,6 +83,9 @@
     <ClCompile Include="Game\HitStop\HitStopManager.cpp">
       <Filter>Game\HitStop</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Effect\Effect.cpp">
+      <Filter>Game\Effect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -133,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="Game\HitStop\HitStopManager.h">
       <Filter>Game\HitStop</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Effect\Effect.h">
+      <Filter>Game\Effect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

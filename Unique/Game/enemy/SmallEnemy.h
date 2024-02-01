@@ -8,6 +8,13 @@ class Player;
 class SmallEnemy : public GameObject
 {
 public:
+
+	//行動パターン
+	enum MovePattern {
+		kHoming, //追従型
+
+	};
+
 	SmallEnemy();
 	virtual ~SmallEnemy();
 
