@@ -13,13 +13,22 @@ SmallEnemy::SmallEnemy()
 
 	model_ = std::make_shared<ModelInstance>();
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy"));
+	
 	collider_ = std::make_unique<BoxCollider>();
+
 	effectTex_ = ResourceManager::GetInstance()->FindTexture("hitEffect");
 	effectSprite_ = std::make_unique<Sprite>();
 	effectSprite_->SetTexture(effectTex_);
 	effectSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 256.0f,256.0f });
 	effectSprite_->SetScale({ 128.0f, 128.0f });
 	effectSprite_->SetIsActive(false);
+
+	indicatorTex_ = ResourceManager::GetInstance()->FindTexture("indicator");
+	indicatorSprite_ = std::make_unique<Sprite>();
+	indicatorSprite_->SetTexture(indicatorTex_);
+	indicatorSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 312.0f,312.0f });
+	indicatorSprite_->SetScale({ 128.0f,128.0f });
+	indicatorSprite_->SetIsActive(false);
 
 }
 
@@ -167,6 +176,35 @@ void SmallEnemy::Update() {
 
 	transform.UpdateMatrix();
 
+	//インジケーターの表示
+	translate2D_ = SetTranslate2D(transform.translate);
+	translate2DAfter_ = translate2D_;
+
+	//画面外に敵がいる時
+	if (translate2D_.x < -10.0f) {
+		translate2DAfter_.x = 64.0f;
+	}
+	else if (translate2D_.x > 1290.0f) {
+		translate2DAfter_.x = 1216.0f;
+	}
+
+	if (translate2D_.y < -10.0f) {
+		translate2DAfter_.y = 64.0f;
+	}
+	else if (translate2D_.y > 730.0f) {
+		translate2DAfter_.y = 656.0f;
+	}
+
+	if (translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
+		translate2D_.y < -10.0f || translate2D_.y > 730.0f) {
+		indicatorSprite_->SetIsActive(true);
+	}
+	else {
+		indicatorSprite_->SetIsActive(false);
+	}
+
+	indicatorSprite_->SetPosition(translate2DAfter_);
+
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
@@ -215,15 +253,7 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackCount_ = kKnockBackTime_;
 
-	Vector3 pos =  transform.translate;
-	//ビューポート
-	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
-	auto camera = player_->GetCamera()->GetCamera();
-	camera->GetViewProjectionMatrix();
-
-	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
-	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
-	effectSprite_->SetPosition({ pos.x, 720.0f -  pos.y });
+	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
 
 	effectSprite_->SetIsActive(true);
 
@@ -278,19 +308,34 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 	}
 
-	Vector3 pos = transform.translate;
-	//ビューポート
-	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
-	auto camera = player_->GetCamera()->GetCamera();
-	camera->GetViewProjectionMatrix();
-
-	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
-	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
-	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+	
+	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
 
 	effectSprite_->SetIsActive(true);
 
 	hitEffectCount_ = 30;
+
+}
+
+Vector2 SmallEnemy::SetTranslate2D(const Vector3& position) {
+
+	Vector3 pos = position;
+
+	if (player_) {
+
+		//ビューポート
+		Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+		auto camera = player_->GetCamera()->GetCamera();
+		camera->GetViewProjectionMatrix();
+
+		Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
+		pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
+
+		return Vector2{ pos.x, 720.0f - pos.y };
+
+	}
+	
+	return Vector2{ pos.x, pos.y };
 
 }
 
@@ -530,15 +575,7 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackCount_ = kKnockBackTime_;
 
-	Vector3 pos = transform.translate;
-	//ビューポート
-	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
-	auto camera = player_->GetCamera()->GetCamera();
-	camera->GetViewProjectionMatrix();
-
-	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
-	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
-	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
 
 	effectSprite_->SetIsActive(true);
 
@@ -621,15 +658,7 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 	}
 
-	Vector3 pos = transform.translate;
-	//ビューポート
-	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
-	auto camera = player_->GetCamera()->GetCamera();
-	camera->GetViewProjectionMatrix();
-
-	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
-	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
-	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
 
 	effectSprite_->SetIsActive(true);
 

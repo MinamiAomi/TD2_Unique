@@ -43,33 +43,55 @@ void Unique::OnInitialize() {
 	std::shared_ptr<Texture> guradTex = std::make_shared<Texture>();
 	guradTex->Load("./Resources/UI/Guard.png");
 	resourceManager->AddTexture("guard_gauge", guradTex);
+
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
-	playerHpTex->Load("./Resources/UI/p_life.png");
+	playerHpTex->Load("./Resources/UI/HPbar_gage.png");
 	resourceManager->AddTexture("player_hp", playerHpTex);
+
+	std::shared_ptr<Texture> playerHpOverTex = std::make_shared<Texture>();
+	playerHpOverTex->Load("./Resources/UI/HPbar_over.png");
+	resourceManager->AddTexture("player_hp_over", playerHpOverTex);
+
+	std::shared_ptr<Texture> playerHpUnderTex = std::make_shared<Texture>();
+	playerHpUnderTex->Load("./Resources/UI/HPbar_under.png");
+	resourceManager->AddTexture("player_hp_under", playerHpUnderTex);
+
+	std::shared_ptr<Texture> enemyIndicatorTex = std::make_shared<Texture>();
+	enemyIndicatorTex->Load("./Resources/UI/Enemy_indicator.png");
+	resourceManager->AddTexture("indicator", enemyIndicatorTex);
+
 	std::shared_ptr<Texture> enemyHpTex = std::make_shared<Texture>();
 	enemyHpTex->Load("./Resources/UI/e_life.png");
 	resourceManager->AddTexture("enemy_hp", enemyHpTex);
+
 	std::shared_ptr<Texture> reticle = std::make_shared<Texture>();
 	reticle->Load("./Resources/UI/reticle.png");
 	resourceManager->AddTexture("reticle", reticle);
+
 	std::shared_ptr<Texture> UI_A = std::make_shared<Texture>();
 	UI_A->Load("./Resources/UI/ui_1.png");
 	resourceManager->AddTexture("UI_A", UI_A);
+
 	std::shared_ptr<Texture> UI_LB = std::make_shared<Texture>();
 	UI_LB->Load("./Resources/UI/ui_2.png");
 	resourceManager->AddTexture("UI_LB", UI_LB);
+
 	std::shared_ptr<Texture> UI_RB = std::make_shared<Texture>();
 	UI_RB->Load("./Resources/UI/ui_3.png");
 	resourceManager->AddTexture("UI_RB", UI_RB);
+
 	std::shared_ptr<Texture> UI_RT = std::make_shared<Texture>();
 	UI_RT->Load("./Resources/UI/ui_rt.png");
 	resourceManager->AddTexture("UI_RT", UI_RT);
+
 	std::shared_ptr<Texture> UI_LS = std::make_shared<Texture>();
 	UI_LS->Load("./Resources/UI/ui_ls.png");
 	resourceManager->AddTexture("UI_LS", UI_LS);
+	
 	std::shared_ptr<Texture> UI_RS = std::make_shared<Texture>();
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
+	
 	//エフェクト画像読み込み
 	std::shared_ptr<Texture> hitEffect = std::make_shared<Texture>();
 	hitEffect->Load("./Resources/Effect/hitEffect.png");

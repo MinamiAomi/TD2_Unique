@@ -13,6 +13,7 @@ public:
 	//行動パターン
 	enum MovePattern {
 		kHoming, //追従型
+		kLine, //直線型
 
 	};
 
@@ -40,6 +41,8 @@ protected:
 
 	virtual void OnCollision(const CollisionInfo& collisionInfo);
 
+	Vector2 SetTranslate2D(const Vector3& position);
+
 protected:
 
 	Player* player_ = nullptr;
@@ -50,11 +53,21 @@ protected:
 
 	std::unique_ptr<Sprite> effectSprite_;
 
+	std::shared_ptr<Texture> indicatorTex_;
+
+	std::unique_ptr<Sprite> indicatorSprite_;
+
 	std::unique_ptr<BoxCollider> collider_;
 
 	uint32_t kMaxHp_ = 3;
 
 	int32_t hp_ = kMaxHp_;
+
+	//二次元空間上での座標
+	Vector2 translate2D_{};
+
+	//描画に使用する2D座標
+	Vector2 translate2DAfter_{};
 
 	bool isDead_ = false;
 

@@ -30,11 +30,28 @@ Player::Player()
 	playerModels_[kRightLowerLeg]->SetModel(ResourceManager::GetInstance()->FindModel("RightLowerLeg"));
 
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("player_hp");
+	hpOverTex_ = ResourceManager::GetInstance()->FindTexture("player_hp_over");
+	hpUnderTex_ = ResourceManager::GetInstance()->FindTexture("player_hp_under");
 	guardTex_ = ResourceManager::GetInstance()->FindTexture("guard_gauge");
 
 	hpSprite_ = std::make_unique<Sprite>();
 	hpSprite_->SetTexture(hpTex_);
-	hpSprite_->SetPosition({ 640.0f,10.0f });
+	hpSprite_->SetPosition({ 256.0f - 104.0f,128.0f - 27.0f });
+	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
+	hpSprite_->SetDrawOrder(2);
+
+	hpOverSprite_ = std::make_unique<Sprite>();
+	hpOverSprite_->SetTexture(hpOverTex_);
+	hpOverSprite_->SetPosition({ 256.0f,128.0f });
+	hpOverSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
+	hpOverSprite_->SetDrawOrder(3);
+
+	hpUnderSprite_ = std::make_unique<Sprite>();
+	hpUnderSprite_->SetTexture(hpUnderTex_);
+	hpUnderSprite_->SetPosition({ 256.0f,128.0f });
+	hpUnderSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
+	hpUnderSprite_->SetDrawOrder(1);
+
 	guardSprite_ = std::make_unique<Sprite>();
 	guardSprite_->SetTexture(guardTex_);
 	guardSprite_->SetPosition({ 320.0f,10.0f });
@@ -180,8 +197,14 @@ void Player::Initialize() {
 	workInvincible_.invincibleTimer = 0;
 	workInvincible_.isInvincible = false;
 
-	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
+	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 51.4f * hp_, 322.0f });
+	hpSprite_->SetScale({ 25.7f * hp_, 161.0f });
 	hpSprite_->SetAnchor({ 0.0f,0.5f });
+	
+	hpOverSprite_->SetScale({ 257.0f, 161.0f });
+
+	hpUnderSprite_->SetScale({ 257.0f, 161.0f });
+	
 	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 	guardSprite_->SetAnchor({ 0.0f,0.5f });
 
@@ -261,7 +284,8 @@ void Player::Update() {
 		}
 	}
 
-	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
+	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
+	hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
 	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 
 	for (uint32_t i = 0; i < kMaxParts; i++) {
