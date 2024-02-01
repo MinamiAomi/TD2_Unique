@@ -23,19 +23,19 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_3.obj"));
 	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
 	//プレイヤーモデル読み込み
-	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel3/Body.obj"));
-	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel3/Head.obj"));
-	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel3/Hip.obj"));
-	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel3/LeftLowerArm.obj"));
-	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel3/LeftLowerLeg.obj"));
-	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel3/LeftShoulder.obj"));
-	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel3/LeftUpperArm.obj"));
-	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel3/LeftUpperLeg.obj"));
-	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel3/RightLowerArm.obj"));
-	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel3/RightLowerLeg.obj"));
-	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel3/RightShoulder.obj"));
-	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel3/RightUpperArm.obj"));
-	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel3/RightUpperLeg.obj"));
+	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel/Body.obj"));
+	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel/Head.obj"));
+	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel/Hip.obj"));
+	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel/LeftLowerArm.obj"));
+	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel/LeftLowerLeg.obj"));
+	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel/LeftShoulder.obj"));
+	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel/LeftUpperArm.obj"));
+	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel/LeftUpperLeg.obj"));
+	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel/RightLowerArm.obj"));
+	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel/RightLowerLeg.obj"));
+	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel/RightShoulder.obj"));
+	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel/RightUpperArm.obj"));
+	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel/RightUpperLeg.obj"));
 	//UI読み込み
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");
