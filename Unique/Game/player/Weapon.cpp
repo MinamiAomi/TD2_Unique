@@ -296,7 +296,9 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+		/*enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());*/
+
+		enemy->Damage(1, transform.worldMatrix.GetTranslate());
 
 		//ヒットストップ
 		HitStopManager::GetInstance()->StopFrame(10);
@@ -391,7 +393,9 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-			enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+			/*enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());*/
+
+			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
 
 			//ヒットストップ
 			HitStopManager::GetInstance()->StopFrame(10);

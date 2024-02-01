@@ -70,6 +70,10 @@ void Unique::OnInitialize() {
 	std::shared_ptr<Texture> UI_RS = std::make_shared<Texture>();
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
+	//エフェクト画像読み込み
+	std::shared_ptr<Texture> hitEffect = std::make_shared<Texture>();
+	hitEffect->Load("./Resources/Effect/hitEffect.png");
+	resourceManager->AddTexture("hitEffect", hitEffect);
 
 	HierarchicalAnimation::Load("./Resources/PlayerAnimation.gltf");
 

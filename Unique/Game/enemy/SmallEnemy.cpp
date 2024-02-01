@@ -14,6 +14,12 @@ SmallEnemy::SmallEnemy()
 	model_ = std::make_shared<ModelInstance>();
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy"));
 	collider_ = std::make_unique<BoxCollider>();
+	effectTex_ = ResourceManager::GetInstance()->FindTexture("hitEffect");
+	effectSprite_ = std::make_unique<Sprite>();
+	effectSprite_->SetTexture(effectTex_);
+	effectSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 256.0f,256.0f });
+	effectSprite_->SetScale({ 128.0f, 128.0f });
+	effectSprite_->SetIsActive(false);
 
 }
 
@@ -43,6 +49,17 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 }
 
 void SmallEnemy::Update() {
+
+	if (hitEffectCount_ > 0) {
+
+		effectSprite_->SetTexcoordRect({ 256.0f * float((30 - hitEffectCount_) % 4),
+			256.0f * float((30 - hitEffectCount_) / 4)}, {256.0f,256.0f});
+
+		if (--hitEffectCount_ <= 0) {
+			effectSprite_->SetIsActive(false);
+		}
+
+	}
 
 	if (coolTimer_ > 0) {
 
@@ -198,6 +215,20 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackCount_ = kKnockBackTime_;
 
+	Vector3 pos =  transform.translate;
+	//ビューポート
+	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+	auto camera = player_->GetCamera()->GetCamera();
+	camera->GetViewProjectionMatrix();
+
+	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
+	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
+	effectSprite_->SetPosition({ pos.x, 720.0f -  pos.y });
+
+	effectSprite_->SetIsActive(true);
+
+	hitEffectCount_ = 30;
+
 }
 
 void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
@@ -247,6 +278,20 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 	}
 
+	Vector3 pos = transform.translate;
+	//ビューポート
+	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+	auto camera = player_->GetCamera()->GetCamera();
+	camera->GetViewProjectionMatrix();
+
+	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
+	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
+	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+
+	effectSprite_->SetIsActive(true);
+
+	hitEffectCount_ = 30;
+
 }
 
 ///----------------------------------------------------------------
@@ -278,6 +323,17 @@ void BarrierEnemy::Initialize(const Vector3& startPosition) {
 }
 
 void BarrierEnemy::Update() {
+
+	if (hitEffectCount_ > 0) {
+
+		effectSprite_->SetTexcoordRect({ 256.0f * float((30 - hitEffectCount_) % 4),
+			256.0f * float((30 - hitEffectCount_) / 4) }, { 256.0f,256.0f });
+
+		if (--hitEffectCount_ <= 0) {
+			effectSprite_->SetIsActive(false);
+		}
+
+	}
 
 	if (coolTimer_ > 0) {
 
@@ -474,6 +530,20 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackCount_ = kKnockBackTime_;
 
+	Vector3 pos = transform.translate;
+	//ビューポート
+	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+	auto camera = player_->GetCamera()->GetCamera();
+	camera->GetViewProjectionMatrix();
+
+	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
+	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
+	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+
+	effectSprite_->SetIsActive(true);
+
+	hitEffectCount_ = 30;
+
 }
 
 void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
@@ -550,5 +620,19 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 		bounceCount_ = 0;
 
 	}
+
+	Vector3 pos = transform.translate;
+	//ビューポート
+	Matrix4x4 matViewport = Matrix4x4::MakeViewport(0.0f, 0.0f, 1280.0f, 720.0f, 0.0f, 1.0f);
+	auto camera = player_->GetCamera()->GetCamera();
+	camera->GetViewProjectionMatrix();
+
+	Matrix4x4 matViewProjectionViewport = camera->GetViewProjectionMatrix() * matViewport;
+	pos = matViewProjectionViewport.ApplyTransformWDivide(pos);
+	effectSprite_->SetPosition({ pos.x, 720.0f - pos.y });
+
+	effectSprite_->SetIsActive(true);
+
+	hitEffectCount_ = 30;
 
 }

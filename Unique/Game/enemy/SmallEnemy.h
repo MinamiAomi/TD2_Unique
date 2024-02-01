@@ -2,6 +2,7 @@
 #include "Graphics/Model.h"
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
+#include "Graphics/Sprite.h"
 
 class Player;
 
@@ -45,6 +46,10 @@ protected:
 
 	std::shared_ptr<ModelInstance> model_;
 
+	std::shared_ptr<Texture> effectTex_;
+
+	std::unique_ptr<Sprite> effectSprite_;
+
 	std::unique_ptr<BoxCollider> collider_;
 
 	uint32_t kMaxHp_ = 3;
@@ -81,6 +86,8 @@ protected:
 	int32_t bounceCount_ = 0;
 
 	Vector3 bounceVelocity_{};
+
+	int32_t hitEffectCount_ = 0;
 
 };
 

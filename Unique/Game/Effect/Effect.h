@@ -1,10 +1,9 @@
 #pragma once
 #include "Graphics/Model.h"
 #include "Graphics/Sprite.h"
-#include "Collision/GameObject.h"
 #include "Math/Camera.h"
 
-class Effect : public GameObject
+class Effect
 {
 public:
 	Effect();
@@ -20,6 +19,10 @@ public:
 
 	void SetTexture(const std::shared_ptr<Texture>& texture) { model_->SetTexture(texture); }
 
+	Vector3 translate_{};
+
+	Vector3 scale_{};
+
 private:
 
 	std::shared_ptr<Camera> camera_;
@@ -29,6 +32,8 @@ private:
 	Vector3 velocity_{};
 
 	Matrix4x4 billBoardMatrix_;
+
+	Matrix4x4 worldMatrix_;
 
 };
 
