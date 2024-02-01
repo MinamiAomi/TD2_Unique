@@ -30,10 +30,14 @@ Player::Player()
 	playerModels_[kRightLowerLeg]->SetModel(ResourceManager::GetInstance()->FindModel("RightLowerLeg"));
 
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("player_hp");
+	guardTex_ = ResourceManager::GetInstance()->FindTexture("guard_gauge");
 
 	hpSprite_ = std::make_unique<Sprite>();
 	hpSprite_->SetTexture(hpTex_);
 	hpSprite_->SetPosition({ 640.0f,10.0f });
+	guardSprite_ = std::make_unique<Sprite>();
+	guardSprite_->SetTexture(guardTex_);
+	guardSprite_->SetPosition({ 320.0f,10.0f });
 
 	ui_A_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_A");
 	ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
@@ -46,25 +50,25 @@ Player::Player()
 	ui_A_->SetTexture(ui_A_Tex_);
 	ui_A_->SetPosition({ 1100.0f,250.0f });
 	ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_A_->SetScale({ 256.0f,64.0f });
+	ui_A_->SetScale({ 192.0f,48.0f });
 
 	ui_RB_ = std::make_unique<Sprite>();
 	ui_RB_->SetTexture(ui_RB_Tex_);
 	ui_RB_->SetPosition({ 1050.0f,50.0f });
 	ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
-	ui_RB_->SetScale({ 512.0f,64.0f });
+	ui_RB_->SetScale({ 384.0f,48.0f });
 
 	ui_LB_ = std::make_unique<Sprite>();
 	ui_LB_->SetTexture(ui_LB_Tex_);
 	ui_LB_->SetPosition({ 1100.0f,350.0f });
 	ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_LB_->SetScale({ 256.0f,64.0f });
+	ui_LB_->SetScale({ 192.0f,48.0f });
 
 	ui_RT_ = std::make_unique<Sprite>();
 	ui_RT_->SetTexture(ui_RT_Tex_);
 	ui_RT_->SetPosition({ 1100.0f,150.0f });
 	ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_RT_->SetScale({ 256.0f,64.0f });
+	ui_RT_->SetScale({ 192.0f,48.0f });
 
 	ui_RS_ = std::make_unique<Sprite>();
 	ui_RS_->SetTexture(ui_RS_Tex_);
@@ -177,6 +181,9 @@ void Player::Initialize() {
 	workInvincible_.isInvincible = false;
 
 	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
+	hpSprite_->SetAnchor({ 0.0f,0.5f });
+	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
+	guardSprite_->SetAnchor({ 0.0f,0.5f });
 
 	dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/dash.wav");
 	deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/disolve.wav");
@@ -255,6 +262,7 @@ void Player::Update() {
 	}
 
 	hpSprite_->SetScale({ 10.0f * hp_, 64.0f });
+	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 
 	for (uint32_t i = 0; i < kMaxParts; i++) {
 		playerTransforms_[i]->UpdateMatrix();

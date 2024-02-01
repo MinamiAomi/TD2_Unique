@@ -26,6 +26,7 @@
     <ClCompile Include="Game\enemy\SmallEnemy.cpp" />
     <ClCompile Include="Game\enemy\SmallEnemyManager.cpp" />
     <ClCompile Include="Game\followCamera\FollowCamera.cpp" />
+    <ClCompile Include="Game\HitStop\HitStopManager.cpp" />
     <ClCompile Include="Game\player\Player.cpp" />
     <ClCompile Include="Game\player\Reticle3D.cpp" />
     <ClCompile Include="Game\player\Weapon.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="Game\enemy\SmallEnemy.h" />
     <ClInclude Include="Game\enemy\SmallEnemyManager.h" />
     <ClInclude Include="Game\followCamera\FollowCamera.h" />
+    <ClInclude Include="Game\HitStop\HitStopManager.h" />
     <ClInclude Include="Game\player\Player.h" />
     <ClInclude Include="Game\player\Reticle3D.h" />
     <ClInclude Include="Game\player\Weapon.h" />

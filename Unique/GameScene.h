@@ -15,6 +15,7 @@
 #include "Game/followCamera/FollowCamera.h"
 #include "Game/enemy/SmallEnemy.h"
 #include "App/MapEditor.h"
+#include "Game/HitStop/HitStopManager.h"
 
 class GameScene :
     public BaseScene {
@@ -39,6 +40,7 @@ private:
 private:
 
     MapEditor* editor_ = nullptr;
+    HitStopManager* hitStopManager_ = nullptr;
 
     struct Spawn {
         //自動スポーンに利用する変数

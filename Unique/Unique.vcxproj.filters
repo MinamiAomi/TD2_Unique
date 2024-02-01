@@ -22,6 +22,9 @@
     <Filter Include="App">
       <UniqueIdentifier>{70db69d4-d73d-48d6-b448-c6650e5237db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\HitStop">
+      <UniqueIdentifier>{0a686d88-1e53-49a2-acad-b80988446ba7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -74,6 +77,9 @@
     <ClCompile Include="App\MapEditor.cpp">
       <Filter>App</Filter>
     </ClCompile>
+    <ClCompile Include="Game\HitStop\HitStopManager.cpp">
+      <Filter>Game\HitStop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -124,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="App\MapEditor.h">
       <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\HitStop\HitStopManager.h">
+      <Filter>Game\HitStop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

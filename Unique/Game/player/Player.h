@@ -304,8 +304,10 @@ private:
 	std::unique_ptr<BoxCollider> collider_;
  
 	std::shared_ptr<Texture> hpTex_;
+	std::shared_ptr<Texture> guardTex_;
 
 	std::unique_ptr<Sprite> hpSprite_;
+	std::unique_ptr<Sprite> guardSprite_;
 
 	std::shared_ptr<Texture> ui_A_Tex_;
 	std::shared_ptr<Texture> ui_RB_Tex_;

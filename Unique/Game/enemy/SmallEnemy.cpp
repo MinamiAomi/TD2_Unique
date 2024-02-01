@@ -2,6 +2,7 @@
 #include "Graphics/ResourceManager.h"
 #include "SmallEnemyManager.h"
 #include "Game/player/Player.h"
+#include "Game/HitStop/HitStopManager.h"
 
 ///----------------------------------------------------------------
 /// 通常の雑魚敵
@@ -188,6 +189,9 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	collider_->SetName("Small_Enemy_Damaged");
 
+	//ヒットストップ
+	HitStopManager::GetInstance()->StopFrame(10);
+
 	//攻撃を受けた地点からノックバック
 	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
 
@@ -208,6 +212,9 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 	}
 
 	collider_->SetName("Small_Enemy_Bounced");
+
+	//ヒットストップ
+	HitStopManager::GetInstance()->StopFrame(20);
 
 	//攻撃を受けた地点に向かって集まるように跳ねる
 	bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
@@ -441,6 +448,9 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	collider_->SetName("Barrier_Enemy_Damaged");
 
+	//ヒットストップ
+	HitStopManager::GetInstance()->StopFrame(10);
+
 	//攻撃を受けた地点からノックバック
 	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
 
@@ -487,6 +497,9 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 	if (hp_ < 0) {
 		hp_ = 0;
 	}
+
+	//ヒットストップ
+	HitStopManager::GetInstance()->StopFrame(20);
 
 	//バリアが無い場合、跳ねる処理
 	if (barrierHp_ <= 0) {

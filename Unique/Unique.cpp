@@ -39,6 +39,9 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Enemy", Model::Load("./Resources/Enemy/Enemy.obj"));
 	resourceManager->AddModel("Enemy_Barrier", Model::Load("./Resources/Enemy/EnemyBarrier.obj"));
 	//UI読み込み
+	std::shared_ptr<Texture> guradTex = std::make_shared<Texture>();
+	guradTex->Load("./Resources/UI/Guard.png");
+	resourceManager->AddTexture("guard_gauge", guradTex);
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");
 	resourceManager->AddTexture("player_hp", playerHpTex);

@@ -17,6 +17,7 @@ void GameScene::OnInitialize() {
 #endif // _DEBUG
 
     GlobalVariables::GetInstance()->LoadFiles();
+    hitStopManager_ = HitStopManager::GetInstance();
 
     followCamera_ = std::make_shared<FollowCamera>();
     player_ = std::make_shared<Player>();
@@ -149,68 +150,75 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
+    //ヒットストップしていない時に更新
+    if (hitStopManager_->GetCount() <= 0) {
 
-    enemies_.remove_if([](auto& enemy) {
+        enemies_.remove_if([](auto& enemy) {
 
-        if (enemy->GetIsDead()) {
-            SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
-            return true;
-        }
-
-        return false;
-
-        });
-
-    //空になったらウェーブ進行、次のデータに沿って敵を配置
-    if (enemies_.empty()) {
-
-        //最大ウェーブ数までロード
-        if (waveNumber_ < kMaxWave_) {
-            waveNumber_++;
-            LoadEnemyPopData(waveNumber_);
-        }
-
-    }
-
-
-    GlobalVariables::GetInstance()->Update();
-
-    Input* input = Input::GetInstance();
-
-    if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
-        Reset();
-    }
-
-    if (input->IsKeyTrigger(DIK_C)) {
-
-        //コライダーを非アクティブ(ctrl + C)
-        if (input->IsKeyPressed(DIK_LCONTROL)) {
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(false);
+            if (enemy->GetIsDead()) {
+                SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
+                return true;
             }
-        }
-        //コライダーをアクティブ(shift + C)
-        else if (input->IsKeyPressed(DIK_LSHIFT)) {
-            for (auto& enemy : enemies_) {
-                enemy->GetCollider()->SetIsActive(true);
+
+            return false;
+
+            });
+
+        //空になったらウェーブ進行、次のデータに沿って敵を配置
+        if (enemies_.empty()) {
+
+            //最大ウェーブ数までロード
+            if (waveNumber_ < kMaxWave_) {
+                waveNumber_++;
+                LoadEnemyPopData(waveNumber_);
             }
+
         }
 
+
+        GlobalVariables::GetInstance()->Update();
+
+        Input* input = Input::GetInstance();
+
+        if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
+            Reset();
+        }
+
+        if (input->IsKeyTrigger(DIK_C)) {
+
+            //コライダーを非アクティブ(ctrl + C)
+            if (input->IsKeyPressed(DIK_LCONTROL)) {
+                for (auto& enemy : enemies_) {
+                    enemy->GetCollider()->SetIsActive(false);
+                }
+            }
+            //コライダーをアクティブ(shift + C)
+            else if (input->IsKeyPressed(DIK_LSHIFT)) {
+                for (auto& enemy : enemies_) {
+                    enemy->GetCollider()->SetIsActive(true);
+                }
+            }
+
+        }
+
+        for (auto& enemy : enemies_) {
+            enemy->Update();
+        }
+
+        player_->Update();
+        /* enemy_->Update();*/
+        stage_->Update();
+
+        CollisionManager::GetInstance()->CheckCollision();
+
+        followCamera_->Update();
+
     }
+    else {
 
-    for (auto& enemy : enemies_) {
-        enemy->Update();
+        hitStopManager_->SubHitStopFrame();
+
     }
-
-    player_->Update();
-    /* enemy_->Update();*/
-    stage_->Update();
-
-    CollisionManager::GetInstance()->CheckCollision();
-
-    followCamera_->Update();
-
-    sunLight_->DrawImGui("SunLight");
 
 }
 

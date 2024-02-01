@@ -100,6 +100,7 @@ void Enemy::Initialize() {
 
 	hpSprite_->SetPosition({ 640.0f,600.0f });
 	hpSprite_->SetScale({ hpWidth_ * hp_, 64.0f });
+	hpSprite_->SetAnchor({ 0.0f,0.5f });
 
 	bullets_.clear();
 	bigBullets_.clear();

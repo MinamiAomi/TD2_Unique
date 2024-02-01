@@ -18,6 +18,87 @@
                 ],
                 "tag": "Barrier",
                 "tagNumber": 1
+            },
+            "Enemy2": {
+                "position": [
+                    -20.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy3": {
+                "position": [
+                    -30.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy4": {
+                "position": [
+                    -40.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy5": {
+                "position": [
+                    -50.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy6": {
+                "position": [
+                    -60.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy7": {
+                "position": [
+                    -70.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy8": {
+                "position": [
+                    -80.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy9": {
+                "position": [
+                    -90.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy10": {
+                "position": [
+                    -100.0,
+                    10.0,
+                    20.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
             }
         },
         "tags": [
