@@ -11,7 +11,7 @@ SmallEnemy::SmallEnemy()
 {
 
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy"));
 	collider_ = std::make_unique<BoxCollider>();
 
 }
@@ -122,7 +122,12 @@ void SmallEnemy::Update() {
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
 				diff.y = 0.0f;
-				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				if (diff.Normalized().z >= -0.99f) {
+					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				}
+				else {
+					transform.rotate = Quaternion::MakeForYAxis(3.14f);
+				}
 
 			}
 
@@ -131,7 +136,7 @@ void SmallEnemy::Update() {
 		if (collider_->GetName() == "Small_Enemy_Affected") {
 			transform.translate.y = 0.0f;
 		}
-		if (transform.translate.y < 10.0f) {
+		else if (transform.translate.y < 10.0f) {
 			transform.translate.y = 10.0f;
 
 			//跳ねている時に床にぶつかったら減速しつつY速度反転
@@ -227,8 +232,9 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 BarrierEnemy::BarrierEnemy()
 {
 
-	/*barrierModel_ = std::make_shared<ModelInstance>();
-	barrierModel_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));*/
+	barrierModel_ = std::make_shared<ModelInstance>();
+	barrierModel_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy_Barrier"));
+	barrierScaleTransform_ = std::make_unique<Transform>();
 
 }
 
@@ -236,9 +242,12 @@ void BarrierEnemy::Initialize(const Vector3& startPosition) {
 
 	SmallEnemy::Initialize(startPosition);
 
-	model_->SetColor({ 0.0f,1.0f,1.0f });
-
 	SetName("Barrier_Enemy");
+
+	barrierScaleTransform_->SetParent(&transform);
+	barrierScaleTransform_->translate = Vector3::zero;
+	barrierScaleTransform_->scale = Vector3::one * 2.0f;
+	barrierScaleTransform_->rotate = Quaternion::identity;
 
 	collider_->SetName("Barrier_Enemy");
 
@@ -333,7 +342,12 @@ void BarrierEnemy::Update() {
 
 				Vector3 diff = player_->GetPosition() - transform.translate;
 				diff.y = 0.0f;
-				transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				if (diff.Normalized().z >= -0.99f) {
+					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+				}
+				else {
+					transform.rotate = Quaternion::MakeForYAxis(3.14f);
+				}
 
 			}
 
@@ -353,13 +367,17 @@ void BarrierEnemy::Update() {
 
 	}
 
+	barrierScaleTransform_->rotate = Quaternion::MakeForYAxis(0.1f) * barrierScaleTransform_->rotate;
+
 	transform.UpdateMatrix();
+	barrierScaleTransform_->UpdateMatrix();
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 
 	model_->SetWorldMatrix(transform.worldMatrix);
+	barrierModel_->SetWorldMatrix(barrierScaleTransform_->worldMatrix);
 
 }
 
@@ -410,6 +428,7 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	if (barrierHp_ <= 0) {
 		model_->SetColor({ 1.0f,0.0f,0.0f });
+		barrierModel_->SetIsActive(false);
 	}
 
 	//最終的なダメージを本体に与える
@@ -459,6 +478,7 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 	if (barrierHp_ <= 0) {
 		model_->SetColor({ 1.0f,0.0f,0.0f });
+		barrierModel_->SetIsActive(false);
 	}
 
 	//最終的なダメージを本体に与える

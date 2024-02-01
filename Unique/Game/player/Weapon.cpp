@@ -301,7 +301,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
-	//重力をまとっている、発射している途中
+	//重力をまとっている時
 	if (gravityCollider_->GetName() == "Gravity") {
 
 		if (collisionInfo.collider->GetName() == "Small_Enemy") {

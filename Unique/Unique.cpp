@@ -35,6 +35,9 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel_2/RightShoulder.obj"));
 	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel_2/RightUpperArm.obj"));
 	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel_2/RightUpperLeg.obj"));
+	//敵モデル読み込み
+	resourceManager->AddModel("Enemy", Model::Load("./Resources/Enemy/Enemy.obj"));
+	resourceManager->AddModel("Enemy_Barrier", Model::Load("./Resources/Enemy/EnemyBarrier.obj"));
 	//UI読み込み
 	std::shared_ptr<Texture> playerHpTex = std::make_shared<Texture>();
 	playerHpTex->Load("./Resources/UI/p_life.png");

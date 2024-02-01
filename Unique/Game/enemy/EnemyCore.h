@@ -44,7 +44,7 @@ private:
 	//速度
 	Vector3 velocity_{};
 
-	uint32_t kMaxHp_ = 3;
+	uint32_t kMaxHp_ = 10;
 
 	int32_t hp_ = kMaxHp_;
 

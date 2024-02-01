@@ -97,7 +97,9 @@ protected:
 
 private:
 
-	/*std::shared_ptr<ModelInstance> barrierModel_;*/
+	std::unique_ptr<Transform> barrierScaleTransform_;
+
+	std::shared_ptr<ModelInstance> barrierModel_;
 
 	int32_t barrierHp_ = 3;
 
