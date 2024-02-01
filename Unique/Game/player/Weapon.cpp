@@ -26,10 +26,10 @@ Weapon::~Weapon()
 
 void Weapon::SetDefault() {
 
-	modelBodyTransform_->translate = { 0.0f,-3.0f,0.0f };
+	modelBodyTransform_->translate = { 0.0f, 1.3f, 1.0f };
 	modelBodyTransform_->scale = Vector3::one * 0.5f;
 	//modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
-	modelBodyTransform_->rotate = Quaternion::identity;
+	modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -90.0f);
 	modelBodyTransform_->UpdateMatrix();
 	transform.SetParent(modelBodyTransform_.get());
 	transform.translate = { 0.0f,7.0f,0.0f };
@@ -278,7 +278,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+		enemy->Damage(1, player_->GetPosition());
 
 	}
 
@@ -349,7 +349,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-			enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+			enemy->Damage(1 + gravityLevel_, player_->GetPosition());
 
 		}
 

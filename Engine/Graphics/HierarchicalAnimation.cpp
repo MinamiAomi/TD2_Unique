@@ -22,9 +22,9 @@ namespace {
     Animation::QuaternionNode::KeyFrame ConvertKeyframe(const aiQuatKey& src, float invDuration) {
         Animation::QuaternionNode::KeyFrame keyframe;
         keyframe.value.x = static_cast<float>(src.mValue.x);
-        keyframe.value.y = -static_cast<float>(src.mValue.y);
+        keyframe.value.y = static_cast<float>(src.mValue.y);
         keyframe.value.z = static_cast<float>(src.mValue.z);
-        keyframe.value.w = -static_cast<float>(src.mValue.w);
+        keyframe.value.w = static_cast<float>(src.mValue.w);
         keyframe.timeStamp = std::clamp(static_cast<float>(src.mTime) * invDuration, 0.0f, 1.0f);
         return keyframe;
     }
@@ -50,7 +50,7 @@ std::shared_ptr<HierarchicalAnimation> HierarchicalAnimation::Load(const std::fi
     Assimp::Importer importer;
     int flags = 0;
     // 左手座標系に変換
-    flags |= aiProcess_FlipUVs;
+    flags |= aiProcess_ConvertToLeftHanded;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
     if (!scene) {
         OutputDebugStringA(importer.GetErrorString());

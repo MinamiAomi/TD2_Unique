@@ -7,14 +7,6 @@
 Player::Player() {
     auto resources = ResourceManager::GetInstance();
 
-    playerModel_ = std::make_shared<ModelInstance>();
-    playerModel_->SetModel(resources->FindModel("Cube"));
-
-    for (uint32_t i = 0; i < kMaxParts; i++) {
-        playerModels_[i] = std::make_shared<ModelInstance>();
-        playerTransforms_[i] = std::make_shared<Transform>();
-    }
-
     hpTex_ = resources->FindTexture("player_hp");
 
     hpSprite_ = std::make_unique<Sprite>();
@@ -84,8 +76,15 @@ void Player::Initialize() {
 
     input_ = Input::GetInstance();
 
-    transform.scale = { 2.0f, 2.0f, 2.0f };
-    model_.Initialize(&transform);
+
+    transform.scale = Vector3::one;
+    transform.rotate = Quaternion::identity;
+    transform.translate = { 0.0f, 2.5f, 0.0f };
+    modelScaleTransform_.SetParent(&transform);
+    modelScaleTransform_.scale = { 2.0f, 2.0f, 2.0f };
+    modelScaleTransform_.rotate = Quaternion::identity;
+    modelScaleTransform_.translate = Vector3::zero;
+    model_.Initialize(&modelScaleTransform_);
 
     weapon_->modelBodyTransform_->SetParent(&model_.GetTransform(PlayerModel::kRightLowerArm));
     weapon_->Initialize();
@@ -99,9 +98,9 @@ void Player::Initialize() {
     isDead_ = false;
     hp_ = kMaxHp_;
 
-    collider_->SetCenter(playerTransforms_[kHip]->translate);
+    collider_->SetCenter(transform.translate);
     //コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-    collider_->SetSize(playerTransforms_[kHip]->scale * 2.0f);
+    collider_->SetSize(transform.scale * 2.0f);
     collider_->SetName("Player");
     collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
     collider_->SetIsActive(true);
@@ -109,7 +108,7 @@ void Player::Initialize() {
     collider_->SetCollisionAttribute(0xfffffffe);
     collider_->SetCollisionMask(0x00000001);
 
-    shockWaveCollider_->SetCenter(playerTransforms_[kHip]->worldMatrix.GetTranslate());
+    shockWaveCollider_->SetCenter(transform.worldMatrix.GetTranslate());
     shockWaveCollider_->SetRadius(10.0f);
     shockWaveCollider_->SetName("ShockWave");
     shockWaveCollider_->SetIsActive(false);
@@ -147,10 +146,7 @@ void Player::Update() {
 
     ApplyGlobalVariables();
 
-    prePosition_ = Vector3{
-            playerTransforms_[kHip]->worldMatrix.m[3][0],
-            playerTransforms_[kHip]->worldMatrix.m[3][1],
-            playerTransforms_[kHip]->worldMatrix.m[3][2] };
+    prePosition_ = transform.worldMatrix.GetTranslate();
 
     isBreak_ = false;
 
@@ -221,26 +217,15 @@ void Player::Update() {
 
     weapon_->Update();
 
-    collider_->SetCenter(playerTransforms_[kHip]->translate);
-    collider_->SetOrientation(playerTransforms_[kHip]->rotate);
-    shockWaveCollider_->SetCenter(playerTransforms_[kHip]->translate);
-    playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
+    collider_->SetCenter(transform.translate);
+    collider_->SetOrientation(transform.rotate);
+    shockWaveCollider_->SetCenter(transform.translate);
 
     if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
-
-        for (uint32_t i = 0; i < kMaxParts; i++) {
-            playerModels_[i]->SetIsActive(true);
-        }
-
-        playerModel_->SetIsActive(false);
+        model_.SetIsActive(true);
     }
     else {
-
-        for (uint32_t i = 0; i < kMaxParts; i++) {
-            playerModels_[i]->SetIsActive(false);
-        }
-
-        playerModel_->SetIsActive(false);
+        model_.SetIsActive(false);
     }
 
     if (!isDead_) {
@@ -312,6 +297,7 @@ void Player::Update() {
     if (t > 1.0f) { t -= 1.0f; }
 
     transform.UpdateMatrix();
+    modelScaleTransform_.UpdateMatrix();
     model_.Update();
 }
 
@@ -332,7 +318,7 @@ void Player::BehaviorRootUpdate() {
 
         //重力付与状態で構える
         if (weapon_->GetIsGravity()) {
-            playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
+            //playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
             weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized()) * Quaternion::identity;
             isPoseShot_ = true;
         }
@@ -397,13 +383,13 @@ void Player::BehaviorRootUpdate() {
             move = move.Normalized() * (0.7f * workDash_.speed_);
 
             // 親がいる場合親の空間にする
-            const Transform* parent = playerTransforms_[kHip]->GetParent();
+            const Transform* parent = transform.GetParent();
             if (parent) {
                 move = parent->worldMatrix.Inverse().ApplyRotation(move);
             }
 
             // 移動
-            playerTransforms_[kHip]->translate += move;
+            transform.translate += move;
             // 回転
             //playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.2f, playerTransforms_[kHip]->rotate, Quaternion::MakeLookRotation(move));
 
@@ -414,9 +400,9 @@ void Player::BehaviorRootUpdate() {
 
             }
 
-            move = playerTransforms_[kHip]->rotate.Conjugate() * move;
+            move = transform.rotate.Conjugate() * move;
             Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-            playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
+            transform.rotate = Quaternion::Slerp(0.2f, Quaternion::identity, diff) * transform.rotate;
 
         }
     }
@@ -560,12 +546,12 @@ void Player::BehaviorAttackUpdate() {
 
             //重力付与時は範囲拡大
             if (weapon_->GetIsGravity()) {
-                playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.5f / workAttack_01_.attackFrame),
-                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+                transform.rotate = Quaternion::Slerp(float(1.5f / workAttack_01_.attackFrame),
+                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * transform.rotate;
             }
             else {
-                playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
-                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * playerTransforms_[kHip]->rotate;
+                transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
+                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * transform.rotate;
             }
 
             weapon_->GetCollider()->SetIsActive(true);
@@ -573,8 +559,8 @@ void Player::BehaviorAttackUpdate() {
         }
         //攻撃開始前
         else if (attack_.attackTimer < workAttack_01_.preFrame) {
-            playerTransforms_[kHip]->rotate = Quaternion::Slerp(1.0f / float(workAttack_01_.preFrame),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.preRotate)) * playerTransforms_[kHip]->rotate;
+            transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_01_.preFrame),
+                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.preRotate)) * transform.rotate;
             weapon_->GetCollider()->SetIsActive(false);
             weapon_->isAttack_ = false;
         }
@@ -627,7 +613,7 @@ void Player::BehaviorAttackUpdate() {
                 weapon_->SetDefault();
                 /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
                     Quaternion::identity;*/
-                playerTransforms_[kHip]->rotate = attack_.playerRotate;
+                transform.rotate = attack_.playerRotate;
                 attack_.currentCombo_ = 0;
                 attack_.isCombo_ = false;
                 weapon_->GetCollider()->SetIsActive(false);
@@ -661,8 +647,8 @@ void Player::BehaviorAttackUpdate() {
 
         //攻撃中
         if (attack_.attackTimer < workAttack_02_.attackFrame) {
-            playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / workAttack_02_.attackFrame),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_02_.attackRotate)) * playerTransforms_[kHip]->rotate;
+            transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_02_.attackFrame),
+                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_02_.attackRotate)) * transform.rotate;
             weapon_->GetCollider()->SetIsActive(true);
             weapon_->isAttack_ = true;
         }
@@ -693,7 +679,7 @@ void Player::BehaviorAttackUpdate() {
                 weapon_->SetDefault();
                 /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
                     Quaternion::identity;*/
-                playerTransforms_[kHip]->rotate = attack_.playerRotate;
+                transform.rotate = attack_.playerRotate;
                 attack_.currentCombo_ = 0;
                 attack_.isCombo_ = false;
                 weapon_->GetCollider()->SetIsActive(false);
@@ -710,10 +696,10 @@ void Player::BehaviorAttackUpdate() {
         //攻撃中
         if (attack_.attackTimer < workAttack_03_.attackFrame) {
 
-            playerTransforms_[kHip]->translate += workAttack_03_.velocity;
+            transform.translate += workAttack_03_.velocity;
 
-            playerTransforms_[kHip]->rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 8)),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * playerTransforms_[kHip]->rotate;
+            transform.rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 8)),
+                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * transform.rotate;
 
             weapon_->GetCollider()->SetIsActive(true);
             weapon_->isAttack_ = true;
@@ -740,7 +726,7 @@ void Player::BehaviorAttackUpdate() {
                 weapon_->SetDefault();
                 /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
                     Quaternion::identity;*/
-                playerTransforms_[kHip]->rotate = attack_.playerRotate;
+                transform.rotate = attack_.playerRotate;
                 attack_.currentCombo_ = 0;
                 attack_.isCombo_ = false;
                 weapon_->GetCollider()->SetIsActive(false);
@@ -769,7 +755,7 @@ void Player::BehaviorAttackInitialize() {
     default:
     case AttackType::kHorizontal_1:
 
-        attack_.playerRotate = playerTransforms_[kHip]->rotate;
+        attack_.playerRotate = transform.rotate;
 
         weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
 
@@ -798,8 +784,8 @@ void Player::BehaviorShotUpdate() {
     if (workShot_.shotTimer < 15) {
 
         //武器を持っている腕を動かす
-        playerTransforms_[kRightUpperArm]->rotate = Quaternion::Slerp(1.0f / 15.0f, Quaternion::identity,
-            Quaternion::MakeFromAngleAxis(workShot_.shotRotate, Vector3{ 1.0f,0.0f,0.0f }.Normalized())) * playerTransforms_[kRightUpperArm]->rotate;
+      //  playerTransforms_[kRightUpperArm]->rotate = Quaternion::Slerp(1.0f / 15.0f, Quaternion::identity,
+      //      Quaternion::MakeFromAngleAxis(workShot_.shotRotate, Vector3{ 1.0f,0.0f,0.0f }.Normalized())) * playerTransforms_[kRightUpperArm]->rotate;
 
     }
     //else if (workShot_.shotTimer > 45) {
@@ -812,7 +798,7 @@ void Player::BehaviorShotUpdate() {
 
     if (++workShot_.shotTimer >= workShot_.maxShotFrame) {
 
-        playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
+       // playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
 
         workShot_.shotTimer = 0;
 

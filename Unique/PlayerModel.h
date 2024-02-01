@@ -51,6 +51,8 @@ public:
     AnimationType GetCurrentAnimationType() const { return currentAnimationType_; }
     const Transform& GetTransform(Part part) const { return *transforms_[part]; }
 
+    void SetIsActive(bool isActive);
+
 private:
     struct AnimationPrameter {
         uint32_t frameDuration;

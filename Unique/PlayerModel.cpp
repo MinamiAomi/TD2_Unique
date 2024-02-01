@@ -29,9 +29,9 @@ const std::array<std::string, PlayerModel::kNumAnimationTypes> PlayerModel::kAni
 
 const std::array<PlayerModel::AnimationPrameter, PlayerModel::kNumAnimationTypes> PlayerModel::kAnimationParameters = {
     {   { 60,  true  },
-        { 60,  false },
-        { 60,  false },
-        { 150, false }   },
+        { 60,  true },
+        { 60,  true },
+        { 150, true }   },
 };
 
 void PlayerModel::Initialize(const Transform* baseTransform) {
@@ -81,7 +81,7 @@ void PlayerModel::Initialize(const Transform* baseTransform) {
         animations_[i] = resources->FindHierarchicalAnimation(kAnimationTypeNames[i]);
     }
 
-    currentAnimationType_ = kAttack3;
+    currentAnimationType_ = kAttack1;
     animationParameter_ = 0.0f;
     playSpeedScale_ = 1.0f;
     isStopping_ = false;
@@ -120,6 +120,12 @@ void PlayerModel::StopAnimation() {
 
 void PlayerModel::RestartAnimation() {
     isStopping_ = false;
+}
+
+void PlayerModel::SetIsActive(bool isActive) {
+    for (auto& model : models_) {
+        model->SetIsActive(isActive);
+    }
 }
 
 bool PlayerModel::ModelActivePart(Part part) {
