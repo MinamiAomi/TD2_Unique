@@ -4,8 +4,11 @@
 
 #include "Graphics/RenderManager.h"
 #include "Input/Input.h"
+#include "Math/Random.h"
 
 //#include "LookOn.h"
+
+static Random::RandomNumberGenerator randomNumberGenerator;
 
 void FollowCamera::Initialize() {
     camera_ = std::make_shared<Camera>();
@@ -64,6 +67,17 @@ void FollowCamera::Update() {
         interTarget_ = Vector3::Lerp(1.0f - followDelay_, interTarget_, target_->worldMatrix.GetTranslate());
     }
     transform_->translate = interTarget_ + CalcOffset();
+
+    //カメラシェイク
+    if (shakeTimer_ > 0) {
+
+        transform_->translate += {randomNumberGenerator.NextFloatRange(float(-shakeTimer_ / 10.0f), float(shakeTimer_ / 10.0f)),
+            randomNumberGenerator.NextFloatRange(float(-shakeTimer_ / 10.0f), float(shakeTimer_ / 10.0f)),
+            randomNumberGenerator.NextFloatRange(float(-shakeTimer_ / 10.0f), float(shakeTimer_ / 10.0f))};
+
+        shakeTimer_--;
+
+    }
 
     transform_->UpdateMatrix();
 

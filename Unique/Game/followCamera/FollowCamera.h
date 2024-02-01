@@ -21,6 +21,8 @@ public:
 
     void SetRockY(bool flag) { isRockY_ = flag; }
 
+    void ShakeStart(int32_t time) { shakeTimer_ = time; }
+
 private:
     void Reset();
     Vector3 CalcOffset() const;
@@ -37,6 +39,8 @@ private:
     bool isRockY_ = false;
 
     Vector3 euler_{};
+
+    int32_t shakeTimer_ = 0;
 
     /*std::shared_ptr<LookOn> lookOn_;*/
 };

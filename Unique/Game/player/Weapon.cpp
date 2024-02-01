@@ -247,6 +247,8 @@ void Weapon::Break() {
 
 	breakTimer_ = kMaxBreakTime_;
 
+	player_->GetCamera()->ShakeStart(30);
+
 	gravityModel_->SetColor({ 1.0f,0.0f,1.0f });
 	gravityCollider_->SetName("Gravity_Break");
 	

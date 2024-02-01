@@ -88,6 +88,8 @@ public:
 		reticle_->SetCamera(camera_);
 	}
 
+	const std::shared_ptr<FollowCamera>& GetCamera() { return camera_; }
+
 	std::shared_ptr<Reticle3D> GetReticle() { return reticle_; }
 
 	std::array<std::shared_ptr<Transform>, kMaxParts> playerTransforms_;
