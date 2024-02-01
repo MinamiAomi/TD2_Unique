@@ -2,6 +2,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Player.h"
 #include "Game/enemy/SmallEnemyManager.h"
+#include "Game/HitStop/HitStopManager.h"
 
 Weapon::Weapon()
 {
@@ -295,6 +296,9 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
 
+		//ヒットストップ
+		HitStopManager::GetInstance()->StopFrame(10);
+
 	}
 
 }
@@ -347,6 +351,9 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
 
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(10);
+
 		}
 
 	}
@@ -364,6 +371,9 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			enemy->transform.SetParent(nullptr);
 			enemy->Damage(3 + gravityLevel_, transform.worldMatrix.GetTranslate());
 
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(20);
+
 			isHit_ = true;
 
 		}
@@ -380,6 +390,9 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
 			enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());
+
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(10);
 
 		}
 
@@ -399,6 +412,9 @@ void Weapon::ShockWaveCollision(const CollisionInfo& collisionInfo) {
 		std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
 		enemy->BounceAndGather(transform.worldMatrix.GetTranslate());
+
+		//ヒットストップ
+		HitStopManager::GetInstance()->StopFrame(20);
 
 	}
 
