@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "DefaultTextures.h"
 #include "LightManager.h"
+#include "Sprite.h"
 
 const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
 const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
@@ -85,6 +86,10 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
                     material.specular = mesh.material->specular;
                     if (mesh.material->diffuseMap) {
                         texture = mesh.material->diffuseMap->GetSRV();
+                    }
+                    // 差し替えテクスチャが優先
+                    if (instance->GetTexture()) {
+                        texture = instance->GetTexture()->GetTexture();
                     }
                 }
 

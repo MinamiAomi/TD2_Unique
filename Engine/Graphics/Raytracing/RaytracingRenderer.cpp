@@ -8,6 +8,7 @@
 #include "../Model.h"
 #include "../DefaultTextures.h"
 #include "../Core/SamplerManager.h"
+#include "../Sprite.h"
 
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
@@ -196,7 +197,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
 void RaytracingRenderer::CreateRootSignature() {
 
     {
-        
+
         CD3DX12_DESCRIPTOR_RANGE descriptorRanges[4]{};
         descriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
         descriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
@@ -352,8 +353,16 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> castShadowTLASInstanceDesc;
     castShadowTLASInstanceDesc.reserve(instanceList.size());
 
+    size_t numShaderRecords = 1;
+    for (auto instance : instanceList) {
+        if (!(instance->IsActive() && instance->GetModel())) {
+            continue;
+        }
+        numShaderRecords += instance->GetModel()->GetMeshes().size() * 2;
+    }
+
     std::vector<ShaderRecord> shaderRecords;
-    shaderRecords.reserve(instanceList.size() * 2 + 1);
+    shaderRecords.reserve(numShaderRecords);
 
     shaderRecords.emplace_back(identifierMap_[kShadowRayHitGroupName]);
 
@@ -389,7 +398,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
             castShadowDesc.InstanceMask = 0xFF;
             castShadowDesc.InstanceContributionToHitGroupIndex = 0;
         }
-        
+
         MaterialConstantData material;
         material.color = instance->GetColor();
         material.useLighting = instance->UseLighting() ? 1 : 0;
@@ -400,18 +409,20 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
 
             primaryShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
             primaryShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
-            
+
             reflectionShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
             reflectionShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
 
+            D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV().GetGPU();
+
             if (mesh.material && mesh.material->diffuseMap) {
-                primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
-                reflectionShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+                texture = mesh.material->diffuseMap->GetSRV().GetGPU();
             }
-            else {
-                primaryShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
-                reflectionShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+            if (instance->GetTexture()) {
+                texture = instance->GetTexture()->GetTexture();
             }
+            primaryShaderRecord.Add(texture);
+            reflectionShaderRecord.Add(texture);
             primaryShaderRecord.Add(SamplerManager::LinearWrap);
             reflectionShaderRecord.Add(SamplerManager::LinearWrap);
 
