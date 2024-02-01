@@ -18,7 +18,7 @@ public:
 
 	void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
 
-	void SetTexture(const std::shared_ptr<Texture>& texture) { texture; }
+	void SetTexture(const std::shared_ptr<Texture>& texture) { model_->SetTexture(texture); }
 
 private:
 
