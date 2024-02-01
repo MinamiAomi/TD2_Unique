@@ -31,6 +31,7 @@
     <ClCompile Include="Game\player\Weapon.cpp" />
     <ClCompile Include="Game\stage\Stage.cpp" />
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="PlayerModel.cpp" />
     <ClCompile Include="Unique.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="Game\player\Weapon.h" />
     <ClInclude Include="Game\stage\Stage.h" />
     <ClInclude Include="GlobalVariables.h" />
+    <ClInclude Include="PlayerModel.h" />
     <ClInclude Include="Unique.h" />
     <ClInclude Include="GameScene.h" />
   </ItemGroup>

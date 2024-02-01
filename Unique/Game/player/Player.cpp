@@ -4,26 +4,7 @@
 #include "Game/block/block.h"
 #include "GlobalVariables.h"
 
-const char* kPlayerPartsStr[] = {
-    "Hip",
-    "Body",
-    "Head",
-    "LeftShoulder",
-    "LeftUpperArm",
-    "LeftLowerArm",
-    "RightShoulder",
-    "RightUpperArm",
-    "RightLowerArm",
-    "LeftPelvis",
-    "LeftUpperLeg",
-    "LeftLowerLeg",
-    "RightPelvis",
-    "RightUpperLeg",
-    "RightLowerLeg"
-};
-
 Player::Player() {
-
     auto resources = ResourceManager::GetInstance();
 
     playerModel_ = std::make_shared<ModelInstance>();
@@ -33,27 +14,6 @@ Player::Player() {
         playerModels_[i] = std::make_shared<ModelInstance>();
         playerTransforms_[i] = std::make_shared<Transform>();
     }
-
-    playerModels_[kHip]->SetModel(resources->FindModel(kPlayerPartsStr[kHip]));
-    playerModels_[kBody]->SetModel(resources->FindModel(kPlayerPartsStr[kBody]));
-    playerModels_[kHead]->SetModel(resources->FindModel(kPlayerPartsStr[kHead]));
-    playerModels_[kLeftShoulder]->SetModel(resources->FindModel(kPlayerPartsStr[kLeftShoulder]));
-    playerModels_[kLeftUpperArm]->SetModel(resources->FindModel(kPlayerPartsStr[kLeftUpperArm]));
-    playerModels_[kLeftLowerArm]->SetModel(resources->FindModel(kPlayerPartsStr[kLeftLowerArm]));
-    playerModels_[kRightShoulder]->SetModel(resources->FindModel(kPlayerPartsStr[kRightShoulder]));
-    playerModels_[kRightUpperArm]->SetModel(resources->FindModel(kPlayerPartsStr[kRightUpperArm]));
-    playerModels_[kRightLowerArm]->SetModel(resources->FindModel(kPlayerPartsStr[kRightLowerArm]));
-    playerModels_[kLeftUpperLeg]->SetModel(resources->FindModel(kPlayerPartsStr[kLeftUpperLeg]));
-    playerModels_[kLeftLowerLeg]->SetModel(resources->FindModel(kPlayerPartsStr[kLeftLowerLeg]));
-    playerModels_[kRightUpperLeg]->SetModel(resources->FindModel(kPlayerPartsStr[kRightUpperLeg]));
-    playerModels_[kRightLowerLeg]->SetModel(resources->FindModel(kPlayerPartsStr[kRightLowerLeg]));
-    playerModels_[kLeftPelvis]->SetIsActive(false);
-    playerModels_[kRightPelvis]->SetIsActive(false);
-
-    waitAnimation_ = resources->FindHierarchicalAnimation("Player_Wait");
-    attack1Animation_ = resources->FindHierarchicalAnimation("Player_Attack1");
-    attack2Animation_ = resources->FindHierarchicalAnimation("Player_Attack2");
-    attack3Animation_ = resources->FindHierarchicalAnimation("Player_Attack3");
 
     hpTex_ = resources->FindTexture("player_hp");
 
@@ -124,60 +84,10 @@ void Player::Initialize() {
 
     input_ = Input::GetInstance();
 
-    for (uint32_t i = 0; i < kMaxParts; i++) {
-        playerTransforms_[i]->translate = Vector3::zero;
-        playerTransforms_[i]->scale = Vector3::one;
-        playerTransforms_[i]->rotate = Quaternion::identity;
-    }
+    transform.scale = { 2.0f, 2.0f, 2.0f };
+    model_.Initialize(&transform);
 
-    //腰から体に親子付け
-    playerTransforms_[kBody]->SetParent(playerTransforms_[kHip].get());
-    //体から頭に親子付け
-    playerTransforms_[kHead]->SetParent(playerTransforms_[kBody].get());
-    //体から両腕に順番に親子付け
-    playerTransforms_[kLeftShoulder]->SetParent(playerTransforms_[kBody].get());
-    playerTransforms_[kLeftUpperArm]->SetParent(playerTransforms_[kLeftShoulder].get());
-    playerTransforms_[kLeftLowerArm]->SetParent(playerTransforms_[kLeftUpperArm].get());
-    playerTransforms_[kRightShoulder]->SetParent(playerTransforms_[kBody].get());
-    playerTransforms_[kRightUpperArm]->SetParent(playerTransforms_[kRightShoulder].get());
-    playerTransforms_[kRightLowerArm]->SetParent(playerTransforms_[kRightUpperArm].get());
-    //腰から両足に順番に親子付け
-    playerTransforms_[kLeftPelvis]->SetParent(playerTransforms_[kHip].get());
-    playerTransforms_[kLeftUpperLeg]->SetParent(playerTransforms_[kLeftPelvis].get());
-    playerTransforms_[kLeftLowerLeg]->SetParent(playerTransforms_[kLeftUpperLeg].get());
-    playerTransforms_[kRightPelvis]->SetParent(playerTransforms_[kHip].get());
-    playerTransforms_[kRightUpperLeg]->SetParent(playerTransforms_[kRightPelvis].get());
-    playerTransforms_[kRightLowerLeg]->SetParent(playerTransforms_[kRightUpperLeg].get());
-
-    //座標設定
-    playerTransforms_[kHip]->translate = { 0.0f,8.0f,0.0f };
-    playerTransforms_[kBody]->translate = { 0.0f,2.0f,0.0f };
-    playerTransforms_[kHead]->translate = { 0.0f,2.0f,0.0f };
-    playerTransforms_[kLeftShoulder]->translate = { -3.0f,1.5f,0.0f };
-    playerTransforms_[kLeftUpperArm]->translate = { 0.0f,-2.0f,0.0f };
-    playerTransforms_[kLeftLowerArm]->translate = { 0.0f,-3.0f,0.0f };
-    playerTransforms_[kRightShoulder]->translate = { 3.0f,1.5f,0.0f };
-    playerTransforms_[kRightUpperArm]->translate = { 0.0f,-2.0f,0.0f };
-    playerTransforms_[kRightLowerArm]->translate = { 0.0f,-3.0f,0.0f };
-    playerTransforms_[kLeftUpperLeg]->translate = { -1.0f,-2.0f,0.0f };
-    playerTransforms_[kLeftLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
-    playerTransforms_[kRightUpperLeg]->translate = { 1.0f,-2.0f,0.0f };
-    playerTransforms_[kRightLowerLeg]->translate = { 0.0f,-2.0f,0.0f };
-
-    //回転初期化
-    for (uint32_t i = 0; i < kMaxParts; i++) {
-        playerTransforms_[i]->rotate = Quaternion::identity;
-    }
-
-    for (int i = 0; i < kMaxParts; ++i) {
-        playerTransforms_[i]->translate = waitAnimation_->GetNode(kPlayerPartsStr[i]).translate.GetInterpolatedValue(0);
-        playerTransforms_[i]->rotate = waitAnimation_->GetNode(kPlayerPartsStr[i]).rotate.GetInterpolatedValue(0);
-        playerTransforms_[i]->scale = waitAnimation_->GetNode(kPlayerPartsStr[i]).scale.GetInterpolatedValue(0);
-        playerTransforms_[i]->UpdateMatrix();
-        playerModels_[i]->SetWorldMatrix(waitAnimation_->GetNode(kPlayerPartsStr[i]).initialInverseMatrix * playerTransforms_[i]->worldMatrix * Matrix4x4::MakeScaling(Vector3(2)));
-    }
-
-    weapon_->modelBodyTransform_->SetParent(playerTransforms_[kRightLowerArm].get());
+    weapon_->modelBodyTransform_->SetParent(&model_.GetTransform(PlayerModel::kRightLowerArm));
     weapon_->Initialize();
     weapon_->SetPlayer(this);
 
@@ -401,13 +311,8 @@ void Player::Update() {
     t += 1.0f / 120.0f;
     if (t > 1.0f) { t -= 1.0f; }
 
-    for (int i = 0; i < kMaxParts; ++i) {
-        playerTransforms_[i]->translate = waitAnimation_->GetNode(kPlayerPartsStr[i]).translate.GetInterpolatedValue(t);
-        playerTransforms_[i]->rotate = waitAnimation_->GetNode(kPlayerPartsStr[i]).rotate.GetInterpolatedValue(t);
-        playerTransforms_[i]->scale = waitAnimation_->GetNode(kPlayerPartsStr[i]).scale.GetInterpolatedValue(t);
-        playerTransforms_[i]->UpdateMatrix();
-        playerModels_[i]->SetWorldMatrix(waitAnimation_->GetNode(kPlayerPartsStr[i]).initialInverseMatrix * playerTransforms_[i]->worldMatrix * Matrix4x4::MakeScaling(Vector3(2)) * Matrix4x4::MakeTranslation({0.0f, 2.0f, 0.0f}));
-    }
+    transform.UpdateMatrix();
+    model_.Update();
 }
 
 void Player::BehaviorRootUpdate() {
@@ -988,3 +893,5 @@ void Player::ApplyGlobalVariables() {
     }
 
 }
+
+

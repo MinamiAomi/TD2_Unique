@@ -65,11 +65,10 @@ void Unique::OnInitialize() {
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
 
-	resourceManager->AddHierarchicalAnimation("Test", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Test.gltf"));
-	resourceManager->AddHierarchicalAnimation("Player_Wait", HierarchicalAnimation::Load("./Resources/PlayerAnimation/WaitNew.gltf"));
-	resourceManager->AddHierarchicalAnimation("Player_Attack1", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack1.glb"));
-	resourceManager->AddHierarchicalAnimation("Player_Attack2", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack2.glb"));
-	resourceManager->AddHierarchicalAnimation("Player_Attack3", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack3.glb"));
+	resourceManager->AddHierarchicalAnimation("Player_Wait", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Wait.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack1", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack1.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack2", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack2.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack3", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack3.gltf"));
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();

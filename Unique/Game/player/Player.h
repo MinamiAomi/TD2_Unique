@@ -13,6 +13,7 @@
 #include "Game/player/Weapon.h"
 #include "Reticle3D.h"
 #include "Graphics/HierarchicalAnimation.h"
+#include "PlayerModel.h"
 
 //振る舞い
 enum class Behavior {
@@ -53,6 +54,7 @@ public:
 		kRightPelvis, // 右足付け根(モデル無し)
 		kRightUpperLeg, //右足上部
 		kRightLowerLeg, //右足下部
+
 		kMaxParts, //最大パーツ数。配列の数を設定する時等に使用
 	};
 
@@ -114,6 +116,8 @@ private:
 
 	Input* input_ = nullptr;
 
+	PlayerModel model_;
+
 	std::shared_ptr<ModelInstance> playerModel_;
 
 	std::array<std::shared_ptr<ModelInstance>, kMaxParts> playerModels_;
@@ -123,11 +127,6 @@ private:
 	std::unique_ptr<Weapon> weapon_;
 
 	std::shared_ptr<Reticle3D> reticle_;
-
-	std::shared_ptr<HierarchicalAnimation> waitAnimation_;
-	std::shared_ptr<HierarchicalAnimation> attack1Animation_;
-	std::shared_ptr<HierarchicalAnimation> attack2Animation_;
-	std::shared_ptr<HierarchicalAnimation> attack3Animation_;
 
 	//前フレームの位置
 	Vector3 prePosition_{};

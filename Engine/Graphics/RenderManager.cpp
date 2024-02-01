@@ -84,7 +84,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
-    }
+     }
     // レイトレの結果を加算合成
     postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
     postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
