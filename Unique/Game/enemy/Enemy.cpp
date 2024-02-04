@@ -16,9 +16,7 @@ Enemy::Enemy()
 		attackModels_[i]->SetIsActive(false);
 	}
 
-	for (uint32_t i = 0; i < 8; i++) {
-		enemyCores_[i] = std::make_shared<EnemyCore>();
-	}
+	enemyCore_ = std::make_shared<EnemyCore>();
 
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("enemy_hp");
 
@@ -118,37 +116,10 @@ void Enemy::ResetCores() {
 	Transform tmpTransform = transform;
 	tmpTransform.scale = { 5.0f,5.0f,5.0f };
 	//左下前
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,-7.5f };
-	enemyCores_[kLeftDownFront]->Initialize(tmpTransform, 0);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftDownFront]);
-	//左下奥
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,7.5f };
-	enemyCores_[kLeftDownBack]->Initialize(tmpTransform, 1);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftDownBack]);
-	//左上前
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
-	enemyCores_[kLeftTopFront]->Initialize(tmpTransform, 2);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftTopFront]);
-	//左上奥
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,7.5f };
-	enemyCores_[kLeftTopBack]->Initialize(tmpTransform, 3);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kLeftTopBack]);
-	//右下前
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,-7.5f };
-	enemyCores_[kRightDownFront]->Initialize(tmpTransform, 4);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightDownFront]);
-	//右下奥
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,7.5f };
-	enemyCores_[kRightDownBack]->Initialize(tmpTransform, 5);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightDownBack]);
-	//右上前
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
-	enemyCores_[kRightTopFront]->Initialize(tmpTransform, 6);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightTopFront]);
-	//右上奥
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,7.5f };
-	enemyCores_[kRightTopBack]->Initialize(tmpTransform, 7);
-	EnemyCoreManager::GetInstance()->AddCore(enemyCores_[kRightTopBack]);
+	tmpTransform.translate = transform.translate + Vector3{ 0.0f,10.0f,0.0f };
+	enemyCore_->Initialize(tmpTransform, 0);
+	EnemyCoreManager::GetInstance()->AddCore(enemyCore_);
+	
 }
 
 void Enemy::Update() {
@@ -185,7 +156,7 @@ void Enemy::Update() {
 				
 				if (attackNumber_ == 1) {
 					/*attackNumber_ = 1 + randomNumberGenerator.NextIntRange(0, 1);*/
-					attackNumber_ = 2;
+					attackNumber_ = 1;
 				}
 				else {
 					attackNumber_ = 1;
@@ -200,9 +171,7 @@ void Enemy::Update() {
 
 		}
 
-		for (auto& core : enemyCores_) {
-			core->Update();
-		}
+		enemyCore_->Update();
 
 		for (auto& bullet : bullets_) {
 			bullet->Update();
@@ -217,9 +186,7 @@ void Enemy::Update() {
 		if (hp_ <= 0) {
 			isDead_ = true;
 
-			for (auto& core : enemyCores_) {
-				core->SetIsActiveModel(false);
-			}
+			enemyCore_->SetIsActiveModel(false);
 
 			Audio::GetInstance()->SoundPlayWave(deathSE_);
 		}
@@ -285,47 +252,7 @@ void Enemy::Attack() {
 	//使用しない
 	case 0:
 
-		//カウントが30を切ったら攻撃開始
-		if (--WA_01_.startAttackTimer < 30) {
-
-			for (uint32_t i = 0; i < WA_01_.attackCount; i++) {
-
-				attackTransforms_[i].translate.y += attackSizes_[i].y * 2.0f / 30.0f;
-				attackTransforms_[i].UpdateMatrix();
-				attackColliders_[i]->SetCenter(attackTransforms_[i].translate);
-				attackModels_[i]->SetWorldMatrix(attackTransforms_[i].worldMatrix);
-
-				/*if (OnCollision(attackColliders_[i], player_->GetCollision())) {
-					player_->Damage(3);
-				}*/
-
-			}
-
-			if (WA_01_.startAttackTimer <= 0) {
-
-				/*if (blocksPtr_ && isStartAttack_) {
-
-					for (uint32_t i = 0; i < workAttack_.attackCount; i++) {
-						std::shared_ptr<Block> block = std::make_shared<Block>();
-						block->Initialize(attackTransforms_[i].translate,
-							player_, attackSizes_[i]);
-						blocksPtr_->push_back(block);
-					}
-
-				}*/
-
-				isStartAttack_ = false;
-
-			}
-
-		}
-		else {
-
-			if (WA_01_.startAttackTimer == 30) {
-				Audio::GetInstance()->SoundPlayWave(groundAttackSE_);
-			}
-
-		}
+		
 
 		break;
 	default:
@@ -348,48 +275,7 @@ void Enemy::Attack() {
 		break;
 	case 2:
 
-		//移動が完了したら攻撃行動開始
-		if (enemyCores_[kLeftTopFront]->lerpT_ > 0.99f &&
-			enemyCores_[kRightTopFront]->lerpT_ > 0.99f) {
-
-			for (auto& bigBullet : bigBullets_) {
-
-				bigBullet->SetIsActive(true);
-
-				if (crossAttack_.attackTimer >= 90) {
-
-					if (crossAttack_.attackTimer == 90) {
-						bigBullet->Shot({ 0.0f,0.0f,-20.0f });
-						Audio::GetInstance()->SoundPlayWave(shotSE_);
-					}
-					else {
-						bigBullet->transform.scale += {0.05f, 0.05f, 0.05f};
-					}
-
-				}
-
-			}
-
-			/*for (uint32_t i = 0; i < 2; i++) {
-				crossAttack_.transforms[i].UpdateMatrix();
-				crossAttack_.models_[i]->SetWorldMatrix(crossAttack_.transforms[i].worldMatrix);
-				crossAttack_.colliders_[i]->SetCenter(crossAttack_.transforms[i].translate);
-				crossAttack_.colliders_[i]->SetSize(crossAttack_.transforms[i].scale);
-				crossAttack_.colliders_[i]->SetOrientation(crossAttack_.transforms[i].rotate);
-			}*/
-
-			if (--crossAttack_.attackTimer <= 0) {
-				isStartAttack_ = false;
-				enemyCores_[kLeftTopFront]->startPosition_ = crossAttack_.shotPosition[0];
-				enemyCores_[kLeftTopFront]->endPosition_ = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
-				enemyCores_[kLeftTopFront]->lerpT_ = 0.0f;
-				enemyCores_[kRightTopFront]->startPosition_ = crossAttack_.shotPosition[1];
-				enemyCores_[kRightTopFront]->endPosition_ = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
-				enemyCores_[kRightTopFront]->lerpT_ = 0.0f;
-				/*SetCoresToRoot();*/
-			}
-
-		}
+		
 
 		break;
 	}
@@ -432,29 +318,7 @@ void Enemy::AttackInitialize() {
 		break;
 	case 2:
 
-		crossAttack_.attackTimer = crossAttack_.maxAttackTime;
-		crossAttack_.shotPosition[0] = { -30.0f,0.0f,40.0f };
-		crossAttack_.shotPosition[1] = { 30.0f,0.0f,40.0f };
-
-		for (uint32_t i = 0; i < 2; i++) {
-			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
-
-			newBullet->Initialize(crossAttack_.shotPosition[i]);
-			newBullet->SetIsActive(false);
-
-			bigBullets_.push_back(newBullet);
-
-		}
-
-		/*crossAttack_.transforms[0].translate = crossAttack_.shotPosition[0];
-		crossAttack_.transforms[1].translate = crossAttack_.shotPosition[1];*/
-		enemyCores_[kLeftTopFront]->startPosition_ = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
-		enemyCores_[kLeftTopFront]->endPosition_ = crossAttack_.shotPosition[0];
-		enemyCores_[kLeftTopFront]->lerpT_ = 0.0f;
-		enemyCores_[kRightTopFront]->startPosition_ = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
-		enemyCores_[kRightTopFront]->endPosition_ = crossAttack_.shotPosition[1];
-		enemyCores_[kRightTopFront]->lerpT_ = 0.0f;
-
+		
 		break;
 	}
 
@@ -507,42 +371,9 @@ int32_t Enemy::CalcAllHp() {
 
 	int32_t totalHp = 0;
 
-	for (auto& core : enemyCores_) {
-
-		totalHp += core->GetHp();
-
-	}
+	totalHp = enemyCore_->GetHp();
 
 	return totalHp;
 
 }
 
-void Enemy::SetCoresToRoot() {
-
-	Transform tmpTransform = transform;
-	//左下前
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,-7.5f };
-	enemyCores_[kLeftDownFront]->transform.translate = tmpTransform.translate;
-	//左下奥
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,0.0f,7.5f };
-	enemyCores_[kLeftDownBack]->transform.translate = tmpTransform.translate;
-	//左上前
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,-7.5f };
-	enemyCores_[kLeftTopFront]->transform.translate = tmpTransform.translate;
-	//左上奥
-	tmpTransform.translate = transform.translate + Vector3{ -7.5f,12.5f,7.5f };
-	enemyCores_[kLeftTopBack]->transform.translate = tmpTransform.translate;
-	//右下前
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,-7.5f };
-	enemyCores_[kRightDownFront]->transform.translate = tmpTransform.translate;
-	//右下奥
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,0.0f,7.5f };
-	enemyCores_[kRightDownBack]->transform.translate = tmpTransform.translate;
-	//右上前
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,-7.5f };
-	enemyCores_[kRightTopFront]->transform.translate = tmpTransform.translate;
-	//右上奥
-	tmpTransform.translate = transform.translate + Vector3{ 7.5f,12.5f,7.5f };
-	enemyCores_[kRightTopBack]->transform.translate = tmpTransform.translate;
-
-}

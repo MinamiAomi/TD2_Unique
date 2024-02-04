@@ -13,14 +13,14 @@ public:
 	//行動パターン
 	enum MovePattern {
 		kHoming, //追従型
-		kLine, //直線型
-
+		kLineLeft, //直線左回転型
+		kLineRight, //直線右回転型
 	};
 
 	SmallEnemy();
 	virtual ~SmallEnemy();
 
-	virtual void Initialize(const Vector3& startPosition);
+	virtual void Initialize(const Vector3& startPosition, const MovePattern& movePattern);
 
 	virtual void Update();
 
@@ -44,6 +44,14 @@ protected:
 	Vector2 SetTranslate2D(const Vector3& position);
 
 protected:
+
+	//動く方向
+	enum Direction {
+		kUp,
+		kDown,
+		kLeft,
+		kRight,
+	};
 
 	Player* player_ = nullptr;
 
@@ -102,6 +110,16 @@ protected:
 
 	int32_t hitEffectCount_ = 0;
 
+	//行動パターン
+	MovePattern movePattern_;
+
+	//直線行動時の変数
+	int32_t maxChangeTime_ = 60;
+
+	int32_t changeDirectionTimer_ = maxChangeTime_;
+
+	Direction direction_ = kUp;
+
 };
 
 class BarrierEnemy : public SmallEnemy
@@ -109,7 +127,7 @@ class BarrierEnemy : public SmallEnemy
 public:
 	BarrierEnemy();
 
-	void Initialize(const Vector3& startPosition) override;
+	void Initialize(const Vector3& startPosition, const MovePattern& movePattern) override;
 
 	void Update() override;
 

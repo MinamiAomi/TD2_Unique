@@ -31,7 +31,7 @@ public:
 
 	const std::list<std::shared_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
 
-	const std::array<std::shared_ptr<EnemyCore>, 8>& GetCores() { return enemyCores_; }
+	const std::shared_ptr<EnemyCore>& GetCores() { return enemyCore_; }
 
 private:
 
@@ -44,9 +44,6 @@ private:
 	void OnCollision(const CollisionInfo& collisionInfo);
 
 	void ResetCores();
-
-	//初期位置に戻す
-	void SetCoresToRoot();
 
 	int32_t CalcAllHp();
 
@@ -104,7 +101,7 @@ private:
 	std::array<Transform, 10> attackTransforms_;
 
 	//敵のコア
-	std::array<std::shared_ptr<EnemyCore>, 8> enemyCores_;
+	std::shared_ptr<EnemyCore> enemyCore_;
 
 	Player* player_ = nullptr;
 

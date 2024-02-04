@@ -27,7 +27,7 @@ SmallEnemy::SmallEnemy()
 	indicatorSprite_ = std::make_unique<Sprite>();
 	indicatorSprite_->SetTexture(indicatorTex_);
 	indicatorSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 312.0f,312.0f });
-	indicatorSprite_->SetScale({ 128.0f,128.0f });
+	indicatorSprite_->SetScale({ 64.0f,64.0f });
 	indicatorSprite_->SetIsActive(false);
 
 }
@@ -36,7 +36,7 @@ SmallEnemy::~SmallEnemy()
 {
 }
 
-void SmallEnemy::Initialize(const Vector3& startPosition) {
+void SmallEnemy::Initialize(const Vector3& startPosition, const MovePattern& movePattern) {
 
 	SetName("Small_Enemy");
 
@@ -46,6 +46,8 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 
 	model_->SetColor({ 1.0f,0.0f,0.0f });
 
+	movePattern_ = movePattern;
+
 	collider_->SetCenter(transform.translate);
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
@@ -54,6 +56,35 @@ void SmallEnemy::Initialize(const Vector3& startPosition) {
 	collider_->SetGameObject(this);
 	collider_->SetCollisionAttribute(0xfffffffd);
 	collider_->SetCollisionMask(0x00000002);
+
+	if (movePattern_ == kLineLeft || movePattern_ == kLineRight) {
+
+		switch (direction_)
+		{
+		default:
+		case SmallEnemy::kUp:
+			velocity_ = { 0.0f,0.0f,1.0f };
+			velocity_ /= 3.0f;
+			transform.rotate = Quaternion::identity;
+			break;
+		case SmallEnemy::kDown:
+			velocity_ = { 0.0f,0.0f,-1.0f };
+			velocity_ /= 3.0f;
+			transform.rotate = Quaternion::MakeForYAxis(3.14f);
+			break;
+		case SmallEnemy::kLeft:
+			velocity_ = { -1.0f,0.0f,0.0f };
+			velocity_ /= 3.0f;
+			transform.rotate = Quaternion::MakeForYAxis(-1.57f);
+			break;
+		case SmallEnemy::kRight:
+			velocity_ = { 1.0f,0.0f,0.0f };
+			velocity_ /= 3.0f;
+			transform.rotate = Quaternion::MakeForYAxis(1.57f);
+			break;
+		}
+
+	}
 
 }
 
@@ -71,16 +102,27 @@ void SmallEnemy::Update() {
 	}
 
 	if (coolTimer_ > 0) {
+		
+		switch (movePattern_)
+		{
+		case SmallEnemy::kHoming:
 
-		velocity_ = player_->GetPosition() - transform.translate;
-		velocity_.y = 0.0f;
-		velocity_ = velocity_.Normalized();
-		velocity_ /= 3.0f;
-		coolTimer_--;
+			velocity_ = player_->GetPosition() - transform.translate;
+			velocity_.y = 0.0f;
+			velocity_ = velocity_.Normalized();
+			velocity_ /= 3.0f;
+			coolTimer_--;
 
-		//規定フレームで移動に移行
-		if (coolTimer_ <= 0) {
-			moveTimer_ = kMaxMoveTime_;
+			//規定フレームで移動に移行
+			if (coolTimer_ <= 0) {
+				moveTimer_ = kMaxMoveTime_;
+			}
+
+			break;
+		case SmallEnemy::kLineLeft:
+			break;
+		case SmallEnemy::kLineRight:
+			break;
 		}
 
 	}
@@ -133,28 +175,130 @@ void SmallEnemy::Update() {
 
 			}
 			else {
+				
+				switch (movePattern_)
+				{
+				default:
+				case SmallEnemy::kHoming:
 
-				//移動更新
-				if (moveTimer_ > 0) {
+					//移動更新
+					if (moveTimer_ > 0) {
 
+						transform.translate += velocity_;
+						moveTimer_--;
+
+						//規定フレームで一旦停止
+						if (moveTimer_ <= 0) {
+							coolTimer_ = kMaxCoolTime_;
+						}
+
+					}
+
+					if (coolTimer_ > 0) {
+
+						Vector3 diff = player_->GetPosition() - transform.translate;
+						diff.y = 0.0f;
+						if (diff.Normalized().z >= -0.99f) {
+							transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+						}
+						else {
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+						}
+
+					}
+
+					break;
+				case SmallEnemy::kLineLeft:
+
+					//移動更新
 					transform.translate += velocity_;
 					moveTimer_--;
 
-					//規定フレームで一旦停止
-					if (moveTimer_ <= 0) {
-						coolTimer_ = kMaxCoolTime_;
+					if (--changeDirectionTimer_ <= 0) {
+
+						switch (direction_)
+						{
+						case SmallEnemy::kUp:
+							velocity_ = { -1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kLeft;
+							transform.rotate = Quaternion::MakeForYAxis(-1.57f);
+							break;
+						case SmallEnemy::kDown:
+							velocity_ = { 1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kRight;
+							transform.rotate = Quaternion::MakeForYAxis(1.57f);
+							break;
+						case SmallEnemy::kLeft:
+							velocity_ = { 0.0f,0.0f,-1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kDown;
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+
+							break;
+						case SmallEnemy::kRight:
+							velocity_ = { 0.0f,0.0f,1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kUp;
+							transform.rotate = Quaternion::identity;
+							break;
+						default:
+							break;
+						}
+
+						changeDirectionTimer_ = maxChangeTime_;
+
 					}
 
+					break;
+				case SmallEnemy::kLineRight:
+
+					//移動更新
+					transform.translate += velocity_;
+					moveTimer_--;
+
+					if (--changeDirectionTimer_ <= 0) {
+
+						switch (direction_)
+						{
+						case SmallEnemy::kUp:
+							velocity_ = { 1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kRight;
+							transform.rotate = Quaternion::MakeForYAxis(1.57f);
+							break;
+						case SmallEnemy::kDown:
+							velocity_ = { -1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kLeft;
+							transform.rotate = Quaternion::MakeForYAxis(-1.57f);
+							break;
+						case SmallEnemy::kLeft:
+							velocity_ = { 0.0f,0.0f,1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kUp;
+							transform.rotate = Quaternion::identity;
+
+							break;
+						case SmallEnemy::kRight:
+							velocity_ = { 0.0f,0.0f,-1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kDown;
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+							break;
+						default:
+							break;
+						}
+
+						changeDirectionTimer_ = maxChangeTime_;
+
+					}
+
+					break;
 				}
 
-				Vector3 diff = player_->GetPosition() - transform.translate;
-				diff.y = 0.0f;
-				if (diff.Normalized().z >= -0.99f) {
-					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
-				}
-				else {
-					transform.rotate = Quaternion::MakeForYAxis(3.14f);
-				}
+				
 
 			}
 
@@ -182,17 +326,17 @@ void SmallEnemy::Update() {
 
 	//画面外に敵がいる時
 	if (translate2D_.x < -10.0f) {
-		translate2DAfter_.x = 64.0f;
+		translate2DAfter_.x = 32.0f;
 	}
 	else if (translate2D_.x > 1290.0f) {
-		translate2DAfter_.x = 1216.0f;
+		translate2DAfter_.x = 1248.0f;
 	}
 
 	if (translate2D_.y < -10.0f) {
-		translate2DAfter_.y = 64.0f;
+		translate2DAfter_.y = 32.0f;
 	}
 	else if (translate2D_.y > 730.0f) {
-		translate2DAfter_.y = 656.0f;
+		translate2DAfter_.y = 688.0f;
 	}
 
 	if (translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
@@ -269,44 +413,19 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 		hp_ = 0;
 	}
 
-	//体力がある場合、跳ねる処理
-	if (hp_ > 0) {
+	collider_->SetName("Small_Enemy_Bounced");
 
-		collider_->SetName("Small_Enemy_Bounced");
+	//攻撃を受けた地点からノックバック
+	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
 
-		//攻撃を受けた地点に向かって集まるように跳ねる
-		bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
+	knockBackVelocity_.y = 0.0f;
 
-		bounceVelocity_.y = 5.0f;
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * 4.0f;
 
-		bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
-		bounceVelocity_.x /= 10.0f;
-		bounceVelocity_.z /= 10.0f;
+	knockBackCount_ = kKnockBackTime_;
 
-		bounceCount_ = kMaxBounceTime_;
-
-		//ノックバックとの重複を阻止
-		knockBackCount_ = 0;
-
-	}
-	//体力が無い時は吹っ飛び処理
-	else {
-
-		collider_->SetName("Barrier_Enemy_Damaged");
-
-		//攻撃を受けた地点からノックバック
-		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
-
-		knockBackVelocity_.y = 0.0f;
-
-		knockBackVelocity_ = knockBackVelocity_.Normalized() * 3.0f;
-
-		knockBackCount_ = kKnockBackTime_;
-
-		//跳ねとの重複阻止
-		bounceCount_ = 0;
-
-	}
+	//跳ねとの重複阻止
+	bounceCount_ = 0;
 
 	
 	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
@@ -352,9 +471,9 @@ BarrierEnemy::BarrierEnemy()
 
 }
 
-void BarrierEnemy::Initialize(const Vector3& startPosition) {
+void BarrierEnemy::Initialize(const Vector3& startPosition, const MovePattern& movePattern) {
 
-	SmallEnemy::Initialize(startPosition);
+	SmallEnemy::Initialize(startPosition, movePattern);
 
 	SetName("Barrier_Enemy");
 
@@ -452,26 +571,126 @@ void BarrierEnemy::Update() {
 			}
 			else {
 
-				//移動更新
-				if (moveTimer_ > 0) {
+				switch (movePattern_)
+				{
+				default:
+				case SmallEnemy::kHoming:
 
+					//移動更新
+					if (moveTimer_ > 0) {
+
+						transform.translate += velocity_;
+						moveTimer_--;
+
+						//規定フレームで一旦停止
+						if (moveTimer_ <= 0) {
+							coolTimer_ = kMaxCoolTime_;
+						}
+
+					}
+
+					if (coolTimer_ > 0) {
+
+						Vector3 diff = player_->GetPosition() - transform.translate;
+						diff.y = 0.0f;
+						if (diff.Normalized().z >= -0.99f) {
+							transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
+						}
+						else {
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+						}
+
+					}
+
+					break;
+				case SmallEnemy::kLineLeft:
+
+					//移動更新
 					transform.translate += velocity_;
 					moveTimer_--;
 
-					//規定フレームで一旦停止
-					if (moveTimer_ <= 0) {
-						coolTimer_ = kMaxCoolTime_;
+					if (--changeDirectionTimer_ <= 0) {
+
+						switch (direction_)
+						{
+						case SmallEnemy::kUp:
+							velocity_ = { -1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kLeft;
+							transform.rotate = Quaternion::MakeForYAxis(-1.57f);
+							break;
+						case SmallEnemy::kDown:
+							velocity_ = { 1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kRight;
+							transform.rotate = Quaternion::MakeForYAxis(1.57f);
+							break;
+						case SmallEnemy::kLeft:
+							velocity_ = { 0.0f,0.0f,-1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kDown;
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+
+							break;
+						case SmallEnemy::kRight:
+							velocity_ = { 0.0f,0.0f,1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kUp;
+							transform.rotate = Quaternion::identity;
+							break;
+						default:
+							break;
+						}
+
+						changeDirectionTimer_ = maxChangeTime_;
+
 					}
 
-				}
+					break;
+				case SmallEnemy::kLineRight:
 
-				Vector3 diff = player_->GetPosition() - transform.translate;
-				diff.y = 0.0f;
-				if (diff.Normalized().z >= -0.99f) {
-					transform.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, diff.Normalized());
-				}
-				else {
-					transform.rotate = Quaternion::MakeForYAxis(3.14f);
+					//移動更新
+					transform.translate += velocity_;
+					moveTimer_--;
+
+					if (--changeDirectionTimer_ <= 0) {
+
+						switch (direction_)
+						{
+						case SmallEnemy::kUp:
+							velocity_ = { 1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kRight;
+							transform.rotate = Quaternion::MakeForYAxis(1.57f);
+							break;
+						case SmallEnemy::kDown:
+							velocity_ = { -1.0f,0.0f,0.0f };
+							velocity_ /= 3.0f;
+							direction_ = kLeft;
+							transform.rotate = Quaternion::MakeForYAxis(-1.57f);
+							break;
+						case SmallEnemy::kLeft:
+							velocity_ = { 0.0f,0.0f,1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kUp;
+							transform.rotate = Quaternion::identity;
+
+							break;
+						case SmallEnemy::kRight:
+							velocity_ = { 0.0f,0.0f,-1.0f };
+							velocity_ /= 3.0f;
+							direction_ = kDown;
+							transform.rotate = Quaternion::MakeForYAxis(3.14f);
+							break;
+						default:
+							break;
+						}
+
+						changeDirectionTimer_ = maxChangeTime_;
+
+					}
+
+					break;
 				}
 
 			}
@@ -496,6 +715,35 @@ void BarrierEnemy::Update() {
 
 	transform.UpdateMatrix();
 	barrierScaleTransform_->UpdateMatrix();
+
+	//インジケーターの表示
+	translate2D_ = SetTranslate2D(transform.translate);
+	translate2DAfter_ = translate2D_;
+
+	//画面外に敵がいる時
+	if (translate2D_.x < -10.0f) {
+		translate2DAfter_.x = 32.0f;
+	}
+	else if (translate2D_.x > 1290.0f) {
+		translate2DAfter_.x = 1248.0f;
+	}
+
+	if (translate2D_.y < -10.0f) {
+		translate2DAfter_.y = 32.0f;
+	}
+	else if (translate2D_.y > 730.0f) {
+		translate2DAfter_.y = 688.0f;
+	}
+
+	if (translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
+		translate2D_.y < -10.0f || translate2D_.y > 730.0f) {
+		indicatorSprite_->SetIsActive(true);
+	}
+	else {
+		indicatorSprite_->SetIsActive(false);
+	}
+
+	indicatorSprite_->SetPosition(translate2DAfter_);
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	collider_->SetSize(transform.scale * 2.0f);
@@ -619,44 +867,19 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 		hp_ = 0;
 	}
 
-	//バリアが無い場合かつ体力がある場合、跳ねる処理
-	if (barrierHp_ <= 0 && hp_ > 0) {
+	collider_->SetName("Barrier_Enemy_Damaged");
 
-		collider_->SetName("Small_Enemy_Bounced");
+	//攻撃を受けた地点からノックバック
+	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
 
-		//攻撃を受けた地点に向かって集まるように跳ねる
-		bounceVelocity_ = goalPosition - transform.worldMatrix.GetTranslate();
+	knockBackVelocity_.y = 0.0f;
 
-		bounceVelocity_.y = 5.0f;
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * 4.0f;
 
-		bounceVelocity_ = bounceVelocity_.Normalized() * 4.0f;
-		bounceVelocity_.x /= 10.0f;
-		bounceVelocity_.z /= 10.0f;
+	knockBackCount_ = kKnockBackTime_;
 
-		bounceCount_ = kMaxBounceTime_;
-
-		//ノックバックとの重複を阻止
-		knockBackCount_ = 0;
-
-	}
-	//体力が無い時、バリアがある時は吹っ飛び処理
-	else {
-
-		collider_->SetName("Barrier_Enemy_Damaged");
-
-		//攻撃を受けた地点からノックバック
-		knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;
-
-		knockBackVelocity_.y = 0.0f;
-
-		knockBackVelocity_ = knockBackVelocity_.Normalized() * 3.0f;
-
-		knockBackCount_ = kKnockBackTime_;
-
-		//跳ねとの重複阻止
-		bounceCount_ = 0;
-
-	}
+	//跳ねとの重複阻止
+	bounceCount_ = 0;
 
 	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
 

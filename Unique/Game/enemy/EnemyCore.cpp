@@ -5,7 +5,7 @@ EnemyCore::EnemyCore()
 {
 
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Boss"));
 	collider_ = std::make_unique<BoxCollider>();
 
 }
@@ -29,15 +29,17 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	collider_->SetName("Enemy_Core");
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
+	collider_->SetSize(transform.scale);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
 	collider_->SetGameObject(this);
 	collider_->SetCollisionAttribute(0xfffffffd);
 	collider_->SetCollisionMask(0x00000002);
+	model_->SetIsActive(true);
 	model_->SetWorldMatrix(transform.worldMatrix);
 	model_->SetColor({ 1.0f,1.0f,1.0f });
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("Boss"));
 
 }
 
@@ -68,7 +70,7 @@ void EnemyCore::Update() {
 
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
+	collider_->SetSize(transform.scale);
 	collider_->SetOrientation(transform.rotate);
 
 	model_->SetWorldMatrix(transform.worldMatrix);

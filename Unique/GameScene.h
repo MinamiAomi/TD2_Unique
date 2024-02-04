@@ -77,11 +77,11 @@ private:
 
     Spawn spawn_;
 
-   /* std::shared_ptr<Enemy> enemy_;*/
+    std::shared_ptr<Enemy> enemy_;
 
     Vector3 reticlePos_{};
 
-    uint32_t waveNumber_ = 0;
+    uint32_t waveNumber_ = 1;
 
     uint32_t kMaxWave_ = 1;
 
