@@ -10,6 +10,7 @@
 #include "Audio/Audio.h"
 #include <array>
 #include "EnemyCore.h"
+#include "BarrierBullet.h"
 
 class Enemy : public GameObject
 {
@@ -23,7 +24,10 @@ public:
 
 	/*void SetBlockList(std::list<std::shared_ptr<Block>>* ptr) { blocksPtr_ = ptr; }*/
 
-	void SetPlayer(Player* player) { player_ = player; }
+	void SetPlayer(Player* player) { 
+		player_ = player;
+		enemyCore_->SetPlayer(player_);
+	}
 
 	bool GetIsDead() const { return isDead_; }
 
@@ -95,11 +99,6 @@ private:
 
 	/*std::shared_ptr<ModelInstance> model_;*/
 
-	//攻撃場所を表示する用のモデル
-	std::array<std::shared_ptr<ModelInstance>, 10> attackModels_;
-
-	std::array<Transform, 10> attackTransforms_;
-
 	//敵のコア
 	std::shared_ptr<EnemyCore> enemyCore_;
 
@@ -112,6 +111,8 @@ private:
 	std::list<std::shared_ptr<EnemyBullet>> bullets_;
 
 	std::list<std::shared_ptr<EnemyBullet>> bigBullets_;
+
+	std::list<std::shared_ptr<BarrierBullet>> barrierBullets_;
 
 	WorkAttack_01 WA_01_;
 
@@ -131,15 +132,10 @@ private:
 
 	bool isDead_ = false;
 
+	
+
 	//移動先の位置
 	Vector3 movePosition_{};
-
-	//攻撃する位置を格納する配列
-	std::array<Vector3, 10> attackPositions_;
-	//攻撃のサイズ
-	std::array<Vector3, 10> attackSizes_;
-	//攻撃の当たり判定
-	std::array<std::unique_ptr<BoxCollider>, 10> attackColliders_;
 
 	std::shared_ptr<Texture> hpTex_;
 

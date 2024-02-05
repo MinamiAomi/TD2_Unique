@@ -31,6 +31,8 @@ public:
 		collider_->SetIsActive(flag);
 	}
 
+	BoxCollider* GetCollider() { return collider_.get(); }
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);

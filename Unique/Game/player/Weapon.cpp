@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "Game/enemy/SmallEnemyManager.h"
 #include "Game/HitStop/HitStopManager.h"
+#include "Game/enemy/BarrierBulletManager.h"
+#include "Game/enemy/BulletManager.h"
 
 Weapon::Weapon()
 {
@@ -28,7 +30,7 @@ Weapon::~Weapon()
 
 void Weapon::SetDefault() {
 
-	modelBodyTransform_->translate = { 0.0f,-3.0f,0.0f };
+	modelBodyTransform_->translate = { 0.0f,-2.0f,0.0f };
 	modelBodyTransform_->scale = Vector3::one;
 	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
 	modelBodyTransform_->UpdateMatrix();
@@ -166,6 +168,10 @@ void Weapon::Update() {
 		model_->SetColor({ 1.0f,1.0f,1.0f });
 	}
 
+	if (isThrust_) {
+		collider_->SetIsActive(false);
+	}
+
 	if ((isThrust_ || isShot_ || isAttack_ || isBreak_) && isGravity_) {
 		gravityCollider_->SetIsActive(true);
 		gravitySpaceCollider_->SetIsActive(true);
@@ -191,6 +197,11 @@ void Weapon::Update() {
 	case Weapon::kWide:
 		gravityScaleTransform_->scale = { 8.0f,8.0f,8.0f };
 		break;
+	}
+
+	//衝撃波時に拡大
+	if (isShockWave_) {
+		gravityScaleTransform_->scale = { 12.5f,12.5f,12.5f };
 	}
 
 	//重力をまとっている間
@@ -321,7 +332,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
 			enemy->transform.SetParent(gravityTransform_.get());
-			enemy->transform.translate *= 0.0f;
+			enemy->transform.translate = Vector3::zero;
 			enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
 			if (energyCount_ >= 20) {
@@ -337,9 +348,60 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			isHit_ = true;
 
 		}
-		//地面に衝突したらフレームカウントを0にして破裂
-		else if (collisionInfo.collider->GetName() == "Stage") {
-			shotTimer_ = 0;
+		else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
+
+			
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<BarrierBullet> bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
+
+			if (!bullet->GetIsBarrier()) {
+
+				energyCount_++;
+
+				bullet->transform.SetParent(gravityTransform_.get());
+				bullet->transform.translate = Vector3::zero;
+				bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
+
+				if (energyCount_ >= 20) {
+					gravityLevel_ = kWide;
+				}
+				else if (energyCount_ >= 10) {
+					gravityLevel_ = kMedium;
+				}
+				else {
+					gravityLevel_ = kSmall;
+				}
+
+			}
+			else {
+				return;
+			}
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
+
+			energyCount_++;
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyBullet> bullet = BulletManager::GetInstance()->GetBullet(object);
+
+			bullet->transform.SetParent(gravityTransform_.get());
+			bullet->transform.translate = Vector3::zero;
+			bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
+
+			if (energyCount_ >= 20) {
+				gravityLevel_ = kWide;
+			}
+			else if (energyCount_ >= 10) {
+				gravityLevel_ = kMedium;
+			}
+			else {
+				gravityLevel_ = kSmall;
+			}
+
 		}
 
 	}

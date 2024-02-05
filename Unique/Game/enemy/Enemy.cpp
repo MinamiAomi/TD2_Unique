@@ -2,6 +2,8 @@
 #include "Math/Random.h"
 #include "Graphics/ResourceManager.h"
 #include "EnemyCoreManager.h"
+#include "BulletManager.h"
+#include "BarrierBulletManager.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
@@ -9,12 +11,6 @@ Enemy::Enemy()
 {
 	/*model_ = std::make_shared<ModelInstance>();
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));*/
-
-	for (uint32_t i = 0; i < 10; i++) {
-		attackModels_[i] = std::make_shared<ModelInstance>();
-		attackModels_[i]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
-		attackModels_[i]->SetIsActive(false);
-	}
 
 	enemyCore_ = std::make_shared<EnemyCore>();
 
@@ -45,6 +41,7 @@ Enemy::Enemy()
 
 Enemy::~Enemy()
 {
+	enemyCore_;
 }
 
 void Enemy::Initialize() {
@@ -62,6 +59,10 @@ void Enemy::Initialize() {
 	//collider_->SetName("Enemy");
 	//collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 
+	bullets_.clear();
+	barrierBullets_.clear();
+	bigBullets_.clear();
+
 	ResetCores();
 
 	kMaxHp_ = CalcAllHp();
@@ -69,7 +70,7 @@ void Enemy::Initialize() {
 	hp_ = CalcAllHp();
 
 	if (kMaxHp_ > 0) {
-		hpWidth_ = float(300.0f / kMaxHp_);
+		hpWidth_ = float(1280.0f / kMaxHp_);
 	}
 	else {
 		hpWidth_ = 0;
@@ -92,11 +93,11 @@ void Enemy::Initialize() {
 	WA_01_.startAttackInterval = 90;
 	WA_01_.startAttackTimer = 0;
 
-	workShot_.shotInterval = 180;
+	workShot_.shotInterval = 300;
 	workShot_.shotCount = 10;
 	workShot_.shotTimer = workShot_.shotInterval;
 
-	hpSprite_->SetPosition({ 640.0f,600.0f });
+	hpSprite_->SetPosition({ 0.0f,688.0f });
 	hpSprite_->SetScale({ hpWidth_ * hp_, 64.0f });
 	hpSprite_->SetAnchor({ 0.0f,0.5f });
 
@@ -118,6 +119,7 @@ void Enemy::ResetCores() {
 	//左下前
 	tmpTransform.translate = transform.translate + Vector3{ 0.0f,10.0f,0.0f };
 	enemyCore_->Initialize(tmpTransform, 0);
+	enemyCore_->SetPlayer(player_);
 	EnemyCoreManager::GetInstance()->AddCore(enemyCore_);
 	
 }
@@ -151,21 +153,25 @@ void Enemy::Update() {
 		}
 		else {
 
-			//タイマー0で攻撃時の変数初期化、攻撃開始
-			if (--attackTimer_ <= 0) {
-				
-				if (attackNumber_ == 1) {
-					/*attackNumber_ = 1 + randomNumberGenerator.NextIntRange(0, 1);*/
-					attackNumber_ = 1;
-				}
-				else {
-					attackNumber_ = 1;
-				}
-				
+			if (!enemyCore_->GetIsStan()) {
 
-				AttackInitialize();
-				attackTimer_ = attackInterval_;
-				isStartAttack_ = true;
+				//タイマー0で攻撃時の変数初期化、攻撃開始
+				if (--attackTimer_ <= 0) {
+
+					if (attackNumber_ == 1) {
+						/*attackNumber_ = 1 + randomNumberGenerator.NextIntRange(0, 1);*/
+						attackNumber_ = 1;
+					}
+					else {
+						attackNumber_ = 1;
+					}
+
+
+					AttackInitialize();
+					attackTimer_ = attackInterval_;
+					isStartAttack_ = true;
+
+				}
 
 			}
 
@@ -227,22 +233,6 @@ void Enemy::Update() {
 	//	
 	//}
 
-	//地面攻撃中
-	if (isStartAttack_ && attackNumber_ == 0) {
-
-		for (uint32_t i = 0; i < WA_01_.attackCount; i++) {
-			attackModels_[i]->SetIsActive(true);
-		}
-
-	}
-	else {
-
-		for (uint32_t i = 0; i < WA_01_.attackCount; i++) {
-			attackModels_[i]->SetIsActive(false);
-		}
-
-	}
-
 }
 
 void Enemy::Attack() {
@@ -260,7 +250,7 @@ void Enemy::Attack() {
 
 		for (auto& bullet : bullets_) {
 
-			if (workShot_.shotTimer % 10 == 0 && workShot_.shotTimer <= 120 && !bullet->GetIsShot()) {
+			if (workShot_.shotTimer % 20 == 0 && workShot_.shotTimer <= 240 && !bullet->GetIsShot()) {
 				bullet->Shot(player_->GetPosition());
 				Audio::GetInstance()->SoundPlayWave(shotSE_);
 				break;
@@ -288,25 +278,7 @@ void Enemy::AttackInitialize() {
 	{
 	case 0:
 
-		WA_01_.attackCount = randomNumberGenerator.NextIntRange(3, 6);
-
-		for (uint32_t i = 0; i < WA_01_.attackCount; i++) {
-			attackSizes_[i] = { float(randomNumberGenerator.NextIntRange(1,5)), float(randomNumberGenerator.NextIntRange(2,5)),
-				float(randomNumberGenerator.NextIntRange(1,5)) };
-			attackPositions_[i] = Vector3{ float(randomNumberGenerator.NextIntRange(-30,30)),
-				attackSizes_[i].y, float(randomNumberGenerator.NextIntRange(-30,30)) };
-			attackTransforms_[i].scale = attackSizes_[i];
-			attackTransforms_[i].translate = player_->GetPosition() + attackPositions_[i] - Vector3{ 0.0f, attackPositions_[i].y * 2.0f + 0.1f, 0.0f };
-			attackColliders_[i]->SetCenter(attackTransforms_[i].translate);
-			attackColliders_[i]->SetSize(attackTransforms_[i].scale);
-			attackColliders_[i]->SetName("Enemy_Block");
-			attackTransforms_[i].UpdateMatrix();
-			attackModels_[i]->SetWorldMatrix(attackTransforms_[i].worldMatrix);
-		}
-
-		isStartAttack_ = true;
-		attackTimer_ = attackInterval_;
-		WA_01_.startAttackTimer = WA_01_.startAttackInterval;
+		
 
 		break;
 	default:
@@ -361,6 +333,7 @@ void Enemy::AddBullet() {
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
 		}
 
+		BulletManager::GetInstance()->AddBullet(newBullet);
 		bullets_.push_back(newBullet);
 
 	}

@@ -27,7 +27,9 @@ public:
 
 private:
 
-    void Reset();
+    void ResetTitle();
+
+    void ResetInGame();
 
     void Manual();
 
@@ -37,7 +39,16 @@ private:
 
     void EditorCameraMove();
 
+    void FadeInOut();
+
+    void BossSpawn();
+
 private:
+
+    enum NextScene {
+        kTitle,
+        kInGame,
+    };
 
     MapEditor* editor_ = nullptr;
     HitStopManager* hitStopManager_ = nullptr;
@@ -69,15 +80,11 @@ private:
 
     std::shared_ptr<Stage> stage_;
 
-    std::shared_ptr<Texture> reticleTex_;
-
-    std::unique_ptr<Sprite> reticle_;
-
     std::list<std::shared_ptr<SmallEnemy>> enemies_;
 
     Spawn spawn_;
 
-    std::shared_ptr<Enemy> enemy_;
+    std::unique_ptr<Enemy> enemy_;
 
     Vector3 reticlePos_{};
 
@@ -85,24 +92,27 @@ private:
 
     uint32_t kMaxWave_ = 1;
 
-   /* std::shared_ptr<Model> floor_;
-    std::shared_ptr<Model> teapot_;
-    std::shared_ptr<Model> bunny_;
-    std::shared_ptr<Model> box_;
-    std::shared_ptr<Model> cone_;
-    std::shared_ptr<Model> torus_;
-    std::shared_ptr<Model> cylinder_;
-    std::shared_ptr<Model> suzanne_;
-    std::shared_ptr<Model> skydome_;
+    NextScene nextScene_ = kInGame;
 
-    struct Instance {
-        ModelInstance model;
-        Transform transform;
-    };
+    bool isTitle_ = true;
 
-    std::vector<Instance> instances_;
+    bool isBossBattle_ = false;
 
-    ModelInstance floorModel_;
-    ModelInstance teapotModel_;
-    ModelInstance bunnyModel_;*/
+    bool isFade_ = false;
+
+    bool fadeIn_ = false;
+    bool fadeOut_ = false;
+
+    std::unique_ptr<Sprite> blackSprite_;
+   
+    std::shared_ptr<Texture> titleTex_;
+
+    std::unique_ptr<Sprite> titleSprite_;
+
+    Vector2 titleScale_{};
+
+    float titleAlpha_ = 1.0f;
+
+    float fadeAlpha_ = 0.0f;
+
 };

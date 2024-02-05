@@ -34,6 +34,7 @@ SmallEnemy::SmallEnemy()
 
 SmallEnemy::~SmallEnemy()
 {
+	
 }
 
 void SmallEnemy::Initialize(const Vector3& startPosition, const MovePattern& movePattern) {
@@ -413,7 +414,7 @@ void SmallEnemy::BounceAndGather(const Vector3& goalPosition) {
 		hp_ = 0;
 	}
 
-	collider_->SetName("Small_Enemy_Bounced");
+	collider_->SetName("Small_Enemy_Damaged");
 
 	//攻撃を受けた地点からノックバック
 	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - goalPosition;

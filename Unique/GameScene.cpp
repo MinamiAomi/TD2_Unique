@@ -9,6 +9,8 @@
 #include "Game/enemy/SmallEnemyManager.h"
 #include "Graphics/ImGuiManager.h"
 #include "Externals/nlohmann/json.hpp"
+#include "Game/enemy/BarrierBulletManager.h"
+#include "Game/enemy/BulletManager.h"
 
 void GameScene::OnInitialize() {
 
@@ -22,19 +24,32 @@ void GameScene::OnInitialize() {
     followCamera_ = std::make_shared<FollowCamera>();
     player_ = std::make_shared<Player>();
     stage_ = std::make_shared<Stage>();
-    reticleTex_ = ResourceManager::GetInstance()->FindTexture("reticle");
-    reticle_ = std::make_unique<Sprite>();
-    enemy_ = std::make_shared<Enemy>();
     editor_ = MapEditor::GetInstance();
     editor_->Initialize();
+    blackSprite_ = std::make_unique<Sprite>();
+    blackSprite_->SetScale({ 1280.0f,720.0f });
+    blackSprite_->SetPosition({ 640.0f,360.0f });
+    blackSprite_->SetColor({ 0.0f,0.0f,0.0f,0.1f });
+    blackSprite_->SetDrawOrder(99);
+
+    titleTex_ = ResourceManager::GetInstance()->FindTexture("title");
+    titleSprite_ = std::make_unique<Sprite>();
+    titleSprite_->SetTexture(titleTex_);
+    titleSprite_->SetTexcoordRect({ 0.0f,0.0f, }, { 3072.0f,512.0f });
+    titleSprite_->SetPosition({ 640.0f,600.0f });
+    
+    titleScale_ = { 768.0f,128.0f };
+    titleSprite_->SetScale(titleScale_);
+    titleAlpha_ = 1.0f;
+    titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleAlpha_ });
 
     EnemyCoreManager::GetInstance()->Clear();
 
     followCamera_->Initialize();
     player_->Initialize();
+    player_->SetIsStart(false);
+    player_->Update();
     stage_->Initialize();
-    enemy_->Initialize();
-    enemy_->SetPlayer(player_.get());
 
     RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
     sunLight_ = std::make_shared<DirectionalLight>();
@@ -43,7 +58,8 @@ void GameScene::OnInitialize() {
     //セット
     player_->SetCamera(followCamera_);
     followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
-  
+    followCamera_->Update();
+
     editorCamera_ = std::make_shared<Camera>();
     editorCameraTransform_ = std::make_shared<Transform>();
     editorCameraTransform_->translate = { 0.0f,150.0f,0.0f };
@@ -61,15 +77,76 @@ void GameScene::OnInitialize() {
 
 }
 
-void GameScene::Reset() {
+void GameScene::FadeInOut() {
 
-    followCamera_->Initialize();
+    if (fadeIn_) {
+        fadeAlpha_ += 0.025f;
+    }
+    else if (fadeOut_) {
+        fadeAlpha_ -= 0.025f;
+    }
+
+    if (fadeAlpha_ >= 1.0f && fadeIn_) {
+
+        if (nextScene_ == kTitle) {
+            ResetTitle();
+        }
+        else if (nextScene_ == kInGame) {
+            ResetInGame();
+        }
+
+        fadeIn_ = false;
+        fadeOut_ = true;
+
+    }
+    else if (fadeOut_ && fadeAlpha_ <= 0.0f) {
+
+        fadeOut_ = false;
+        isFade_ = false;
+
+    }
+
+    blackSprite_->SetColor({ 0.0f,0.0f,0.0f,fadeAlpha_ });
+
+}
+
+void GameScene::ResetTitle() {
+
+    isBossBattle_ = false;
     player_->Initialize();
-    enemy_->Initialize();
+    player_->SetIsStart(false);
+    player_->Update();
+    followCamera_->Initialize();
+    followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
+    followCamera_->Update();
+    EnemyCoreManager::GetInstance()->Clear();
+    BarrierBulletManager::GetInstance()->Clear();
+    BulletManager::GetInstance()->Clear();
+    enemy_.reset();
+    SmallEnemyManager::GetInstance()->Clear();
+    enemies_.clear();
+    waveNumber_ = 1;
+    isTitle_ = true;
+
+}
+
+void GameScene::ResetInGame() {
+
+    isBossBattle_ = false;
+    player_->Initialize();
+    player_->SetIsStart(true);
+    player_->Update();
+    followCamera_->Initialize();
+    followCamera_->Update();
+    EnemyCoreManager::GetInstance()->Clear();
+    BarrierBulletManager::GetInstance()->Clear();
+    BulletManager::GetInstance()->Clear();
+    enemy_.reset();
     stage_->Initialize();
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
-    waveNumber_ = 0;
+    waveNumber_ = 1;
+    isTitle_ = false;
 
 }
 
@@ -93,6 +170,14 @@ void GameScene::SetEnemy(const std::string& tag, const Vector3& position) {
         enemies_.push_back(newEnemy);
 
     }
+
+}
+
+void GameScene::BossSpawn() {
+
+    enemy_ = std::make_unique<Enemy>();
+    enemy_->Initialize();
+    enemy_->SetPlayer(player_.get());
 
 }
 
@@ -140,6 +225,12 @@ void GameScene::Manual() {
 
 void GameScene::OnUpdate() {
 
+    Input* input = Input::GetInstance();
+
+    auto& xinputState = input->GetXInputState();
+
+    auto& preXInputState = input->GetPreXInputState();
+
 #ifdef _DEBUG
 
     Manual();
@@ -149,76 +240,140 @@ void GameScene::OnUpdate() {
     ////カメラの移動、切り替え処理
     //EditorCameraMove();
 
+    if (input->IsKeyTrigger(DIK_R)) {
+        ResetInGame();
+    }
+
+    if (input->IsKeyTrigger(DIK_C)) {
+
+        //コライダーを非アクティブ(ctrl + C)
+        if (input->IsKeyPressed(DIK_LCONTROL)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(false);
+            }
+        }
+        //コライダーをアクティブ(shift + C)
+        else if (input->IsKeyPressed(DIK_LSHIFT)) {
+            for (auto& enemy : enemies_) {
+                enemy->GetCollider()->SetIsActive(true);
+            }
+        }
+
+    }
+
 #endif // _DEBUG
 
     //ヒットストップしていない時に更新
-    if (hitStopManager_->GetCount() <= 0) {
+    
+    if (isFade_) {
 
-        enemies_.remove_if([](auto& enemy) {
+        FadeInOut();
 
-            if (enemy->GetIsDead()) {
-                SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
-                return true;
-            }
+    }
+    else if (isTitle_) {
 
-            return false;
-
-            });
-
-        //空になったらウェーブ進行、次のデータに沿って敵を配置
-        if (enemies_.empty()) {
-
-            //最大ウェーブ数までロード
-            if (waveNumber_ <= kMaxWave_) {
-                LoadEnemyPopData(waveNumber_);
-                waveNumber_++;
-            }
-
+        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
+            !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+            ResetInGame();
+            isTitle_ = false;
         }
-
-
-        GlobalVariables::GetInstance()->Update();
-
-        Input* input = Input::GetInstance();
-
-        if (input->IsKeyTrigger(DIK_R) || player_->GetIsDead()) {
-            Reset();
-        }
-
-        if (input->IsKeyTrigger(DIK_C)) {
-
-            //コライダーを非アクティブ(ctrl + C)
-            if (input->IsKeyPressed(DIK_LCONTROL)) {
-                for (auto& enemy : enemies_) {
-                    enemy->GetCollider()->SetIsActive(false);
-                }
-            }
-            //コライダーをアクティブ(shift + C)
-            else if (input->IsKeyPressed(DIK_LSHIFT)) {
-                for (auto& enemy : enemies_) {
-                    enemy->GetCollider()->SetIsActive(true);
-                }
-            }
-
-        }
-
-        for (auto& enemy : enemies_) {
-            enemy->Update();
-        }
-
-        player_->Update();
-         enemy_->Update();
-        stage_->Update();
-
-        CollisionManager::GetInstance()->CheckCollision();
-
-        followCamera_->Update();
 
     }
     else {
 
-        hitStopManager_->SubHitStopFrame();
+        if (hitStopManager_->GetCount() <= 0) {
 
+            enemies_.remove_if([](auto& enemy) {
+
+                if (enemy->GetIsDead()) {
+                    SmallEnemyManager::GetInstance()->DeleteEnemy(enemy.get());
+                    return true;
+                }
+
+                return false;
+
+                });
+
+            //空になったらウェーブ進行、次のデータに沿って敵を配置
+            if (enemies_.empty() && !isBossBattle_) {
+
+                //最大ウェーブ数までロード
+                if (waveNumber_ <= kMaxWave_) {
+                    LoadEnemyPopData(waveNumber_);
+                    waveNumber_++;
+                }
+                else {
+                    BossSpawn();
+                    isBossBattle_ = true;
+                }
+
+            }
+
+
+            GlobalVariables::GetInstance()->Update();
+
+            if (player_->GetIsDead()) {
+
+                fadeAlpha_ = 0.3f;
+                blackSprite_->SetColor({ 0.0f,0.0f,0.0f,fadeAlpha_ });
+
+                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+                    nextScene_ = kTitle;
+                    fadeIn_ = true;
+                    isFade_ = true;
+                }
+                else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
+                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+                    nextScene_ = kInGame;
+                    fadeIn_ = true;
+                    isFade_ = true;
+                }
+
+            }
+            else {
+
+                player_->Update();
+
+                followCamera_->Update();
+
+            }
+
+            for (auto& enemy : enemies_) {
+                enemy->Update();
+            }
+
+            if (enemy_) {
+                enemy_->Update();
+            }
+
+            stage_->Update();
+
+            CollisionManager::GetInstance()->CheckCollision();
+
+            
+
+        }
+        else {
+
+            hitStopManager_->SubHitStopFrame();
+
+        }
+
+    }
+
+    if (isTitle_) {
+        titleSprite_->SetIsActive(true);
+    }
+    else {
+        titleSprite_->SetIsActive(false);
+    }
+
+    if (isFade_ || player_->GetIsDead()) {
+        blackSprite_->SetIsActive(true);
+    }
+    else {
+        blackSprite_->SetIsActive(false);
     }
 
 }

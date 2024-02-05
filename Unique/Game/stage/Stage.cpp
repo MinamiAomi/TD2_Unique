@@ -32,7 +32,7 @@ void Stage::Initialize() {
 	skydomeTransform_->rotate = Quaternion::identity;
 	skydomeTransform_->UpdateMatrix();
 
-	/*model_->SetIsActive(false);*/
+	model_->SetIsActive(false);
 	model_->SetWorldMatrix(transform.worldMatrix);
 	model_->SetColor({ 0.2f,0.2f,0.2f });
 

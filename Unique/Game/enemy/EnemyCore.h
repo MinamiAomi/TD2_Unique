@@ -2,6 +2,7 @@
 #include "Graphics/Model.h"
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
+#include "Game/player/Player.h"
 
 class EnemyCore : public GameObject
 {
@@ -19,11 +20,19 @@ public:
 
 	void SetIsActiveModel(bool flag) { model_->SetIsActive(flag); }
 
+	void SetPlayer(Player* player) { player_ = player; }
+
+	bool GetIsStan() const { return isStan_; }
+
 	//移動開始前のポジション
 	Vector3 startPosition_;
 
 	//移動開始後のポジション
 	Vector3 endPosition_;
+
+	Quaternion startRotate_;
+
+	Quaternion endRotate_;
 
 	float lerpT_ = 0.0f;
 
@@ -33,23 +42,48 @@ private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);
 
+	/*void OnCollisionBarrier(const CollisionInfo& collisionInfo);*/
+
+	void Stan();
+
+	void Recover();
+
 private:
 
+	Player* player_ = nullptr;
+
 	std::shared_ptr<ModelInstance> model_;
+	/*std::shared_ptr<ModelInstance> barrierModel_;*/
 
 	std::unique_ptr<BoxCollider> collider_;
+
+	/*std::unique_ptr<SphereCollider> barrierCollider_;
+
+	std::unique_ptr<Transform> barrierTransform_;*/
 
 	uint32_t number_;
 
 	//速度
 	Vector3 velocity_{};
 
-	uint32_t kMaxHp_ = 10;
+	uint32_t kMaxHp_ = 50;
 
 	int32_t hp_ = kMaxHp_;
 
 	uint32_t invincibleTime_ = 30;
 
 	int32_t hitCoolTime_ = 0;
+
+	bool isActiveBarrier_ = true;
+
+	int32_t maxBarrierHp_ = 3;
+
+	int32_t barrierHp_ = maxBarrierHp_;
+
+	int32_t maxStanTime_ = 500;
+
+	int32_t stanTimer_ = 0;
+
+	bool isStan_ = false;
 
 };

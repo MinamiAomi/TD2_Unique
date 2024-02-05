@@ -79,7 +79,7 @@ public:
 
 	bool GetIsBreak() const { return isBreak_; }
 
-	void Damage(uint32_t val);
+	void Damage(uint32_t val, const Vector3& affectPosition);
 
 	bool GetIsInvincible() const { return workInvincible_.isInvincible; }
 
@@ -96,6 +96,10 @@ public:
 
 	//死んだかどうか
 	bool GetIsDead() const { return isDead_; }
+
+	void KnockBack(const Vector3& affectPosition);
+
+	void SetIsStart(bool flag) { isStart_ = flag; }
 
 private:
 
@@ -250,7 +254,7 @@ private:
 
 	WorkInvincible workInvincible_;
 
-	uint32_t kMaxHp_ = 10;
+	uint32_t kMaxHp_ = 1;
 
 	int32_t hp_;
 
@@ -266,11 +270,20 @@ private:
 	//今向いている向き
 	Vector3 direction_{};
 
-	//回転行列
-	Matrix4x4 directionToDirection_{};
+	//回転する向きを補間するクォータニオン
+	Quaternion diff_{};
+
+	//補間係数
+	float rotateT_ = 0.0f;
 
 	//移動速度
 	Vector3 velocity_{};
+
+	//ノックバック速度
+	Vector3 knockBackVelocity_{};
+
+	//ノックバックしているか
+	bool isKnockBack_ = false;
 
 	//ブロック破壊フラグ
 	bool isBreak_ = false;
@@ -301,6 +314,9 @@ private:
 
 	//発射準備中かどうか
 	bool isPoseShot_ = false;
+
+	//ゲーム開始したかどうか
+	bool isStart_ = false;
 
 	//当たり判定(OBB)
 	std::unique_ptr<BoxCollider> collider_;

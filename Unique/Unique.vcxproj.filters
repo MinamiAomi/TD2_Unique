@@ -86,6 +86,15 @@
     <ClCompile Include="Game\Effect\Effect.cpp">
       <Filter>Game\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Game\enemy\BarrierBullet.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\BarrierBulletManager.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\enemy\BulletManager.cpp">
+      <Filter>Game\enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -142,6 +151,15 @@
     </ClInclude>
     <ClInclude Include="Game\Effect\Effect.h">
       <Filter>Game\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\BarrierBullet.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\BarrierBulletManager.h">
+      <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\enemy\BulletManager.h">
+      <Filter>Game\enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

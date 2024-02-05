@@ -1,19 +1,20 @@
 #include "EnemyBullet.h"
 #include "Graphics/ResourceManager.h"
 #include "Math/Random.h"
+#include "BulletManager.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
 EnemyBullet::EnemyBullet()
 {
 	model_ = std::make_shared<ModelInstance>();
-	model_->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
+	model_->SetModel(ResourceManager::GetInstance()->FindModel("BarrierBullet"));
 	collider_ = std::make_unique<BoxCollider>();
-
 }
 
 EnemyBullet::~EnemyBullet()
 {
+	
 }
 
 void EnemyBullet::Initialize(const Vector3& position) {
@@ -93,9 +94,7 @@ void EnemyBullet::Charge(const Vector3& position) {
 
 void EnemyBullet::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Player" ||
-		collisionInfo.collider->GetName() == "Block_Stay" ||
-		collisionInfo.collider->GetName() == "Block_Shot") {
+	if (collisionInfo.collider->GetName() == "Player") {
 
 		isDead_ = true;
 

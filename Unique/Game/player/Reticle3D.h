@@ -18,6 +18,8 @@ public:
 
 	const Vector3& GetReticlePosition() { return reticlePos_; }
 
+	void SetIsActive(bool flag) { sprite_->SetIsActive(flag); }
+
 private:
 
 	std::shared_ptr<FollowCamera> camera_;

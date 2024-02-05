@@ -40,6 +40,7 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Enemy", Model::Load("./Resources/Enemy/Enemy.obj"));
 	resourceManager->AddModel("Enemy_Barrier", Model::Load("./Resources/Enemy/EnemyBarrier.obj"));
 	resourceManager->AddModel("Boss", Model::Load("./Resources/BossEnemy/bossEnemy.obj"));
+	resourceManager->AddModel("BarrierBullet", Model::Load("./Resources/BossEnemy/barrierBullet.obj"));
 	//UI読み込み
 	std::shared_ptr<Texture> guradTex = std::make_shared<Texture>();
 	guradTex->Load("./Resources/UI/Guard.png");
@@ -93,6 +94,10 @@ void Unique::OnInitialize() {
 	UI_RS->Load("./Resources/UI/ui_rs.png");
 	resourceManager->AddTexture("UI_RS", UI_RS);
 	
+	std::shared_ptr<Texture> title = std::make_shared<Texture>();
+	title->Load("./Resources/UI/title.png");
+	resourceManager->AddTexture("title", title);
+
 	//エフェクト画像読み込み
 	std::shared_ptr<Texture> hitEffect = std::make_shared<Texture>();
 	hitEffect->Load("./Resources/Effect/hitEffect.png");

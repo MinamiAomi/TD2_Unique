@@ -15,7 +15,11 @@ void FollowCamera::Initialize() {
     RenderManager::GetInstance()->SetCamera(camera_);
 
     transform_ = std::make_shared<Transform>();
+    transform_->translate = Vector3::zero;
     transform_->rotate = Quaternion::MakeForXAxis(0.0f * Math::ToRadian);
+    destinationRotate_ = Quaternion::identity;
+    euler_ = Vector3::zero;
+    Reset();
 
     followDelay_ = 0.8f;
 

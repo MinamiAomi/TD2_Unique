@@ -3,6 +3,9 @@
 #include "Graphics/ResourceManager.h"
 #include "Game/block/block.h"
 #include "GlobalVariables.h"
+#include "Game/Enemy/BulletManager.h"
+#include "Game/enemy/BarrierBulletManager.h"
+#include "Game/enemy/SmallEnemyManager.h"
 
 Player::Player()
 {
@@ -65,7 +68,7 @@ Player::Player()
 
 	ui_A_ = std::make_unique<Sprite>();
 	ui_A_->SetTexture(ui_A_Tex_);
-	ui_A_->SetPosition({ 1100.0f,250.0f });
+	ui_A_->SetPosition({ 1100.0f,150.0f });
 	ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_A_->SetScale({ 192.0f,48.0f });
 
@@ -77,25 +80,25 @@ Player::Player()
 
 	ui_LB_ = std::make_unique<Sprite>();
 	ui_LB_->SetTexture(ui_LB_Tex_);
-	ui_LB_->SetPosition({ 1100.0f,350.0f });
+	ui_LB_->SetPosition({ 1100.0f,200.0f });
 	ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_LB_->SetScale({ 192.0f,48.0f });
 
 	ui_RT_ = std::make_unique<Sprite>();
 	ui_RT_->SetTexture(ui_RT_Tex_);
-	ui_RT_->SetPosition({ 1100.0f,150.0f });
+	ui_RT_->SetPosition({ 1100.0f,100.0f });
 	ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
 	ui_RT_->SetScale({ 192.0f,48.0f });
 
 	ui_RS_ = std::make_unique<Sprite>();
 	ui_RS_->SetTexture(ui_RS_Tex_);
-	ui_RS_->SetPosition({ 200.0f,150.0f });
+	ui_RS_->SetPosition({ 1100.0f,250.0f });
 	ui_RS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
 	ui_RS_->SetScale({ 384.0f,48.0f });
 
 	ui_LS_ = std::make_unique<Sprite>();
 	ui_LS_->SetTexture(ui_LS_Tex_);
-	ui_LS_->SetPosition({ 200.0f,50.0f });
+	ui_LS_->SetPosition({ 1100.0f,300.0f });
 	ui_LS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
 	ui_LS_->SetScale({ 384.0f,48.0f });
 
@@ -183,6 +186,10 @@ void Player::Initialize() {
 	collider_->SetCollisionMask(0x00000001);
 
 	velocity_ = { 0.0f,0.0f,1.0f };
+	knockBackVelocity_ = Vector3::zero;
+	isKnockBack_ = false;
+
+	diff_ = Quaternion::identity;
 
 	behavior_ = Behavior::kRoot;
 
@@ -197,10 +204,11 @@ void Player::Initialize() {
 	workInvincible_.invincibleTimer = 0;
 	workInvincible_.isInvincible = false;
 
-	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 51.4f * hp_, 322.0f });
-	hpSprite_->SetScale({ 25.7f * hp_, 161.0f });
+	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
+	hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
 	hpSprite_->SetAnchor({ 0.0f,0.5f });
-	
+	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
+
 	hpOverSprite_->SetScale({ 257.0f, 161.0f });
 
 	hpUnderSprite_->SetScale({ 257.0f, 161.0f });
@@ -214,6 +222,13 @@ void Player::Initialize() {
 	crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
 
 	RegisterGlobalVariables();
+
+	for (uint32_t i = 0; i < kMaxParts; i++) {
+		playerTransforms_[i]->UpdateMatrix();
+		playerModels_[i]->SetWorldMatrix(playerTransforms_[i]->worldMatrix);
+	}
+
+	weapon_->Update();
 
 }
 
@@ -301,7 +316,7 @@ void Player::Update() {
 	collider_->SetOrientation(playerTransforms_[kHip]->rotate);
 	playerModel_->SetWorldMatrix(playerTransforms_[kHip]->worldMatrix);
 
-	if (!isDead_ && workInvincible_.invincibleTimer % 2 == 0) {
+	if (!isDead_ && (workInvincible_.invincibleTimer % 2 == 0 || knockBackVelocity_.Length() > 0.05f)) {
 
 		for (uint32_t i = 0; i < kMaxParts; i++) {
 			playerModels_[i]->SetIsActive(true);
@@ -326,6 +341,33 @@ void Player::Update() {
 	}
 
 	//状態に応じてUIの表示を変更
+	if (!isStart_) {
+		ui_A_->SetIsActive(false);
+		ui_RB_->SetIsActive(false);
+		ui_LB_->SetIsActive(false);
+		ui_LS_->SetIsActive(false);
+		ui_RS_->SetIsActive(false);
+		ui_RT_->SetIsActive(false);
+		hpOverSprite_->SetIsActive(false);
+		hpUnderSprite_->SetIsActive(false);
+		hpSprite_->SetIsActive(false);
+		guardSprite_->SetIsActive(false);
+		reticle_->SetIsActive(false);
+	}
+	else {
+		ui_A_->SetIsActive(true);
+		ui_RB_->SetIsActive(true);
+		ui_LB_->SetIsActive(true);
+		ui_LS_->SetIsActive(true);
+		ui_RS_->SetIsActive(true);
+		ui_RT_->SetIsActive(true);
+		hpOverSprite_->SetIsActive(true);
+		hpUnderSprite_->SetIsActive(true);
+		hpSprite_->SetIsActive(true);
+		guardSprite_->SetIsActive(true);
+		reticle_->SetIsActive(true);
+	}
+
 	if (behavior_ != Behavior::kRoot) {
 
 		ui_LB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
@@ -386,6 +428,11 @@ void Player::Update() {
 
 void Player::BehaviorRootUpdate() {
 
+	//ゲーム開始していない時は動かせないようにする
+	if (!isStart_) {
+		return;
+	}
+
 	auto& camera = camera_->GetCamera();
 	auto input = Input::GetInstance();
 
@@ -445,8 +492,9 @@ void Player::BehaviorRootUpdate() {
 	}
 
 	Vector3 move{};
-	// Gamepad入力
-	{
+	// Gamepad入力(ノックバックしていない時)
+	if (!isKnockBack_) {
+
 		const float margin = 0.8f;
 		const float shortMaxReci = 1.0f / float(SHRT_MAX);
 		move = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
@@ -454,16 +502,38 @@ void Player::BehaviorRootUpdate() {
 		if (move.Length() < margin) {
 			move = Vector3::zero;
 		}
+
+	}
+	else {
+
+		move = knockBackVelocity_;
+		
+		//徐々に速度を減らす
+		knockBackVelocity_ /= 1.10f;
+
+		//既定の速度以下でノックバック終了
+		if (knockBackVelocity_.Length() < 0.1f) {
+			knockBackVelocity_ = Vector3::zero;
+			isKnockBack_ = false;
+		}
+
 	}
 
-	// 移動処理
+	// 移動、回転処理
 	{
 		if (move != Vector3::zero) {
-			move = move.Normalized();
-			// 地面に水平なカメラの回転
-			move = camera->GetRotate() * move;
-			move.y = 0.0f;
-			move = move.Normalized() * (0.7f * workDash_.speed_);
+			
+
+			if (!isKnockBack_) {
+				move = move.Normalized();
+				// 地面に水平なカメラの回転
+				move = camera->GetRotate() * move;
+				move.y = 0.0f;
+				move = move.Normalized() * (0.7f * workDash_.speed_);
+			}
+			/*else {
+				
+			}*/
 
 			// 親がいる場合親の空間にする
 			const Transform* parent = playerTransforms_[kHip]->GetParent();
@@ -483,9 +553,23 @@ void Player::BehaviorRootUpdate() {
 
 			}
 
-			move = playerTransforms_[kHip]->rotate.Conjugate() * move;
-			Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-			playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * playerTransforms_[kHip]->rotate;
+			if (!isKnockBack_) {
+				move = playerTransforms_[kHip]->rotate.Conjugate() * move;
+				diff_ = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff_) * playerTransforms_[kHip]->rotate;
+			}
+			else {
+
+				//移動方向を反転させる
+				move = move.Normalized();
+				move *= -1.0f;
+				move = playerTransforms_[kHip]->rotate.Conjugate() * move;
+				diff_ = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+				playerTransforms_[kHip]->rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff_) * playerTransforms_[kHip]->rotate;
+
+			}
+
+			
 			
 		}
 	}
@@ -602,6 +686,22 @@ void Player::BehaviorAttackUpdate() {
 	auto& xinputState = input->GetXInputState();
 
 	auto& preXInputState = input->GetPreXInputState();
+
+	//ノックバックしたら強制終了
+	if (isKnockBack_) {
+		weapon_->SetDefault();
+		/*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
+			Quaternion::identity;*/
+		playerTransforms_[kHip]->rotate = attack_.playerRotate;
+		attack_.currentCombo_ = 0;
+		attack_.isCombo_ = false;
+		weapon_->isShockWave_ = false;
+		weapon_->shockWaveCollider_->SetIsActive(false);
+		weapon_->GetCollider()->SetIsActive(false);
+		weapon_->isAttack_ = false;
+		behaviorRequest_ = Behavior::kRoot;
+		ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+	}
 
 	switch (attack_.attackType)
 	{
@@ -811,12 +911,14 @@ void Player::BehaviorAttackUpdate() {
 		//落下後衝撃波
 		else if (attack_.attackTimer < WA_03_.attackFrame + WA_03_.jumpFrame
 			+ WA_03_.waitFrameJump + WA_03_.fallFrame + WA_03_.shockWaveFrame) {
+			weapon_->isShockWave_ = true;
 			weapon_->shockWaveCollider_->SetIsActive(true);
 			weapon_->GetCollider()->SetIsActive(true);
 			weapon_->isAttack_ = true;
 
 		}
 		else {
+			weapon_->isShockWave_ = false;
 			weapon_->shockWaveCollider_->SetIsActive(false);
 			weapon_->GetCollider()->SetIsActive(false);
 			weapon_->isAttack_ = false;
@@ -833,6 +935,8 @@ void Player::BehaviorAttackUpdate() {
 				playerTransforms_[kHip]->rotate = attack_.playerRotate;
 				attack_.currentCombo_ = 0;
 				attack_.isCombo_ = false;
+				weapon_->isShockWave_ = false;
+				weapon_->shockWaveCollider_->SetIsActive(false);
 				weapon_->GetCollider()->SetIsActive(false);
 				weapon_->isAttack_ = false;
 				behaviorRequest_ = Behavior::kRoot;
@@ -861,7 +965,7 @@ void Player::BehaviorAttackInitialize() {
 
 		attack_.playerRotate = playerTransforms_[kHip]->rotate;
 
-		weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
+		weapon_->modelBodyTransform_->translate = { 0.0f,-2.0f,0.0f };
 
 		break;
 	case AttackType::kHorizontal_2:
@@ -918,23 +1022,63 @@ void Player::BehaviorShotInitialize() {
 
 }
 
-void Player::Damage(uint32_t val) {
+void Player::KnockBack(const Vector3& affectPosition) {
+
+	knockBackVelocity_ = affectPosition - transform.worldMatrix.GetTranslate();
+	knockBackVelocity_.y = 0.0f;
+	knockBackVelocity_ = knockBackVelocity_.Normalized();
+
+	isKnockBack_ = true;
+
+}
+
+void Player::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	if (!workInvincible_.isInvincible) {
 		hp_ -= val;
-		workInvincible_.invincibleTimer = 60;
+		workInvincible_.invincibleTimer = 120;
 		workInvincible_.isInvincible = true;
+		KnockBack(affectPosition);
 	}
 
 }
 
 void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Enemy_Bullet" ||
-		collisionInfo.collider->GetName() == "Small_Enemy" ||
-		collisionInfo.collider->GetName() == "Barrier_Enemy") {
+	if (collisionInfo.collider->GetName() == "Small_Enemy") {
 
-		Damage(1);
+		auto object = collisionInfo.collider->GetGameObject();
+
+		auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+		Damage(1, enemy->transform.worldMatrix.GetTranslate());
+
+	}
+	else if (collisionInfo.collider->GetName() == "Barrier_Enemy") {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+		Damage(1, enemy->transform.worldMatrix.GetTranslate());
+
+	}
+	else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		auto bullet = BulletManager::GetInstance()->GetBullet(object);
+
+		Damage(1, bullet->transform.worldMatrix.GetTranslate());
+
+	}
+	else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		auto bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
+
+		Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
 	}
 
