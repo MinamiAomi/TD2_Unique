@@ -50,17 +50,25 @@ void BarrierBullet::Initialize(const Vector3& position) {
 
 void BarrierBullet::Update() {
 
-	if (transform.scale.x < 1.0f) {
+	if (transform.scale.x < 3.0f) {
 
-		transform.scale.x += 0.1f;
-		transform.scale.y += 0.1f;
-		transform.scale.z += 0.1f;
+		transform.scale.x += 0.3f;
+		transform.scale.y += 0.3f;
+		transform.scale.z += 0.3f;
 
 	}
 
-	if (isShot_ && !isDead_) {
+	if (isShot_ && !isDead_ && velocity_.Length() >= 0.1f && collider_->GetName() == "Barrier_Bullet") {
+
 		transform.translate += velocity_;
-		transform.rotate = Quaternion::MakeForZAxis(0.6f) * transform.rotate;
+
+		velocity_ /= 1.05f;
+
+		transform.rotate = Quaternion::MakeForZAxis(velocity_.Length()) * transform.rotate;
+
+		if (velocity_.Length() < 0.1f) {
+			velocity_ = Vector3::zero;
+		}
 
 	}
 	else {

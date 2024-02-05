@@ -54,7 +54,7 @@ void EnemyBullet::Update() {
 
 	}
 
-	if (isShot_ && !isDead_) {
+	if (isShot_ && !isDead_ && collider_->GetName() == "Enemy_Bullet") {
 		transform.translate += velocity_;
 		transform.rotate = Quaternion::MakeForZAxis(0.6f) * transform.rotate;
 

@@ -4,6 +4,8 @@
 #include "EnemyCoreManager.h"
 #include "BulletManager.h"
 #include "BarrierBulletManager.h"
+#include "BulletManager.h"
+#include "BarrierBulletManager.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
@@ -129,6 +131,18 @@ void Enemy::Update() {
 	bullets_.remove_if([](auto& bullet) {
 
 		if (bullet->GetIsDead()) {
+			BulletManager::GetInstance()->DeleteBullet(bullet->GetCollider()->GetGameObject());
+			return true;
+		}
+
+		return false;
+
+		});
+
+	barrierBullets_.remove_if([](auto& bullet) {
+
+		if (bullet->GetIsDead()) {
+			BarrierBulletManager::GetInstance()->DeleteBullet(bullet->GetCollider()->GetGameObject());
 			return true;
 		}
 
@@ -139,6 +153,7 @@ void Enemy::Update() {
 	bigBullets_.remove_if([](auto& bullet) {
 
 		if (bullet->GetIsDead()) {
+			BulletManager::GetInstance()->DeleteBullet(bullet->GetCollider()->GetGameObject());
 			return true;
 		}
 
@@ -185,6 +200,10 @@ void Enemy::Update() {
 
 		for (auto& bigBullet : bigBullets_) {
 			bigBullet->Update();
+		}
+
+		for (auto& barrierBullet : barrierBullets_) {
+			barrierBullet->Update();
 		}
 
 		hp_ = CalcAllHp();
@@ -258,6 +277,16 @@ void Enemy::Attack() {
 
 		}
 
+		for (auto& bullet : barrierBullets_) {
+
+			if (workShot_.shotTimer % 20 == 0 && workShot_.shotTimer <= 120 && !bullet->GetIsShot()) {
+				bullet->Shot(player_->GetPosition());
+				Audio::GetInstance()->SoundPlayWave(shotSE_);
+				break;
+			}
+
+		}
+
 		if (--workShot_.shotTimer <= 0) {
 			isStartAttack_ = false;
 		}
@@ -322,19 +351,24 @@ void Enemy::AddBullet() {
 
 	for (uint32_t i = 0; i < workShot_.shotCount; i++) {
 
-		std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
+		
 
 		if (i < 5) {
+			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
 			newBullet->Initialize(transform.translate + Vector3{(5.0f + i) * 5.0f,
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
+			BulletManager::GetInstance()->AddBullet(newBullet);
+			bullets_.push_back(newBullet);
 		}
 		else {
-			newBullet->Initialize(transform.translate + Vector3{i * -5.0f,
+			std::shared_ptr<BarrierBullet> newBullet = std::make_shared<BarrierBullet>();
+			newBullet->Initialize(transform.translate + Vector3{ (5.0f + i) * 5.0f,
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
+			BarrierBulletManager::GetInstance()->AddBullet(newBullet);
+			barrierBullets_.push_back(newBullet);
 		}
 
-		BulletManager::GetInstance()->AddBullet(newBullet);
-		bullets_.push_back(newBullet);
+		
 
 	}
 

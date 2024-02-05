@@ -2,6 +2,7 @@
 #include "Graphics/Model.h"
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
+#include <array>
 
 class Stage : public GameObject
 {
@@ -22,6 +23,10 @@ private:
 private:
 
 	std::shared_ptr<ModelInstance> model_;
+
+	std::array<std::shared_ptr<ModelInstance>, 4> borders_;
+
+	std::array<std::unique_ptr<Transform>, 4> borderTransforms_;
 
 	std::shared_ptr<ModelInstance> skydome_;
 

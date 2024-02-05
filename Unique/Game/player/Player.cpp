@@ -303,6 +303,22 @@ void Player::Update() {
 	hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
 	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 
+	if (playerTransforms_[kHip]->translate.x > 200.0f) {
+		playerTransforms_[kHip]->translate.x = 200.0f;
+	}
+
+	if (playerTransforms_[kHip]->translate.x < -200.0f) {
+		playerTransforms_[kHip]->translate.x = -200.0f;
+	}
+
+	if (playerTransforms_[kHip]->translate.z > 200.0f) {
+		playerTransforms_[kHip]->translate.z = 200.0f;
+	}
+
+	if (playerTransforms_[kHip]->translate.z < -200.0f) {
+		playerTransforms_[kHip]->translate.z = -200.0f;
+	}
+
 	for (uint32_t i = 0; i < kMaxParts; i++) {
 		playerTransforms_[i]->UpdateMatrix();
 		playerModels_[i]->SetWorldMatrix(playerTransforms_[i]->worldMatrix);
@@ -1071,6 +1087,8 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
 		Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
+		BulletManager::GetInstance()->DeleteBullet(object);
+
 	}
 	else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
 
@@ -1079,6 +1097,8 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
 		auto bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
 
 		Damage(1, bullet->transform.worldMatrix.GetTranslate());
+
+		BarrierBulletManager::GetInstance()->DeleteBullet(object);
 
 	}
 

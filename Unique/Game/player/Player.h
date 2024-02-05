@@ -254,7 +254,7 @@ private:
 
 	WorkInvincible workInvincible_;
 
-	uint32_t kMaxHp_ = 1;
+	uint32_t kMaxHp_ = 10;
 
 	int32_t hp_;
 

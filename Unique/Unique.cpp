@@ -17,6 +17,7 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
 	resourceManager->AddModel("Gravity", Model::Load("./Resources/gravity/gravity.obj"));
 	resourceManager->AddModel("Plane", Model::Load("./Resources/plane/plane.obj"));
+	resourceManager->AddModel("border", Model::Load("./Resources/border/border.obj"));
 	//天球
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み

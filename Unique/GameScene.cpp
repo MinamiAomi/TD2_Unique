@@ -312,6 +312,7 @@ void GameScene::OnUpdate() {
 
             GlobalVariables::GetInstance()->Update();
 
+            //プレイヤーが死んだ場合
             if (player_->GetIsDead()) {
 
                 fadeAlpha_ = 0.3f;
@@ -326,6 +327,17 @@ void GameScene::OnUpdate() {
                 else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
                     nextScene_ = kInGame;
+                    fadeIn_ = true;
+                    isFade_ = true;
+                }
+
+            }
+            //敵を倒した場合
+            else if (enemy_ && enemy_->GetIsDead()) {
+
+                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
+                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+                    nextScene_ = kTitle;
                     fadeIn_ = true;
                     isFade_ = true;
                 }
