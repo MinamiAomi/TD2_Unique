@@ -95,6 +95,9 @@
     <ClCompile Include="Game\enemy\BulletManager.cpp">
       <Filter>Game\enemy</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerModel.cpp">
+      <Filter>Game\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Unique.h">
@@ -160,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="Game\enemy\BulletManager.h">
       <Filter>Game\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerModel.h">
+      <Filter>Game\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

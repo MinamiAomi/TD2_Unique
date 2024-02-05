@@ -57,7 +57,7 @@ void GameScene::OnInitialize() {
 
     //セット
     player_->SetCamera(followCamera_);
-    followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
+    followCamera_->SetTarget(&player_->transform);
     followCamera_->Update();
 
     editorCamera_ = std::make_shared<Camera>();
@@ -117,7 +117,7 @@ void GameScene::ResetTitle() {
     player_->SetIsStart(false);
     player_->Update();
     followCamera_->Initialize();
-    followCamera_->SetTarget(player_->playerTransforms_[Player::kHip].get());
+    followCamera_->SetTarget(&player_->transform);
     followCamera_->Update();
     EnemyCoreManager::GetInstance()->Clear();
     BarrierBulletManager::GetInstance()->Clear();

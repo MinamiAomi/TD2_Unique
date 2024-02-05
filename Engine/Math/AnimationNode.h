@@ -17,8 +17,8 @@ namespace Animation {
 
         Node() = default;
         explicit Node(const KeyFrame& keyFrames) { keyFrames_.emplace_back(keyFrames); }
-        explicit Node(const std::vector<KeyFrame>& keyFrames) { keyFrames_ = keyFrames; }
-        explicit Node(std::vector<KeyFrame>&& keyFrames) { keyFrames_ = std::move(keyFrames); }
+        explicit Node(const std::vector<KeyFrame>& keyFrames) { keyFrames_ = keyFrames; AdjustKeyFrame(); }
+        explicit Node(std::vector<KeyFrame>&& keyFrames) { keyFrames_ = std::move(keyFrames); AdjustKeyFrame(); }
         Node(const Node&) = default;
         Node& operator=(const Node&) = default;
         Node(Node&&) = default;
@@ -48,6 +48,19 @@ namespace Animation {
         }
 
     protected:
+        void AdjustKeyFrame() {
+            if (keyFrames_.size() > 1) {
+               if (keyFrames_.front().timeStamp > 0.0f) {
+                   KeyFrame frontKey = { keyFrames_.front().value, 0.0f };
+                   keyFrames_.insert(keyFrames_.begin(), frontKey);
+               }
+               if (keyFrames_.back().timeStamp < 1.0f) {
+                   KeyFrame backKey = { keyFrames_.back().value, 1.0f };
+                   keyFrames_.emplace_back(backKey);
+               }
+            }
+        }
+
         std::vector<KeyFrame> keyFrames_;
     };
 

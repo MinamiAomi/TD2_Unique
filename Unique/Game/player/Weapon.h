@@ -65,6 +65,11 @@ public:
 	//武器の初期SRTへ戻す
 	void SetDefault();
 
+	void SetIsAttack(bool isAttack) {
+		isAttack_ = isAttack;
+		collider_->SetIsActive(isAttack);
+	}
+
 	//ウェポンの衝撃波当たり判定。三撃目の最後に発動
 	std::unique_ptr<SphereCollider> shockWaveCollider_;
 

@@ -30,9 +30,10 @@ Weapon::~Weapon()
 
 void Weapon::SetDefault() {
 
-	modelBodyTransform_->translate = { 0.0f,-2.0f,0.0f };
-	modelBodyTransform_->scale = Vector3::one;
-	modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
+	modelBodyTransform_->translate = { 0.0f, 1.3f, 1.0f };
+	modelBodyTransform_->scale = Vector3::one * 0.5f;
+	//modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-1.57f, Vector3{ 0.5f,1.0f,0.5f }.Normalized()) * Quaternion::identity;
+	modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -90.0f);
 	modelBodyTransform_->UpdateMatrix();
 	transform.SetParent(modelBodyTransform_.get());
 	transform.translate = { 0.0f,7.0f,0.0f };

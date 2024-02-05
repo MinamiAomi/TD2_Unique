@@ -6,7 +6,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/Model.h"
 #include "Graphics/ResourceManager.h"
-#include "Graphics/Animation.h"
+#include "Graphics/HierarchicalAnimation.h"
 
 #include "GameScene.h"
 
@@ -15,6 +15,8 @@ void Unique::OnInitialize() {
 
 	auto resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
+	resourceManager->AddModel("Cube2", Model::Load("./Resources/cube/cube2.obj"));
+	resourceManager->AddModel("Sphere", Model::Load("./Resources/gravity/gravity.obj"));
 	resourceManager->AddModel("Gravity", Model::Load("./Resources/gravity/gravity.obj"));
 	resourceManager->AddModel("Plane", Model::Load("./Resources/plane/plane.obj"));
 	resourceManager->AddModel("border", Model::Load("./Resources/border/border.obj"));
@@ -22,21 +24,22 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み
 	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_3.obj"));
-	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
+	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head.obj"));
 	//プレイヤーモデル読み込み
-	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel_2/Body.obj"));
-	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel_2/Head.obj"));
-	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel_2/Hip.obj"));
-	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel_2/LeftLowerArm.obj"));
-	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel_2/LeftLowerLeg.obj"));
-	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel_2/LeftShoulder.obj"));
-	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel_2/LeftUpperArm.obj"));
-	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel_2/LeftUpperLeg.obj"));
-	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel_2/RightLowerArm.obj"));
-	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel_2/RightLowerLeg.obj"));
-	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel_2/RightShoulder.obj"));
-	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel_2/RightUpperArm.obj"));
-	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel_2/RightUpperLeg.obj"));
+	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel/Body.obj"));
+	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel/Head.obj"));
+	resourceManager->AddModel("Hip", Model::Load("./Resources/PlayerModel/Hip.obj"));
+	resourceManager->AddModel("LeftLowerArm", Model::Load("./Resources/PlayerModel/LeftLowerArm.obj"));
+	resourceManager->AddModel("LeftLowerLeg", Model::Load("./Resources/PlayerModel/LeftLowerLeg.obj"));
+	resourceManager->AddModel("LeftShoulder", Model::Load("./Resources/PlayerModel/LeftShoulder.obj"));
+	resourceManager->AddModel("LeftUpperArm", Model::Load("./Resources/PlayerModel/LeftUpperArm.obj"));
+	resourceManager->AddModel("LeftUpperLeg", Model::Load("./Resources/PlayerModel/LeftUpperLeg.obj"));
+	resourceManager->AddModel("RightLowerArm", Model::Load("./Resources/PlayerModel/RightLowerArm.obj"));
+	resourceManager->AddModel("RightLowerLeg", Model::Load("./Resources/PlayerModel/RightLowerLeg.obj"));
+	resourceManager->AddModel("RightShoulder", Model::Load("./Resources/PlayerModel/RightShoulder.obj"));
+	resourceManager->AddModel("RightUpperArm", Model::Load("./Resources/PlayerModel/RightUpperArm.obj"));
+	resourceManager->AddModel("RightUpperLeg", Model::Load("./Resources/PlayerModel/RightUpperLeg.obj"));
+
 	//敵モデル読み込み
 	resourceManager->AddModel("Enemy", Model::Load("./Resources/Enemy/Enemy.obj"));
 	resourceManager->AddModel("Enemy_Barrier", Model::Load("./Resources/Enemy/EnemyBarrier.obj"));
@@ -104,7 +107,12 @@ void Unique::OnInitialize() {
 	hitEffect->Load("./Resources/Effect/hitEffect.png");
 	resourceManager->AddTexture("hitEffect", hitEffect);
 
-	HierarchicalAnimation::Load("./Resources/PlayerAnimation.gltf");
+	/*HierarchicalAnimation::Load("./Resources/PlayerAnimation.gltf");*/
+
+	resourceManager->AddHierarchicalAnimation("Player_Wait", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Wait.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack1", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack1.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack2", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack2.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_Attack3", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack3.gltf"));
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();

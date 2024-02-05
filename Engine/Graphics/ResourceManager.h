@@ -6,6 +6,7 @@
 
 class Model;
 class Texture;
+class HierarchicalAnimation;
 
 class ResourceManager {
 public:
@@ -19,6 +20,9 @@ public:
     }
     std::shared_ptr<Texture> FindTexture(const std::string& name) const { return textureMap_.at(name); }
 
+    void AddHierarchicalAnimation(const std::string& name, const std::shared_ptr<HierarchicalAnimation>& model) { hierarchicalAnimationMap_.emplace(std::make_pair(name, model)); }
+    std::shared_ptr<HierarchicalAnimation> FindHierarchicalAnimation(const std::string& name) const { return hierarchicalAnimationMap_.at(name); }
+
 private:
     ResourceManager() = default;
     ~ResourceManager() = default;
@@ -27,4 +31,5 @@ private:
 
     std::map<std::string, std::shared_ptr<Model>> modelMap_;
     std::map<std::string, std::shared_ptr<Texture>> textureMap_;
+    std::map<std::string, std::shared_ptr<HierarchicalAnimation>> hierarchicalAnimationMap_;
 };

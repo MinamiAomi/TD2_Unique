@@ -1,5 +1,6 @@
-#include "Animation.h"
+#include "HierarchicalAnimation.h"
 
+#include <Windows.h>
 #include <cassert>
 #include <stack>
 
@@ -9,7 +10,7 @@
 
 namespace {
 
-    Animation::Vector3Node::KeyFrame ConvertKeyframe(aiVectorKey src, float invDuration) {
+    Animation::Vector3Node::KeyFrame ConvertKeyframe(const aiVectorKey& src, float invDuration) {
         Animation::Vector3Node::KeyFrame keyframe;
         keyframe.value.x = static_cast<float>(src.mValue.x);
         keyframe.value.y = static_cast<float>(src.mValue.y);
@@ -18,7 +19,7 @@ namespace {
         return keyframe;
     }
 
-    Animation::QuaternionNode::KeyFrame ConvertKeyframe(aiQuatKey src, float invDuration) {
+    Animation::QuaternionNode::KeyFrame ConvertKeyframe(const aiQuatKey& src, float invDuration) {
         Animation::QuaternionNode::KeyFrame keyframe;
         keyframe.value.x = static_cast<float>(src.mValue.x);
         keyframe.value.y = static_cast<float>(src.mValue.y);
@@ -26,6 +27,14 @@ namespace {
         keyframe.value.w = static_cast<float>(src.mValue.w);
         keyframe.timeStamp = std::clamp(static_cast<float>(src.mTime) * invDuration, 0.0f, 1.0f);
         return keyframe;
+    }
+
+    Matrix4x4 ConvertMatrix(const aiMatrix4x4& m) {
+        return {
+            m.a1, m.b1, m.c1, m.d1,
+            m.a2, m.b2, m.c2, m.d2,
+            m.a3, m.b3, m.c3, m.d3,
+            m.a4, m.b4, m.c4, m.d4 };
     }
 
 }
@@ -41,10 +50,32 @@ std::shared_ptr<HierarchicalAnimation> HierarchicalAnimation::Load(const std::fi
     Assimp::Importer importer;
     int flags = 0;
     // 左手座標系に変換
-    flags |= aiProcess_FlipUVs;
+    flags |= aiProcess_ConvertToLeftHanded;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
-    assert(scene);
+    if (!scene) {
+        OutputDebugStringA(importer.GetErrorString());
+        assert(false);
+    }
     assert(scene->mNumAnimations != 0);
+
+    // 初期姿勢行列の読み込み
+    std::unordered_map<std::string, Matrix4x4> initialMatrix;
+    std::stack<aiNode*> stack;
+    stack.push(scene->mRootNode);
+    Matrix4x4 glovalInverse = ConvertMatrix(scene->mRootNode->mTransformation).Inverse();
+
+    while (!stack.empty()) {
+        auto node = stack.top();
+        stack.pop();
+        initialMatrix[node->mName.C_Str()] = ConvertMatrix(node->mTransformation);
+        if (node->mParent) {
+            initialMatrix[node->mName.C_Str()] *= initialMatrix[node->mParent->mName.C_Str()];
+        }
+
+        for (size_t i = 0; i < node->mNumChildren; ++i) {
+            stack.push(node->mChildren[i]);
+        }
+    }
 
     // 0番決め打ち
     aiAnimation* animation = scene->mAnimations[0];
@@ -58,18 +89,22 @@ std::shared_ptr<HierarchicalAnimation> HierarchicalAnimation::Load(const std::fi
         std::vector<Animation::Vector3Node::KeyFrame> scaleKey;
 
         for (size_t keyIndex = 0; keyIndex < srcChannel->mNumPositionKeys; ++keyIndex) {
-            positionKey.emplace_back(ConvertKeyframe(srcChannel->mPositionKeys[keyIndex], invDuration));
+            Animation::Vector3Node::KeyFrame key = ConvertKeyframe(srcChannel->mPositionKeys[keyIndex], invDuration);
+            positionKey.emplace_back(key);
         }
         for (size_t keyIndex = 0; keyIndex < srcChannel->mNumRotationKeys; ++keyIndex) {
-            rotateKey.emplace_back(ConvertKeyframe(srcChannel->mRotationKeys[keyIndex], invDuration));
+            Animation::QuaternionNode::KeyFrame key = ConvertKeyframe(srcChannel->mRotationKeys[keyIndex], invDuration);
+            rotateKey.emplace_back(key);
         }
         for (size_t keyIndex = 0; keyIndex < srcChannel->mNumScalingKeys; ++keyIndex) {
-            scaleKey.emplace_back(ConvertKeyframe(srcChannel->mScalingKeys[keyIndex], invDuration));
+            Animation::Vector3Node::KeyFrame key = ConvertKeyframe(srcChannel->mScalingKeys[keyIndex], invDuration);
+            scaleKey.emplace_back(key);
         }
 
         destNode.translate = std::move(Animation::Vector3Node(positionKey));
         destNode.rotate = std::move(Animation::QuaternionNode(rotateKey));
         destNode.scale = std::move(Animation::Vector3Node(scaleKey));
+        destNode.initialInverseMatrix = initialMatrix[srcChannel->mNodeName.C_Str()].Inverse();
     }
 
     return hierarchicalAnimation;
