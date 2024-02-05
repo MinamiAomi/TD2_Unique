@@ -45,6 +45,8 @@ private:
 
 private:
 
+    Audio* audio_ = nullptr;
+
     enum NextScene {
         kTitle,
         kInGame,
@@ -90,7 +92,7 @@ private:
 
     uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 1;
+    uint32_t kMaxWave_ = 3;
 
     NextScene nextScene_ = kInGame;
 
@@ -104,15 +106,26 @@ private:
     bool fadeOut_ = false;
 
     std::unique_ptr<Sprite> blackSprite_;
-   
+
+    std::unique_ptr<Sprite> whiteSprite_;
+
     std::shared_ptr<Texture> titleTex_;
 
     std::unique_ptr<Sprite> titleSprite_;
+
+    std::shared_ptr<Texture> push_B_Tex_;
+
+    std::unique_ptr<Sprite> push_B_Sprite_;
 
     Vector2 titleScale_{};
 
     float titleAlpha_ = 1.0f;
 
     float fadeAlpha_ = 0.0f;
+
+    size_t enemyBGM_;
+    size_t enemyBGMHandle_;
+    size_t bossBGM_;
+    size_t bossBGMHandle_;
 
 };

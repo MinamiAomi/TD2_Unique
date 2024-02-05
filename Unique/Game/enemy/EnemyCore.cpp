@@ -44,7 +44,7 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 
 	collider_->SetName("Enemy_Core");
 	collider_->SetCenter(transform.translate);
-	collider_->SetSize(transform.scale * 1.5f);
+	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetIsActive(true);
@@ -72,16 +72,29 @@ void EnemyCore::Update() {
 	}
 
 	if (hitCoolTime_ > 0) {
+		
 		hitCoolTime_--;
+
+		if (hitCoolTime_ <= 0) {
+
+			if (isStan_) {
+				collider_->SetName("Enemy_Core_Stan");
+			}
+			else {
+				collider_->SetName("Enemy_Core");
+			}
+
+		}
+
 	}
 
 	if (barrierHp_ <= 0) {
-		startPosition_ = { 0.0f,15.0f,0.0f };
-		endPosition_ = { 0.0f,0.0f,0.0f };
+		startPosition_ = { 0.0f,30.0f,0.0f };
+		endPosition_ = { 0.0f,15.0f,0.0f };
 	}
 	else {
-		startPosition_ = { 0.0f,0.0f,0.0f };
-		endPosition_ = { 0.0f,15.0f,0.0f };
+		startPosition_ = { 0.0f,15.0f,0.0f };
+		endPosition_ = { 0.0f,30.0f,0.0f };
 	}
 
 	transform.translate = endPosition_;
@@ -102,17 +115,23 @@ void EnemyCore::Update() {
 
 
 
-		}
-		
+		}	
 
 	}
 
+	if (isStan_) {
+
+		if (--stanTimer_ <= 0) {
+			Recover();
+		}
+
+	}
 
 	transform.UpdateMatrix();
 	/*barrierTransform_->UpdateMatrix();*/
 
 	collider_->SetCenter(transform.translate);
-	collider_->SetSize(transform.scale * 1.5f);
+	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 
 	/*barrierCollider_->SetCenter(barrierTransform_->worldMatrix.GetTranslate());*/
@@ -149,6 +168,8 @@ void EnemyCore::OnCollision(const CollisionInfo& collisionInfo) {
 			else {
 				hitCoolTime_ = invincibleTime_;
 			}
+
+			collider_->SetName("Enemy_Core_Damage");
 
 		}
 
@@ -187,6 +208,8 @@ void EnemyCore::Damage(uint32_t damage) {
 			hitCoolTime_ = invincibleTime_;
 		}
 
+		collider_->SetName("Enemy_Core_Damage");
+
 	}
 
 }
@@ -199,6 +222,8 @@ void EnemyCore::Stan() {
 
 	lerpT_ = 0.0f;
 
+	collider_->SetName("Enemy_Core_Stan");
+
 	isStan_ = true;
 
 }
@@ -209,6 +234,30 @@ void EnemyCore::Recover() {
 
 	lerpT_ = 0.0f;
 
+	collider_->SetName("Enemy_Core");
+
 	isStan_ = false;
+
+}
+
+void EnemyCore::BarrierDamage(int32_t val) {
+
+	if (hitCoolTime_ == 0) {
+
+		barrierHp_ -= val;
+
+		hitCoolTime_ = invincibleTime_;
+
+		if (barrierHp_ < 0) {
+			barrierHp_ = 0;
+		}
+
+		if (barrierHp_ <= 0) {
+			Stan();
+		}
+
+		collider_->SetName("Enemy_Core_Damage");
+
+	}
 
 }

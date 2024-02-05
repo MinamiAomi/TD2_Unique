@@ -26,14 +26,14 @@ public:
 
 	void SetPosition(const Vector3& position) { transform.translate = position; }
 
-	void Charge(const Vector3& position);
-
 	void SetIsActive(bool flag) {
 		model_->SetIsActive(flag);
 		collider_->SetIsActive(flag);
 	}
 
 	BoxCollider* GetCollider() { return collider_.get(); }
+
+	bool GetBarrier() const { return isActiveBarrier_; }
 
 private:
 
@@ -54,10 +54,12 @@ private:
 	//生存時間
 	int32_t liveTime_;
 
-	uint32_t maxLiveTime_ = 120;
+	uint32_t maxLiveTime_ = 1000;
 
 	//当たり判定
 	std::unique_ptr<BoxCollider> collider_;
+
+	std::unique_ptr<Transform> barrierScaleTransform_;
 
 	bool isActiveBarrier_ = true;
 

@@ -11,6 +11,7 @@ BarrierBullet::BarrierBullet()
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("BarrierBullet"));
 	barrierModel_ = std::make_shared<ModelInstance>();
 	barrierModel_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy_Barrier"));
+	barrierScaleTransform_ = std::make_unique<Transform>();
 	collider_ = std::make_unique<BoxCollider>();
 	
 }
@@ -28,14 +29,20 @@ void BarrierBullet::Initialize(const Vector3& position) {
 	transform.translate = position;
 	transform.rotate = Quaternion::identity;
 
+	barrierScaleTransform_->SetParent(&transform);
+	barrierScaleTransform_->translate = Vector3::zero;
+	barrierScaleTransform_->rotate = Quaternion::identity;
+	barrierScaleTransform_->scale = Vector3::one * 1.3f;
+	barrierScaleTransform_->UpdateMatrix();
+
 	collider_->SetCenter(transform.translate);
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetName("Barrier_Bullet");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 	collider_->SetGameObject(this);
-	collider_->SetCollisionAttribute(0xfffffffc);
-	collider_->SetCollisionMask(0x00000003);
+	collider_->SetCollisionAttribute(0xfffffffd);
+	collider_->SetCollisionMask(0x00000002);
 
 	Vector3 EulerRotate = { randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f,
 		randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f, randomNumberGenerator.NextFloatRange(0.0f,300.0f) / 100.0f };
@@ -62,7 +69,7 @@ void BarrierBullet::Update() {
 
 		transform.translate += velocity_;
 
-		velocity_ /= 1.05f;
+		velocity_ /= 1.01f;
 
 		transform.rotate = Quaternion::MakeForZAxis(velocity_.Length()) * transform.rotate;
 
@@ -71,18 +78,24 @@ void BarrierBullet::Update() {
 		}
 
 	}
-	else {
+	//バリア状態でしばらく放置されたら消える
+	else if(isShot_ && isActiveBarrier_){
+
+		if (--liveTime_ <= 0) {
+			isDead_ = true;
+		}
 
 	}
 
 	transform.UpdateMatrix();
+	barrierScaleTransform_->UpdateMatrix();
 
-	collider_->SetCenter(transform.translate);
+	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);
 	model_->SetWorldMatrix(transform.worldMatrix);
-	barrierModel_->SetWorldMatrix(transform.worldMatrix);
+	barrierModel_->SetWorldMatrix(barrierScaleTransform_->worldMatrix);
 
 	if (isActiveBarrier_) {
 		barrierModel_->SetIsActive(true);
@@ -102,15 +115,10 @@ void BarrierBullet::Shot(const Vector3& position) {
 
 }
 
-void BarrierBullet::Charge(const Vector3& position) {
-
-	position;
-
-}
-
 void BarrierBullet::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Player") {
+	if (collisionInfo.collider->GetName() == "Player" &&
+		collider_->GetName() == "Barrier_Bullet") {
 
 		isDead_ = true;
 
@@ -118,7 +126,6 @@ void BarrierBullet::OnCollision(const CollisionInfo& collisionInfo) {
 	else if (collisionInfo.collider->GetName() == "Weapon" ||
 		collisionInfo.collider->GetName() == "Gravity_Attack") {
 
-		isShot_ = false;
 		isActiveBarrier_ = false;
 
 	}

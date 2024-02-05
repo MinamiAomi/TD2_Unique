@@ -133,4 +133,9 @@ private:
 
 	int32_t breakTimer_ = kMaxBreakTime_;
 
+	int32_t barrierBulletCount_ = 0;
+
+	size_t hitRightSE_;
+	size_t hitHeavySE_;
+
 };

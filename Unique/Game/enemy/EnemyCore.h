@@ -16,6 +16,8 @@ public:
 
 	void Damage(uint32_t val);
 
+	void BarrierDamage(int32_t val);
+
 	const int32_t& GetHp() { return hp_; }
 
 	void SetIsActiveModel(bool flag) { model_->SetIsActive(flag); }
@@ -66,7 +68,7 @@ private:
 	//速度
 	Vector3 velocity_{};
 
-	uint32_t kMaxHp_ = 50;
+	uint32_t kMaxHp_ = 10;
 
 	int32_t hp_ = kMaxHp_;
 

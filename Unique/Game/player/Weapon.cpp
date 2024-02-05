@@ -5,6 +5,8 @@
 #include "Game/HitStop/HitStopManager.h"
 #include "Game/enemy/BarrierBulletManager.h"
 #include "Game/enemy/BulletManager.h"
+#include "Game/enemy/EnemyCoreManager.h"
+#include "Audio/Audio.h"
 
 Weapon::Weapon()
 {
@@ -22,6 +24,9 @@ Weapon::Weapon()
 	gravityScaleTransform_ = std::make_shared<Transform>();
 	modelBodyTransform_ = std::make_shared<Transform>();
 	shockWaveCollider_ = std::make_unique<SphereCollider>();
+	hitRightSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerHitRight.wav");
+	hitHeavySE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerHitHeavy.wav");
+
 }
 
 Weapon::~Weapon()
@@ -65,8 +70,7 @@ void Weapon::Initialize() {
 	gravityScaleTransform_->rotate = Quaternion::identity;
 
 	collider_->SetCenter(transform.translate);
-	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
-	collider_->SetSize(transform.scale * 2.0f);
+	collider_->SetSize(transform.worldMatrix.GetScale() * 7.0f);
 	collider_->SetOrientation(transform.rotate);
 	collider_->SetName("Weapon");
 	collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
@@ -219,12 +223,12 @@ void Weapon::Update() {
 	transform.UpdateMatrix();
 
 	gravityCollider_->SetCenter(gravityTransform_->worldMatrix.GetTranslate());
-	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x);
+	gravityCollider_->SetRadius(gravityScaleTransform_->scale.x * 1.5f);
 	gravitySpaceCollider_->SetCenter(player_->GetPosition() + (gravityTransform_->worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
 	gravitySpaceCollider_->SetRadius(gravityScaleTransform_->scale.x / 2.0f);
 
 	collider_->SetCenter(transform.worldMatrix.GetTranslate());
-	collider_->SetSize(transform.worldMatrix.GetScale() * 2.0f);
+	collider_->SetSize(transform.worldMatrix.GetScale() * 7.0f);
 	collider_->SetOrientation(transform.worldMatrix.GetRotate());
 	spaceCollider_->SetCenter(player_->GetPosition() + (transform.worldMatrix.GetTranslate() - player_->GetPosition()) / 2.0f);
 
@@ -263,7 +267,7 @@ void Weapon::Break() {
 
 	gravityModel_->SetColor({ 1.0f,0.0f,1.0f });
 	gravityCollider_->SetName("Gravity_Break");
-	
+
 }
 
 void Weapon::AddGravity() {
@@ -292,6 +296,8 @@ void Weapon::Reset() {
 
 	transform.UpdateMatrix();
 
+	barrierBulletCount_ = 0;
+
 }
 
 void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
@@ -311,6 +317,8 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 		/*enemy->Damage(1, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());*/
 
 		enemy->Damage(1, transform.worldMatrix.GetTranslate());
+
+		Audio::GetInstance()->SoundPlayWave(hitRightSE_);
 
 		//ヒットストップ
 		HitStopManager::GetInstance()->StopFrame(10);
@@ -351,19 +359,20 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 		}
 		else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
 
-			
-
 			auto object = collisionInfo.collider->GetGameObject();
 
-			std::shared_ptr<BarrierBullet> bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
+			auto manager = BarrierBulletManager::GetInstance();
 
-			if (!bullet->GetIsBarrier()) {
+			std::shared_ptr<BarrierBullet> bullet = manager->GetBullet(object);
+
+			if (!bullet->GetIsBarrier() && !bullet->GetIsDead()) {
 
 				energyCount_++;
 
 				bullet->transform.SetParent(gravityTransform_.get());
 				bullet->transform.translate = Vector3::zero;
 				bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
+				barrierBulletCount_++;
 
 				if (energyCount_ >= 20) {
 					gravityLevel_ = kWide;
@@ -392,6 +401,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			bullet->transform.SetParent(gravityTransform_.get());
 			bullet->transform.translate = Vector3::zero;
 			bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
+			
 
 			if (energyCount_ >= 20) {
 				gravityLevel_ = kWide;
@@ -418,8 +428,17 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
 
+			Audio::GetInstance()->SoundPlayWave(hitRightSE_);
+
 			//ヒットストップ
 			HitStopManager::GetInstance()->StopFrame(10);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Core") {
+
+			shotTimer_ = 0;
+
+			Audio::GetInstance()->SoundPlayWave(hitRightSE_);
 
 		}
 
@@ -444,6 +463,52 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			isHit_ = true;
 
 		}
+		else if (collisionInfo.collider->GetName() == "Barrier_Bullet_Affected") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<BarrierBullet> bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
+
+			bullet->SetIsDead(true);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Bullet_Affected") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyBullet> bullet = BulletManager::GetInstance()->GetBullet(object);
+
+			bullet->SetIsDead(true);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Core") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
+
+			core->BarrierDamage(barrierBulletCount_);
+
+			barrierBulletCount_ = 0;
+
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(20);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Core_Stan") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
+
+			core->Damage(2);
+
+			barrierBulletCount_ = 0;
+
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(20);
+
+		}
 
 	}
 	//殴った時
@@ -459,6 +524,8 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			/*enemy->Damage(1 + gravityLevel_, player_->playerTransforms_[Player::kHip]->worldMatrix.GetTranslate());*/
 
 			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
+
+			Audio::GetInstance()->SoundPlayWave(hitHeavySE_);
 
 			//ヒットストップ
 			HitStopManager::GetInstance()->StopFrame(10);

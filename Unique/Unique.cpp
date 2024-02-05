@@ -102,6 +102,10 @@ void Unique::OnInitialize() {
 	title->Load("./Resources/UI/title.png");
 	resourceManager->AddTexture("title", title);
 
+	std::shared_ptr<Texture> pushB = std::make_shared<Texture>();
+	pushB->Load("./Resources/UI/push_b.png");
+	resourceManager->AddTexture("push_B", pushB);
+
 	//エフェクト画像読み込み
 	std::shared_ptr<Texture> hitEffect = std::make_shared<Texture>();
 	hitEffect->Load("./Resources/Effect/hitEffect.png");

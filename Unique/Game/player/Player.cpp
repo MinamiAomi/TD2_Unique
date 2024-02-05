@@ -6,6 +6,7 @@
 #include "Game/Enemy/BulletManager.h"
 #include "Game/enemy/BarrierBulletManager.h"
 #include "Game/enemy/SmallEnemyManager.h"
+#include "Graphics/ImGuiManager.h"
 
 Player::Player() {
     /*auto resources = ResourceManager::GetInstance();*/
@@ -100,7 +101,7 @@ void Player::Initialize() {
 
     transform.scale = Vector3::one;
     transform.rotate = Quaternion::identity;
-    transform.translate = { 0.0f, 8.5f, 0.0f };
+    transform.translate = { 0.0f, 8.5f, -30.0f };
     modelScaleTransform_.SetParent(&transform);
     modelScaleTransform_.scale = { 2.0f, 2.0f, 2.0f };
     modelScaleTransform_.rotate = Quaternion::identity;
@@ -110,6 +111,7 @@ void Player::Initialize() {
     weapon_->modelBodyTransform_->SetParent(&model_.GetTransform(PlayerModel::kRightLowerArm));
     weapon_->Initialize();
     weapon_->SetPlayer(this);
+    weapon_->SetDefault();
     weapon_->Update();
 
     reticle_->Initialize();
@@ -175,6 +177,14 @@ void Player::Initialize() {
 
 
 void Player::Update() {
+
+//#ifdef _DEBUG
+//
+//    ImGui::Begin("pos");
+//    ImGui::DragFloat3("pos", &thrustPos_.x, 0.05f);
+//    ImGui::End();
+//
+//#endif // _DEBUG
 
     ApplyGlobalVariables();
 
@@ -377,6 +387,7 @@ void Player::Update() {
 
 
     model_.Update(currentAnimation_, animationParameter_);
+
 }
 
 void Player::BehaviorRootUpdate() {
@@ -402,7 +413,7 @@ void Player::BehaviorRootUpdate() {
         //重力付与状態で構える
         if (weapon_->GetIsGravity()) {
             //playerTransforms_[kRightUpperArm]->rotate = Quaternion::MakeFromAngleAxis(-2.32f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
-            weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(1.0f, Vector3{ 1.0f,0.0f,0.0f }.Normalized());
+            weapon_->modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -120.0f);
             isPoseShot_ = true;
         }
 
@@ -573,7 +584,8 @@ void Player::Thrust() {
                 weapon_->AddGravity();
             }
 
-			weapon_->modelBodyTransform_->rotate = Quaternion::MakeFromAngleAxis(-2.57f, Vector3{ 0.5f,0.0f,0.0f }.Normalized());
+            weapon_->modelBodyTransform_->translate = thrustPos_;
+            weapon_->modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -100.0f);
 			weapon_->isThrust_ = true;
 			workGravity_.decel = workGravity_.decelVal;
 
@@ -876,7 +888,7 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
 		Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
-		BulletManager::GetInstance()->DeleteBullet(object);
+        bullet->SetIsDead(true);
 
 	}
 	else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
@@ -887,7 +899,7 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
 		Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
-		BarrierBulletManager::GetInstance()->DeleteBullet(object);
+        bullet->SetIsDead(true);
 
     }
 

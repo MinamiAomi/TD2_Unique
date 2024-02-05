@@ -24,8 +24,6 @@ public:
 
 	void SetPosition(const Vector3& position) { transform.translate = position; }
 
-	void Charge(const Vector3& position);
-
 	void SetIsActive(bool flag) {
 		model_->SetIsActive(flag);
 		collider_->SetIsActive(flag);

@@ -50,7 +50,7 @@ void Enemy::Initialize() {
 
 	SetName("Enemy");
 
-	transform.translate = { 0.0f,5.0f,50.0f };
+	transform.translate = { 0.0f,10.0f,0.0f };
 	transform.scale = { 10.0f,10.0f,10.0f };
 	transform.rotate = Quaternion::identity;
 
@@ -118,8 +118,7 @@ void Enemy::ResetCores() {
 
 	Transform tmpTransform = transform;
 	tmpTransform.scale = { 5.0f,5.0f,5.0f };
-	//左下前
-	tmpTransform.translate = transform.translate + Vector3{ 0.0f,10.0f,0.0f };
+	tmpTransform.translate = transform.translate + Vector3{ 0.0f,20.0f,0.0f };
 	enemyCore_->Initialize(tmpTransform, 0);
 	enemyCore_->SetPlayer(player_);
 	EnemyCoreManager::GetInstance()->AddCore(enemyCore_);
@@ -355,14 +354,14 @@ void Enemy::AddBullet() {
 
 		if (i < 5) {
 			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
-			newBullet->Initialize(transform.translate + Vector3{(5.0f + i) * 5.0f,
+			newBullet->Initialize(transform.translate + Vector3{(i - 5.0f) * 5.0f,
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
 			BulletManager::GetInstance()->AddBullet(newBullet);
 			bullets_.push_back(newBullet);
 		}
 		else {
 			std::shared_ptr<BarrierBullet> newBullet = std::make_shared<BarrierBullet>();
-			newBullet->Initialize(transform.translate + Vector3{ (5.0f + i) * 5.0f,
+			newBullet->Initialize(transform.translate + Vector3{ (i - 5.0f) * 5.0f,
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
 			BarrierBulletManager::GetInstance()->AddBullet(newBullet);
 			barrierBullets_.push_back(newBullet);

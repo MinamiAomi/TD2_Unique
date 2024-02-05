@@ -19,6 +19,7 @@ void GameScene::OnInitialize() {
 #endif // _DEBUG
 
     GlobalVariables::GetInstance()->LoadFiles();
+    audio_ = Audio::GetInstance();
     hitStopManager_ = HitStopManager::GetInstance();
 
     followCamera_ = std::make_shared<FollowCamera>();
@@ -32,6 +33,12 @@ void GameScene::OnInitialize() {
     blackSprite_->SetColor({ 0.0f,0.0f,0.0f,0.1f });
     blackSprite_->SetDrawOrder(99);
 
+    whiteSprite_ = std::make_unique<Sprite>();
+    whiteSprite_->SetScale({ 1280.0f,720.0f });
+    whiteSprite_->SetPosition({ 640.0f,360.0f });
+    whiteSprite_->SetColor({ 0.0f,0.0f,0.0f,0.1f });
+    whiteSprite_->SetDrawOrder(100);
+
     titleTex_ = ResourceManager::GetInstance()->FindTexture("title");
     titleSprite_ = std::make_unique<Sprite>();
     titleSprite_->SetTexture(titleTex_);
@@ -42,6 +49,13 @@ void GameScene::OnInitialize() {
     titleSprite_->SetScale(titleScale_);
     titleAlpha_ = 1.0f;
     titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleAlpha_ });
+
+    push_B_Tex_ = ResourceManager::GetInstance()->FindTexture("push_B");
+    push_B_Sprite_ = std::make_unique<Sprite>();
+    push_B_Sprite_->SetTexture(push_B_Tex_);
+    push_B_Sprite_->SetTexcoordRect({ 0.0f,0.0f }, { 256.0f, 64.0f });
+    push_B_Sprite_->SetPosition({ 640.0f,100.0f });
+    push_B_Sprite_->SetScale({ 256.0f,64.0f });
 
     EnemyCoreManager::GetInstance()->Clear();
 
@@ -67,6 +81,9 @@ void GameScene::OnInitialize() {
     editorCameraTransform_->UpdateMatrix();
     editorCamera_->SetPosition(editorCameraTransform_->translate);
     editorCamera_->SetRotate(editorCameraTransform_->rotate);
+
+    enemyBGM_ = audio_->SoundLoadWave("./Resources/sound/zakoBGM.wav");
+    bossBGM_ = audio_->SoundLoadWave("./Resources/sound/bossBGM.wav");
 
 #ifdef _DEBUG
 
@@ -112,6 +129,9 @@ void GameScene::FadeInOut() {
 
 void GameScene::ResetTitle() {
 
+    audio_->StopSound(bossBGMHandle_);
+    audio_->StopSound(enemyBGMHandle_);
+
     isBossBattle_ = false;
     player_->Initialize();
     player_->SetIsStart(false);
@@ -132,6 +152,9 @@ void GameScene::ResetTitle() {
 
 void GameScene::ResetInGame() {
 
+    audio_->StopSound(bossBGMHandle_);
+    audio_->StopSound(enemyBGMHandle_);
+
     isBossBattle_ = false;
     player_->Initialize();
     player_->SetIsStart(true);
@@ -147,7 +170,8 @@ void GameScene::ResetInGame() {
     enemies_.clear();
     waveNumber_ = 1;
     isTitle_ = false;
-
+    enemyBGMHandle_ = audio_->SoundPlayLoopStart(enemyBGM_);
+    audio_->SetValume(enemyBGMHandle_, 0.5f);
 }
 
 void GameScene::SetEnemy(const std::string& tag, const Vector3& position) {
@@ -264,7 +288,6 @@ void GameScene::OnUpdate() {
 #endif // _DEBUG
 
     //ヒットストップしていない時に更新
-    
     if (isFade_) {
 
         FadeInOut();
@@ -303,6 +326,9 @@ void GameScene::OnUpdate() {
                     waveNumber_++;
                 }
                 else {
+                    audio_->StopSound(enemyBGMHandle_);
+                    bossBGMHandle_ = audio_->SoundPlayLoopStart(bossBGM_);
+                    audio_->SetValume(bossBGMHandle_, 0.5f);
                     BossSpawn();
                     isBossBattle_ = true;
                 }
@@ -334,6 +360,8 @@ void GameScene::OnUpdate() {
             }
             //敵を倒した場合
             else if (enemy_ && enemy_->GetIsDead()) {
+
+                whiteSprite_->SetColor({ 1.0f,1.0f,1.0f,fadeAlpha_ });
 
                 if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
@@ -376,17 +404,32 @@ void GameScene::OnUpdate() {
 
     if (isTitle_) {
         titleSprite_->SetIsActive(true);
+        push_B_Sprite_->SetIsActive(true);
+    }
+    else if (player_->GetIsDead() || (enemy_ && enemy_->GetIsDead())) {
+        titleSprite_->SetIsActive(false);
+        push_B_Sprite_->SetIsActive(true);
     }
     else {
         titleSprite_->SetIsActive(false);
+        push_B_Sprite_->SetIsActive(false);
     }
 
-    if (isFade_ || player_->GetIsDead()) {
+    if ((enemy_ && enemy_->GetIsDead())) {
+        whiteSprite_->SetIsActive(true);
+    }
+    else {
+        whiteSprite_->SetIsActive(false);
+    }
+
+    if ((isFade_ || player_->GetIsDead())) {
         blackSprite_->SetIsActive(true);
     }
     else {
         blackSprite_->SetIsActive(false);
     }
+
+    audio_->Update();
 
 }
 

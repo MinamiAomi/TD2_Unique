@@ -1,9 +1,9 @@
 {
-    "wave1": {
+    "wave3": {
         "objectData": {
             "Enemy": {
                 "position": [
-                    0.0,
+                    50.0,
                     10.0,
                     0.0
                 ],
@@ -12,7 +12,7 @@
             },
             "Enemy1": {
                 "position": [
-                    20.0,
+                    -50.0,
                     10.0,
                     0.0
                 ],
@@ -21,12 +21,30 @@
             },
             "Enemy2": {
                 "position": [
+                    20.0,
+                    10.0,
+                    50.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
+            },
+            "Enemy3": {
+                "position": [
                     -20.0,
                     10.0,
-                    0.0
+                    50.0
                 ],
-                "tag": "Normal",
-                "tagNumber": 0
+                "tag": "Barrier",
+                "tagNumber": 1
+            },
+            "Enemy4": {
+                "position": [
+                    0.0,
+                    10.0,
+                    -50.0
+                ],
+                "tag": "Barrier",
+                "tagNumber": 1
             }
         },
         "tags": [

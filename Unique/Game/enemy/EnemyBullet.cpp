@@ -86,12 +86,6 @@ void EnemyBullet::Shot(const Vector3& position) {
 
 }
 
-void EnemyBullet::Charge(const Vector3& position) {
-
-	position;
-
-}
-
 void EnemyBullet::OnCollision(const CollisionInfo& collisionInfo) {
 
 	if (collisionInfo.collider->GetName() == "Player") {
