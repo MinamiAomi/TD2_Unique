@@ -140,6 +140,9 @@ void Player::Initialize() {
 
     RegisterGlobalVariables();
 
+    currentAnimation_ = PlayerModel::kWait;
+    animationParameter_ = 0.0f;
+
 }
 
 void Player::Update() {
@@ -298,7 +301,9 @@ void Player::Update() {
 
     transform.UpdateMatrix();
     modelScaleTransform_.UpdateMatrix();
-    model_.Update();
+
+
+    model_.Update(currentAnimation_, animationParameter_);
 }
 
 void Player::BehaviorRootUpdate() {
@@ -407,6 +412,11 @@ void Player::BehaviorRootUpdate() {
         }
     }
 
+    animationParameter_ += 1.0f / waitAnimationParameter_.allFrame;
+    if (animationParameter_ > 1.0f) {
+        animationParameter_ -= static_cast<float>(static_cast<int>(animationParameter_));
+    }
+
     /*if (input_->TriggerButton(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
         workAttack_.attackType = kHorizontal;
         behaviorRequest_ = Behavior::kAttack;
@@ -415,6 +425,8 @@ void Player::BehaviorRootUpdate() {
 }
 
 void Player::BehaviorRootInitialize() {
+    animationParameter_ = 0.0f;
+    currentAnimation_ = PlayerModel::kWait;
 
 }
 
@@ -517,102 +529,39 @@ void Player::BehaviorAttackUpdate() {
 
     auto& preXInputState = input->GetPreXInputState();
 
+    // コンボを進めるラムダ式
+    auto IsCombo = [&]() {
+        ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
+        if (!attack_.isCombo_ &&
+            (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+            !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+            attack_.isCombo_ = true;
+        }
+    };
+
+
     switch (attack_.attackType)
     {
     default:
     case AttackType::kHorizontal_1:
 
-        //一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
-        if (attack_.attackTimer >= workAttack_01_.allFrame / 4) {
-
-            /*if (weapon_->GetIsGravity()) {
-                ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
-            }*/
-
-            ui_A_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
-
-            if (/*weapon_->GetIsGravity() && */!attack_.isCombo_ &&
-                attack_.currentCombo_ < 2 &&
-                (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
-                !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
-                attack_.isCombo_ = true;
-            }
-
+        // アニメーションが半分を超えたらコンボ受付開始
+        if (animationParameter_ >= 0.5f) {
+            IsCombo();
         }
 
-        //攻撃中
-        if (attack_.attackTimer >= workAttack_01_.waitFrameBefore + workAttack_01_.preFrame &&
-            attack_.attackTimer - workAttack_01_.waitFrameBefore - workAttack_01_.preFrame < workAttack_01_.attackFrame) {
-
-            //重力付与時は範囲拡大
-            if (weapon_->GetIsGravity()) {
-                transform.rotate = Quaternion::Slerp(float(1.5f / workAttack_01_.attackFrame),
-                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * transform.rotate;
-            }
-            else {
-                transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_01_.attackFrame),
-                    Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.attackRotate)) * transform.rotate;
-            }
-
-            weapon_->GetCollider()->SetIsActive(true);
-            weapon_->isAttack_ = true;
-        }
-        //攻撃開始前
-        else if (attack_.attackTimer < workAttack_01_.preFrame) {
-            transform.rotate = Quaternion::Slerp(1.0f / float(workAttack_01_.preFrame),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_01_.preRotate)) * transform.rotate;
-            weapon_->GetCollider()->SetIsActive(false);
-            weapon_->isAttack_ = false;
-        }
-        else {
-            weapon_->GetCollider()->SetIsActive(false);
-            weapon_->isAttack_ = false;
-        }
-        //振り終わりの攻撃硬直中に次の攻撃の方向を決める
-        //else if (workAttack_.attackTimer - workAttack_.waitFrameBefore - workAttack_.preFrame >= workAttack_.attackFrame) {
-
-        //	Vector3 rotate{};
-        //	// Gamepad入力
-        //	{
-        //		const float margin = 0.8f;
-        //		const float shortMaxReci = 1.0f / float(SHRT_MAX);
-        //		rotate = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
-        //		rotate *= shortMaxReci;
-        //		if (rotate.Length() < margin) {
-        //			rotate = Vector3::zero;
-        //		}
-        //	}
-
-        //	if(rotate != Vector3::zero) {
-        //		rotate = workAttack_.playerRotate.Conjugate() * rotate;
-        //		Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, rotate);
-        //		workAttack_.playerRotate = Quaternion::Slerp(0.8f, Quaternion::identity, diff) * workAttack_.playerRotate;
-        //	}
-
-        //}
-
-        if (++attack_.attackTimer >= workAttack_01_.allFrame) {
-
-            //コンボ継続中なら次の攻撃を出す
+        animationParameter_ += 1.0f / workAttack_01_.allFrame;
+        if (animationParameter_ > 1.0f) {
+            animationParameter_ = 0.0f;
             if (attack_.isCombo_) {
-
                 attack_.currentCombo_++;
-
                 attack_.isCombo_ = false;
-
                 attack_.attackType = kHorizontal_2;
-
                 ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
-
                 BehaviorAttackInitialize();
-
             }
-            //コンボ継続中でなかったら通常状態に戻る
             else {
-
                 weapon_->SetDefault();
-                /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
-                    Quaternion::identity;*/
                 transform.rotate = attack_.playerRotate;
                 attack_.currentCombo_ = 0;
                 attack_.isCombo_ = false;
@@ -621,64 +570,28 @@ void Player::BehaviorAttackUpdate() {
                 behaviorRequest_ = Behavior::kRoot;
                 ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
             }
-
         }
 
         break;
     case AttackType::kHorizontal_2:
 
-        //一定時間すぎた後、条件が揃っている状態で入力したら次のコンボ用意
-        if (attack_.attackTimer >= workAttack_02_.allFrame / 4) {
-
-            /*if (weapon_->GetIsGravity()) {
-                ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
-            }*/
-
-            ui_A_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
-
-            if (/*weapon_->GetIsGravity() && */!attack_.isCombo_ &&
-                attack_.currentCombo_ < 2 &&
-                (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
-                !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
-                attack_.isCombo_ = true;
-            }
-
+        // アニメーションが半分を超えたらコンボ受付開始
+        if (animationParameter_ >= 0.5f) {
+            IsCombo();
         }
 
-        //攻撃中
-        if (attack_.attackTimer < workAttack_02_.attackFrame) {
-            transform.rotate = Quaternion::Slerp(float(1.0f / workAttack_02_.attackFrame),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_02_.attackRotate)) * transform.rotate;
-            weapon_->GetCollider()->SetIsActive(true);
-            weapon_->isAttack_ = true;
-        }
-        else {
-            weapon_->GetCollider()->SetIsActive(false);
-            weapon_->isAttack_ = false;
-        }
-
-        if (++attack_.attackTimer >= workAttack_02_.allFrame) {
-
-            //コンボ継続中なら次の攻撃を出す
+        animationParameter_ += 1.0f / workAttack_02_.allFrame;
+        if (animationParameter_ > 1.0f) {
+            animationParameter_ = 0.0f;
             if (attack_.isCombo_) {
-
                 attack_.currentCombo_++;
-
                 attack_.isCombo_ = false;
-
                 attack_.attackType = kRotateAttack;
-
-                ui_A_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
-
+                ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
                 BehaviorAttackInitialize();
-
             }
-            //コンボ継続中でなかったら通常状態に戻る
             else {
-
                 weapon_->SetDefault();
-                /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
-                    Quaternion::identity;*/
                 transform.rotate = attack_.playerRotate;
                 attack_.currentCombo_ = 0;
                 attack_.isCombo_ = false;
@@ -687,54 +600,22 @@ void Player::BehaviorAttackUpdate() {
                 behaviorRequest_ = Behavior::kRoot;
                 ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
             }
-
         }
 
         break;
     case AttackType::kRotateAttack:
+        animationParameter_ += 1.0f / workAttack_03_.allFrame;
+        if (animationParameter_ > 1.0f) {
+            animationParameter_ = 0.0f;
 
-        //攻撃中
-        if (attack_.attackTimer < workAttack_03_.attackFrame) {
-
-            transform.translate += workAttack_03_.velocity;
-
-            transform.rotate = Quaternion::Slerp(float(1.0f / (workAttack_03_.attackFrame / 8)),
-                Quaternion::identity, Quaternion::MakeForYAxis(workAttack_03_.attackRotate)) * transform.rotate;
-
-            weapon_->GetCollider()->SetIsActive(true);
-            weapon_->isAttack_ = true;
-        }
-        else if (attack_.attackTimer < workAttack_03_.attackFrame + workAttack_03_.shockWaveFrame) {
-            shockWaveCollider_->SetIsActive(true);
-            //時間経過で範囲拡大
-            shockWaveCollider_->SetRadius(5.0f + float(attack_.attackTimer - workAttack_03_.attackFrame));
+            weapon_->SetDefault();
+            transform.rotate = attack_.playerRotate;
+            attack_.currentCombo_ = 0;
+            attack_.isCombo_ = false;
             weapon_->GetCollider()->SetIsActive(false);
             weapon_->isAttack_ = false;
-
-        }
-        else {
-            shockWaveCollider_->SetIsActive(false);
-            weapon_->GetCollider()->SetIsActive(false);
-            weapon_->isAttack_ = false;
-        }
-
-        if (++attack_.attackTimer >= workAttack_03_.allFrame) {
-
-            //コンボ継続中でなかったら通常状態に戻る
-            {
-
-                weapon_->SetDefault();
-                /*weapon_->modelBodyTransform_.rotate = Quaternion::MakeFromTwoVector(Vector3::unitZ, Vector3{ 0.5f,0.5f,0.5f }) *
-                    Quaternion::identity;*/
-                transform.rotate = attack_.playerRotate;
-                attack_.currentCombo_ = 0;
-                attack_.isCombo_ = false;
-                weapon_->GetCollider()->SetIsActive(false);
-                weapon_->isAttack_ = false;
-                behaviorRequest_ = Behavior::kRoot;
-                ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
-            }
-
+            behaviorRequest_ = Behavior::kRoot;
+            ui_A_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
         }
 
         break;
@@ -745,6 +626,7 @@ void Player::BehaviorAttackUpdate() {
 
 void Player::BehaviorAttackInitialize() {
 
+    animationParameter_ = 0.0f;
     attack_.attackTimer = 0;
     attack_.isCombo_ = false;
     weapon_->isHit_ = false;
@@ -759,9 +641,13 @@ void Player::BehaviorAttackInitialize() {
 
         weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
 
+        currentAnimation_ = PlayerModel::kAttack1;
+        weapon_->SetIsAttack(true);
+
         break;
     case AttackType::kHorizontal_2:
 
+        currentAnimation_ = PlayerModel::kAttack2;
 
         break;
     case AttackType::kRotateAttack:
@@ -770,6 +656,7 @@ void Player::BehaviorAttackInitialize() {
 
         workAttack_03_.velocity = workAttack_03_.velocity = attack_.playerRotate * workAttack_03_.velocity;
 
+        currentAnimation_ = PlayerModel::kAttack3;
 
         break;
 
@@ -798,7 +685,7 @@ void Player::BehaviorShotUpdate() {
 
     if (++workShot_.shotTimer >= workShot_.maxShotFrame) {
 
-       // playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
+        // playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
 
         workShot_.shotTimer = 0;
 
@@ -845,12 +732,12 @@ void Player::RegisterGlobalVariables() {
     if (!globalVariables.HasGroup(kGroupName)) {
         auto& group = globalVariables[kGroupName];
         group["Dush Speed"] = workDash_.speed_;
-        group["Attack PreFrame"] = workAttack_01_.preFrame;
+       /* group["Attack PreFrame"] = workAttack_01_.preFrame;
         group["Attack WaitFrameBefore"] = workAttack_01_.waitFrameBefore;
         group["Attack WaitFrameAfter"] = workAttack_01_.waitFrameAfter;
         group["Attack AttackFrame"] = workAttack_01_.attackFrame;
         group["Attack PreRotate"] = workAttack_01_.preRotate;
-        group["Attack AttackRotate"] = workAttack_01_.attackRotate;
+        group["Attack AttackRotate"] = workAttack_01_.attackRotate;*/
     }
 
 }
@@ -865,16 +752,16 @@ void Player::ApplyGlobalVariables() {
         auto& group = globalVariables[kGroupName];
 
         workDash_.speed_ = group["Dush Speed"].Get<float>();
-        workAttack_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
-        workAttack_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
-        workAttack_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
-        workAttack_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
-        workAttack_01_.preRotate = group["Attack PreRotate"].Get<float>();
-        workAttack_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
+        //workAttack_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
+        //workAttack_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
+        //workAttack_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
+        //workAttack_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
+        //workAttack_01_.preRotate = group["Attack PreRotate"].Get<float>();
+        //workAttack_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
 
-        //攻撃に使う合計フレームを設定
-        workAttack_01_.allFrame = workAttack_01_.preFrame + workAttack_01_.waitFrameBefore +
-            workAttack_01_.attackFrame + workAttack_01_.waitFrameAfter;
+        ////攻撃に使う合計フレームを設定
+        //workAttack_01_.allFrame = workAttack_01_.preFrame + workAttack_01_.waitFrameBefore +
+        //    workAttack_01_.attackFrame + workAttack_01_.waitFrameAfter;
 
     }
 

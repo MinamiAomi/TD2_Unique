@@ -27,13 +27,6 @@ const std::array<std::string, PlayerModel::kNumAnimationTypes> PlayerModel::kAni
     "Player_Attack3",
 };
 
-const std::array<PlayerModel::AnimationPrameter, PlayerModel::kNumAnimationTypes> PlayerModel::kAnimationParameters = {
-    {   { 60,  true  },
-        { 60,  true },
-        { 60,  true },
-        { 150, true }   },
-};
-
 void PlayerModel::Initialize(const Transform* baseTransform) {
     auto resources = ResourceManager::GetInstance();
     baseTransform_ = baseTransform;
@@ -80,24 +73,15 @@ void PlayerModel::Initialize(const Transform* baseTransform) {
     for (uint32_t i = 0; i < kNumAnimationTypes; ++i) {
         animations_[i] = resources->FindHierarchicalAnimation(kAnimationTypeNames[i]);
     }
-
-    currentAnimationType_ = kAttack1;
-    animationParameter_ = 0.0f;
-    playSpeedScale_ = 1.0f;
-    isStopping_ = false;
 }
 
-void PlayerModel::Update() {
-    if (!isStopping_) {
-        float delta = 1.0f / kAnimationParameters[currentAnimationType_].frameDuration;
-        UpdateAnimationParameter(delta, kAnimationParameters[currentAnimationType_].isLoop);
-    }
+void PlayerModel::Update(AnimationType animation, float parameter) {
 
     for (uint32_t i = 0; i < kNumParts; ++i) {
-        auto& animationNode = animations_[currentAnimationType_]->GetNode(kPartNames[i]);
-        transforms_[i]->translate = animationNode.translate.GetInterpolatedValue(animationParameter_);
-        transforms_[i]->rotate = animationNode.rotate.GetInterpolatedValue(animationParameter_);
-        transforms_[i]->scale = animationNode.scale.GetInterpolatedValue(animationParameter_);
+        auto& animationNode = animations_[animation]->GetNode(kPartNames[i]);
+        transforms_[i]->translate = animationNode.translate.GetInterpolatedValue(parameter);
+        transforms_[i]->rotate = animationNode.rotate.GetInterpolatedValue(parameter);
+        transforms_[i]->scale = animationNode.scale.GetInterpolatedValue(parameter);
         transforms_[i]->UpdateMatrix();
         Matrix4x4 mat = animationNode.initialInverseMatrix * transforms_[i]->worldMatrix;
 
@@ -105,21 +89,6 @@ void PlayerModel::Update() {
             models_[i]->SetWorldMatrix(mat);
         }
     }
-}
-
-void PlayerModel::PlayAnimation(AnimationType animation, float playSpeedScale) {
-    currentAnimationType_ = animation;
-    animationParameter_ = 0.0f;
-    playSpeedScale_ = playSpeedScale;
-    isStopping_ = false;
-}
-
-void PlayerModel::StopAnimation() {
-    isStopping_ = true;
-}
-
-void PlayerModel::RestartAnimation() {
-    isStopping_ = false;
 }
 
 void PlayerModel::SetIsActive(bool isActive) {
@@ -130,19 +99,6 @@ void PlayerModel::SetIsActive(bool isActive) {
 
 bool PlayerModel::ModelActivePart(Part part) {
     return !(part == kLeftPelvis || part == kRightPelvis);
-}
-
-bool PlayerModel::UpdateAnimationParameter(float delta, bool isLoop) {
-    animationParameter_ += delta * playSpeedScale_;
-    if (animationParameter_ >= 1.0f) {
-        if (!isLoop) {
-            animationParameter_ = 1.0f;
-            currentAnimationType_ = kWait;
-            return false;
-        }
-        animationParameter_ -= static_cast<float>(static_cast<int>(animationParameter_));
-    }
-    return true;
 }
 
 //for (int i = 0; i < kMaxParts; ++i) {

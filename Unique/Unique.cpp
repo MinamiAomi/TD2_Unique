@@ -21,7 +21,7 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み
 	resourceManager->AddModel("Weapon", Model::Load("./Resources/weapon/weapon_3.obj"));
-	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head_2.obj"));
+	resourceManager->AddModel("Weapon_Head", Model::Load("./Resources/weapon/weapon_head.obj"));
 	//プレイヤーモデル読み込み
 	resourceManager->AddModel("Body", Model::Load("./Resources/PlayerModel/Body.obj"));
 	resourceManager->AddModel("Head", Model::Load("./Resources/PlayerModel/Head.obj"));

@@ -62,6 +62,11 @@ public:
 	//武器の初期SRTへ戻す
 	void SetDefault();
 
+	void SetIsAttack(bool isAttack) {
+		isAttack_ = isAttack;
+		collider_->SetIsActive(isAttack);
+	}
+
 private:
 
 	void OnCollision(const CollisionInfo& collisionInfo);

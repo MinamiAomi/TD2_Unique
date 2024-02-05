@@ -129,6 +129,15 @@ private:
         float speed_ = 2.0f;
     };
 
+    float animationParameter_;
+    PlayerModel::AnimationType currentAnimation_ = PlayerModel::kWait;
+
+    // 待機アニメーションのパラメータ
+    struct WaitAnimationParameter {
+        int32_t allFrame = 60;
+    } waitAnimationParameter_;
+
+
     //攻撃全体で使う変数
     struct Attack {
         //攻撃時間の媒介変数
@@ -147,52 +156,20 @@ private:
 
     //攻撃用ワーク
     struct WorkAttack_01 {
-        //攻撃前の振りを溜める時間
-        int32_t preFrame = 10;
-        //攻撃前の待ち時間
-        int32_t waitFrameBefore = 10;
-        //攻撃中の時間
-        int32_t attackFrame = 10;
-        //攻撃後の待ち時間
-        int32_t waitFrameAfter = 10;
-        //合計待ち時間
-        int32_t waitFrameAll = 30;
-        //合計フレーム数
-        int32_t allFrame = 40;
-        //攻撃前のY回転量
-        float preRotate = 1.57f;
-        //攻撃時のY回転量
-        float attackRotate = -3.14f;
+        int32_t allFrame = 60;
     };
 
     //攻撃用ワーク
     struct WorkAttack_02 {
-        //攻撃中の時間
-        int32_t attackFrame = 10;
-        //攻撃後の待ち時間
-        int32_t waitFrameAfter = 20;
-        //合計待ち時間
-        int32_t waitFrameAll = 20;
-        //合計フレーム数
-        int32_t allFrame = 30;
-        //攻撃時のY回転量
-        float attackRotate = 3.14f;
+        int32_t allFrame = 60;
     };
 
     //攻撃用ワーク
     struct WorkAttack_03 {
         //プレイヤーの移動速度
         Vector3 velocity{};
-        //攻撃中の時間
-        int32_t attackFrame = 40;
-        //攻撃後の待ち時間
-        int32_t waitFrameAfter = 40;
-        //攻撃後の衝撃波発生時間
-        int32_t shockWaveFrame = 10;
-        //合計待ち時間
-        int32_t waitFrameAll = 40;
         //合計フレーム数
-        int32_t allFrame = 80;
+        int32_t allFrame = 130;
         //攻撃時のY回転量
         float attackRotate = -3.14f;
     };
