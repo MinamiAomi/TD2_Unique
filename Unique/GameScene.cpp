@@ -84,6 +84,8 @@ void GameScene::OnInitialize() {
 
     enemyBGM_ = audio_->SoundLoadWave("./Resources/sound/zakoBGM.wav");
     bossBGM_ = audio_->SoundLoadWave("./Resources/sound/bossBGM.wav");
+    titleBGM_ = audio_->SoundLoadWave("./Resources/sound/zakoBGM.wav");
+    selectSE_ = audio_->SoundLoadWave("./Resources/sound/startselect.wav");
 
 #ifdef _DEBUG
 
@@ -295,11 +297,15 @@ void GameScene::OnUpdate() {
     }
     else if (isTitle_) {
 
+
+
         if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
             !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
             ResetInGame();
             isTitle_ = false;
         }
+
+        player_->Update();
 
     }
     else {
