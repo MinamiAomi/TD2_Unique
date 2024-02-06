@@ -1,8 +1,8 @@
 {
     "Player": {
-        "Attack_01 Frame": 60,
-        "Attack_02 Frame": 60,
-        "Attack_03 Frame": 130,
+        "Attack_01 Frame": 30,
+        "Attack_02 Frame": 30,
+        "Attack_03 Frame": 100,
         "Dush Speed": 2.0
     }
 }
