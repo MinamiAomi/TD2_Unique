@@ -394,9 +394,9 @@ void Player::Update() {
 void Player::BehaviorRootUpdate() {
 
 	//ゲーム開始していない時は動かせないようにする
-	if (!isStart_) {
+	/*if (!isStart_) {
 		return;
-	}
+	}*/
 
 	auto& camera = camera_->GetCamera();
 	auto input = Input::GetInstance();
@@ -409,7 +409,7 @@ void Player::BehaviorRootUpdate() {
     Thrust();
 
     //重力波発射準備
-    if (xinputState.Gamepad.bRightTrigger && workGravity_.gravityTimer <= 0) {
+    if (isStart_ && xinputState.Gamepad.bRightTrigger && workGravity_.gravityTimer <= 0) {
 
         //重力付与状態で構える
         if (weapon_->GetIsGravity()) {
@@ -421,7 +421,7 @@ void Player::BehaviorRootUpdate() {
     }
 
     //トリガーを離した時に重力波発射
-    if (preXInputState.Gamepad.bRightTrigger && !xinputState.Gamepad.bRightTrigger) {
+    if (isStart_ && preXInputState.Gamepad.bRightTrigger && !xinputState.Gamepad.bRightTrigger) {
 
         //重力付与状態で発射していなかったら
         if (/*weapon_->GetIsGravity() && */!weapon_->GetIsShot() && isPoseShot_) {
@@ -434,7 +434,7 @@ void Player::BehaviorRootUpdate() {
 
     // 攻撃に遷移
     // 重力波発射中と突き出し中は遷移不可
-    if (((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+    if (isStart_ && ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
         !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) &&
         !weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 
@@ -445,7 +445,7 @@ void Player::BehaviorRootUpdate() {
 
 	}
 	// ダッシュ
-	if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) &&
+	if (isStart_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) &&
 		workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 		
 		//ディレイの値に応じてスピード調整
@@ -458,7 +458,7 @@ void Player::BehaviorRootUpdate() {
 
 	Vector3 move{};
 	// Gamepad入力(ノックバックしていない時)
-	if (!isKnockBack_) {
+	if (isStart_ && !isKnockBack_) {
 
 		const float margin = 0.8f;
 		const float shortMaxReci = 1.0f / float(SHRT_MAX);
@@ -469,7 +469,8 @@ void Player::BehaviorRootUpdate() {
 		}
 
 	}
-	else {
+    //ノックバックしている時
+	else if(isKnockBack_) {
 
 		move = knockBackVelocity_;
 		
@@ -915,12 +916,9 @@ void Player::RegisterGlobalVariables() {
     if (!globalVariables.HasGroup(kGroupName)) {
         auto& group = globalVariables[kGroupName];
         group["Dush Speed"] = workDash_.speed_;
-       /* group["Attack PreFrame"] = workAttack_01_.preFrame;
-        group["Attack WaitFrameBefore"] = workAttack_01_.waitFrameBefore;
-        group["Attack WaitFrameAfter"] = workAttack_01_.waitFrameAfter;
-        group["Attack AttackFrame"] = workAttack_01_.attackFrame;
-        group["Attack PreRotate"] = workAttack_01_.preRotate;
-        group["Attack AttackRotate"] = workAttack_01_.attackRotate;*/
+        group["Attack_01 Frame"] = workAttack_01_.allFrame;
+        group["Attack_02 Frame"] = workAttack_02_.allFrame;
+        group["Attack_03 Frame"] = workAttack_03_.allFrame;
     }
 
 }
@@ -935,16 +933,9 @@ void Player::ApplyGlobalVariables() {
         auto& group = globalVariables[kGroupName];
 
         workDash_.speed_ = group["Dush Speed"].Get<float>();
-        //workAttack_01_.preFrame = group["Attack PreFrame"].Get<int32_t>() + weapon_->GetDelay();
-        //workAttack_01_.waitFrameBefore = group["Attack WaitFrameBefore"].Get<int32_t>() + weapon_->GetDelay();
-        //workAttack_01_.waitFrameAfter = group["Attack WaitFrameAfter"].Get<int32_t>() + weapon_->GetDelay();
-        //workAttack_01_.attackFrame = group["Attack AttackFrame"].Get<int32_t>();
-        //workAttack_01_.preRotate = group["Attack PreRotate"].Get<float>();
-        //workAttack_01_.attackRotate = group["Attack AttackRotate"].Get<float>();
-
-        ////攻撃に使う合計フレームを設定
-        //workAttack_01_.allFrame = workAttack_01_.preFrame + workAttack_01_.waitFrameBefore +
-        //    workAttack_01_.attackFrame + workAttack_01_.waitFrameAfter;
+        workAttack_01_.allFrame = group["Attack_01 Frame"].Get<int32_t>();
+        workAttack_02_.allFrame = group["Attack_02 Frame"].Get<int32_t>();
+        workAttack_03_.allFrame = group["Attack_03 Frame"].Get<int32_t>();
 
     }
 

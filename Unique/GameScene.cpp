@@ -301,6 +301,8 @@ void GameScene::OnUpdate() {
             isTitle_ = false;
         }
 
+        player_->Update();
+
     }
     else {
 
