@@ -148,5 +148,9 @@ private:
 
 	int32_t barrierHp_ = 3;
 
+	size_t barrierBreakSE_;
+
+	bool isActiveBarrier_ = true;
+
 };
 

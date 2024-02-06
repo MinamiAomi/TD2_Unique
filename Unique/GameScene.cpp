@@ -429,8 +429,6 @@ void GameScene::OnUpdate() {
         blackSprite_->SetIsActive(false);
     }
 
-    audio_->Update();
-
 }
 
 void GameScene::OnFinalize() {

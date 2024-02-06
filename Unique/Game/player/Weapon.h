@@ -2,6 +2,7 @@
 #include "Graphics/Model.h"
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
+#include "Audio/Audio.h"
 
 class Player;
 
@@ -87,6 +88,8 @@ private:
 
 private:
 
+	Audio* audio_ = nullptr;
+
 	Player* player_ = nullptr;
 
 	std::shared_ptr<Transform> gravityTransform_;
@@ -137,5 +140,9 @@ private:
 
 	size_t hitRightSE_;
 	size_t hitHeavySE_;
+	size_t gravityShotSE_;
+	size_t gravityBreakSE_;
+	size_t gravitySE_;
+	size_t gravitySEHandle_;
 
 };

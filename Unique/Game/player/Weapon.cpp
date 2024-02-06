@@ -6,10 +6,11 @@
 #include "Game/enemy/BarrierBulletManager.h"
 #include "Game/enemy/BulletManager.h"
 #include "Game/enemy/EnemyCoreManager.h"
-#include "Audio/Audio.h"
+
 
 Weapon::Weapon()
 {
+	audio_ = Audio::GetInstance();
 	model_ = std::make_shared<ModelInstance>();
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Weapon_Head"));
 	modelBody_ = std::make_shared<ModelInstance>();
@@ -24,8 +25,6 @@ Weapon::Weapon()
 	gravityScaleTransform_ = std::make_shared<Transform>();
 	modelBodyTransform_ = std::make_shared<Transform>();
 	shockWaveCollider_ = std::make_unique<SphereCollider>();
-	hitRightSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerHitRight.wav");
-	hitHeavySE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerHitHeavy.wav");
 
 }
 
@@ -45,10 +44,8 @@ void Weapon::SetDefault() {
 	transform.scale = Vector3::one;
 	transform.rotate = Quaternion::identity;
 	transform.UpdateMatrix();
-	
-	if (isGravity_) {
-		gravityCollider_->SetName("Gravity");
-	}
+	isHit_ = false;
+	gravityCollider_->SetName("Gravity");
 
 }
 
@@ -121,6 +118,12 @@ void Weapon::Initialize() {
 	isBreak_ = false;
 	isGravity_ = false;
 
+	hitRightSE_ = audio_->SoundLoadWave("./Resources/sound/hammerHitRight.wav");
+	hitHeavySE_ = audio_->SoundLoadWave("./Resources/sound/hammerHitHeavy.wav");
+	gravityShotSE_ = audio_->SoundLoadWave("./Resources/sound/gravityAttack.wav");
+	gravityBreakSE_ = audio_->SoundLoadWave("./Resources/sound/gravityExplosion.wav");
+	gravitySE_ = audio_->SoundLoadWave("./Resources/sound/gravityGuard.wav");
+
 }
 
 void Weapon::Update() {
@@ -174,7 +177,13 @@ void Weapon::Update() {
 	}
 
 	if (isThrust_) {
+		
+		/*gravitySEHandle_ = Audio::GetInstance()->SoundPlayLoopStart(gravitySE_);*/
+
 		collider_->SetIsActive(false);
+	}
+	else {
+
 	}
 
 	if ((isThrust_ || isShot_ || isAttack_ || isBreak_) && isGravity_) {
@@ -254,6 +263,8 @@ void Weapon::Shot(const Vector3& velocity) {
 	
 	gravityCollider_->SetName("Gravity_Shot");
 	
+	audio_->SoundPlayWave(gravityShotSE_);
+
 }
 
 void Weapon::Break() {
@@ -268,11 +279,14 @@ void Weapon::Break() {
 	gravityModel_->SetColor({ 1.0f,0.0f,1.0f });
 	gravityCollider_->SetName("Gravity_Break");
 
+	audio_->SoundPlayWave(gravityBreakSE_);
+
 }
 
 void Weapon::AddGravity() {
 
 	isGravity_ = true;
+	gravityCollider_->SetName("Gravity");
 	gravityLevel_ = kSmall;
 
 }
@@ -302,7 +316,15 @@ void Weapon::Reset() {
 
 void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Enemy") {
+	if ((collisionInfo.collider->GetName() == "Enemy_Core" ||
+		collisionInfo.collider->GetName() == "Enemy_Core_Stan")&&
+		isHit_ == false) {
+
+		auto object = collisionInfo.collider->GetGameObject();
+
+		std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
+
+		core->Damage(1);
 
 		isHit_ = true;
 
@@ -318,7 +340,7 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		enemy->Damage(1, transform.worldMatrix.GetTranslate());
 
-		Audio::GetInstance()->SoundPlayWave(hitRightSE_);
+		audio_->SoundPlayWave(hitRightSE_);
 
 		//ヒットストップ
 		HitStopManager::GetInstance()->StopFrame(10);
@@ -428,7 +450,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
 
-			Audio::GetInstance()->SoundPlayWave(hitRightSE_);
+			audio_->SoundPlayWave(hitRightSE_);
 
 			//ヒットストップ
 			HitStopManager::GetInstance()->StopFrame(10);
@@ -438,7 +460,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			shotTimer_ = 0;
 
-			Audio::GetInstance()->SoundPlayWave(hitRightSE_);
+			audio_->SoundPlayWave(hitRightSE_);
 
 		}
 
@@ -501,7 +523,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
 
-			core->Damage(2);
+			core->Damage(1);
 
 			barrierBulletCount_ = 0;
 
@@ -525,7 +547,39 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			enemy->Damage(1 + gravityLevel_, gravityTransform_->worldMatrix.GetTranslate());
 
-			Audio::GetInstance()->SoundPlayWave(hitHeavySE_);
+			audio_->SoundPlayWave(hitHeavySE_);
+
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(10);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Core" &&
+			isHit_ == false) {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
+
+			core->Damage(1);
+
+			isHit_ = true;
+
+			//ヒットストップ
+			HitStopManager::GetInstance()->StopFrame(10);
+
+		}
+		else if (collisionInfo.collider->GetName() == "Enemy_Core_Stan" &&
+			isHit_ == false) {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
+
+			core->Damage(1);
+
+			isHit_ = true;
+
+			barrierBulletCount_ = 0;
 
 			//ヒットストップ
 			HitStopManager::GetInstance()->StopFrame(10);

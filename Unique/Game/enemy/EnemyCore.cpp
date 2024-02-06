@@ -151,30 +151,27 @@ void EnemyCore::OnCollision(const CollisionInfo& collisionInfo) {
 
 	if (collisionInfo.collider->GetName() == "Weapon") {
 
-		if (hitCoolTime_ == 0) {
+		//if (hitCoolTime_ == 0) {
 
-			if (hp_ > 0) {
-				hp_--;
+		//	if (hp_ > 0) {
+		//		hp_--;
 
-				//死んだら判定消失
-				if (hp_ <= 0) {
-					hp_ = 0;
-					model_->SetColor({ 1.0f,0.0f,0.0f });
-					collider_->SetIsActive(false);
-				}
+		//		//死んだら判定消失
+		//		if (hp_ <= 0) {
+		//			hp_ = 0;
+		//			model_->SetColor({ 1.0f,0.0f,0.0f });
+		//			collider_->SetIsActive(false);
+		//		}
 
-				hitCoolTime_ = invincibleTime_;
-			}
-			else {
-				hitCoolTime_ = invincibleTime_;
-			}
+		//		hitCoolTime_ = invincibleTime_;
+		//	}
+		//	else {
+		//		hitCoolTime_ = invincibleTime_;
+		//	}
 
-			collider_->SetName("Enemy_Core_Damage");
+		//	collider_->SetName("Enemy_Core_Damage");
 
-		}
-
-	}
-	else if (collisionInfo.collider->GetName() == "Weapon") {
+		//}
 
 	}
 

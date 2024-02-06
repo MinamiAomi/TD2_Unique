@@ -63,4 +63,6 @@ private:
 
 	bool isActiveBarrier_ = true;
 
+	size_t barrierBreakSE_;
+
 };

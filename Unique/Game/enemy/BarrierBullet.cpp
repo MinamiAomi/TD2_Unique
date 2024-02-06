@@ -2,6 +2,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Math/Random.h"
 #include "BarrierBulletManager.h"
+#include "Audio/Audio.h"
 
 static Random::RandomNumberGenerator randomNumberGenerator;
 
@@ -52,6 +53,8 @@ void BarrierBullet::Initialize(const Vector3& position) {
 	transform.UpdateMatrix();
 	model_->SetWorldMatrix(transform.worldMatrix);
 	barrierModel_->SetWorldMatrix(transform.worldMatrix);
+
+	barrierBreakSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/barrierBreak.wav");
 
 }
 
@@ -126,7 +129,11 @@ void BarrierBullet::OnCollision(const CollisionInfo& collisionInfo) {
 	else if (collisionInfo.collider->GetName() == "Weapon" ||
 		collisionInfo.collider->GetName() == "Gravity_Attack") {
 
-		isActiveBarrier_ = false;
+		if (isActiveBarrier_) {
+			Audio::GetInstance()->SoundPlayWave(barrierBreakSE_);
+
+			isActiveBarrier_ = false;
+		}
 
 	}
 

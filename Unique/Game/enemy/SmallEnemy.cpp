@@ -485,6 +485,8 @@ void BarrierEnemy::Initialize(const Vector3& startPosition, const MovePattern& m
 
 	collider_->SetName("Barrier_Enemy");
 
+	barrierBreakSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/barrierBreak.wav");
+
 }
 
 void BarrierEnemy::Update() {
@@ -800,9 +802,11 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	}
 
-	if (barrierHp_ <= 0) {
+	if (barrierHp_ <= 0 && isActiveBarrier_) {
 		model_->SetColor({ 1.0f,0.0f,0.0f });
 		barrierModel_->SetIsActive(false);
+		isActiveBarrier_ = false;
+		Audio::GetInstance()->SoundPlayWave(barrierBreakSE_);
 	}
 
 	//最終的なダメージを本体に与える
@@ -856,10 +860,13 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 
 	}
 
-	if (barrierHp_ <= 0) {
+	if (barrierHp_ <= 0 && isActiveBarrier_) {
 		model_->SetColor({ 1.0f,0.0f,0.0f });
 		barrierModel_->SetIsActive(false);
+		isActiveBarrier_ = false;
+		Audio::GetInstance()->SoundPlayWave(barrierBreakSE_);
 	}
+
 
 	//最終的なダメージを本体に与える
 	hp_ -= tmpDamage;
