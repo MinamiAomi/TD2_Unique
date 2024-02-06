@@ -127,5 +127,8 @@ private:
     size_t enemyBGMHandle_;
     size_t bossBGM_;
     size_t bossBGMHandle_;
+    size_t titleBGM_;
+    size_t titleBGMHandle_;
+    size_t selectSE_;
 
 };

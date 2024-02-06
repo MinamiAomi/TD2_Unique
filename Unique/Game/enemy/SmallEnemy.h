@@ -110,6 +110,8 @@ protected:
 
 	int32_t hitEffectCount_ = 0;
 
+	Vector3 hitPosition_{};
+
 	//行動パターン
 	MovePattern movePattern_;
 

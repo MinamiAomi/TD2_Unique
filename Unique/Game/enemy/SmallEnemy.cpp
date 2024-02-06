@@ -95,6 +95,7 @@ void SmallEnemy::Update() {
 
 		effectSprite_->SetTexcoordRect({ 256.0f * float((30 - hitEffectCount_) % 4),
 			256.0f * float((30 - hitEffectCount_) / 4)}, {256.0f,256.0f});
+		effectSprite_->SetPosition(SetTranslate2D(hitPosition_));
 
 		if (--hitEffectCount_ <= 0) {
 			effectSprite_->SetIsActive(false);
@@ -398,7 +399,9 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackCount_ = kKnockBackTime_;
 
-	effectSprite_->SetPosition(SetTranslate2D(transform.translate));
+	hitPosition_ = transform.translate;
+
+	effectSprite_->SetPosition(SetTranslate2D(hitPosition_));
 
 	effectSprite_->SetIsActive(true);
 
