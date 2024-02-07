@@ -115,6 +115,8 @@ private:
 
 	uint32_t energyCount_;
 
+	uint32_t energyLimit_ = 3;
+
 	//重力の強さ
 	GravityLevel gravityLevel_;
 
@@ -127,9 +129,9 @@ private:
 
 	int32_t shotTimer_ = kMaxShotTime_;
 
-	uint32_t gravityMediumLine_ = 3;
+	uint32_t gravityMediumLine_ = 1;
 
-	uint32_t gravityWideLine_ = 5;
+	uint32_t gravityWideLine_ = 3;
 
 	bool isBreak_ = false;
 

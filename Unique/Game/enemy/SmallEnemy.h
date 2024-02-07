@@ -30,6 +30,8 @@ public:
 
 	bool GetIsAffectedGravity() const { return isAffectedGravity_; }
 
+	void SetIsAffectedGravity(bool flag) { isAffectedGravity_ = flag; }
+
 	BoxCollider* GetCollider() { return collider_.get(); }
 
 	virtual void Damage(uint32_t val, const Vector3& affectPosition);

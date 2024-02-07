@@ -45,7 +45,7 @@ void SmallEnemy::Initialize(const Vector3& startPosition, const MovePattern& mov
 	transform.scale = Vector3::one * 2.0f;
 	transform.rotate = Quaternion::identity;
 
-	model_->SetColor({ 1.0f,0.0f,0.0f });
+	/*model_->SetColor({ 1.0f,0.0f,0.0f });*/
 
 	movePattern_ = movePattern;
 
@@ -341,8 +341,9 @@ void SmallEnemy::Update() {
 		translate2DAfter_.y = 688.0f;
 	}
 
-	if (translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
-		translate2D_.y < -10.0f || translate2D_.y > 730.0f) {
+	if ((translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
+		translate2D_.y < -10.0f || translate2D_.y > 730.0f) &&
+		!isAffectedGravity_) {
 		indicatorSprite_->SetIsActive(true);
 	}
 	else {
@@ -741,8 +742,9 @@ void BarrierEnemy::Update() {
 		translate2DAfter_.y = 688.0f;
 	}
 
-	if (translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
-		translate2D_.y < -10.0f || translate2D_.y > 730.0f) {
+	if ((translate2D_.x < -10.0f || translate2D_.x > 1290.0f ||
+		translate2D_.y < -10.0f || translate2D_.y > 730.0f) &&
+		!isAffectedGravity_) {
 		indicatorSprite_->SetIsActive(true);
 	}
 	else {

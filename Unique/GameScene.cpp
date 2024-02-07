@@ -355,7 +355,7 @@ void GameScene::OnUpdate() {
                 });
 
             //空になったらウェーブ進行、次のデータに沿って敵を配置
-            if (enemies_.empty() && !isBossBattle_) {
+            if (CheckEnemiesDead() && !isBossBattle_) {
 
                 //最大ウェーブ数までロード
                 if (waveNumber_ <= kMaxWave_) {
@@ -521,13 +521,16 @@ void GameScene::EditorCameraMove() {
 
 }
 
-bool GameScene::CheckEnemiesFlag() {
+bool GameScene::CheckEnemiesDead() {
 
-   /* for (auto& enemy : enemies_) {
+    for (auto& enemy : enemies_) {
 
+        //重力に影響されていなかったら生きている判定
+        if (!enemy->GetIsAffectedGravity()) {
+            return false;
+        }
 
-
-    }*/
+    }
 
     return true;
 

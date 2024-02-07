@@ -361,45 +361,19 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 		if (collisionInfo.collider->GetName() == "Small_Enemy") {
 
-			energyCount_++;
-
-			auto object = collisionInfo.collider->GetGameObject();
-
-			std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
-
-			enemy->transform.SetParent(gravityTransform_.get());
-			enemy->transform.translate = Vector3::zero;
-			enemy->GetCollider()->SetName("Small_Enemy_Affected");
-
-			if (energyCount_ >= gravityWideLine_) {
-				gravityLevel_ = kWide;
-			}
-			else if (energyCount_ >= gravityMediumLine_) {
-				gravityLevel_ = kMedium;
-			}
-			else {
-				gravityLevel_ = kSmall;
-			}
-
-			isHit_ = true;
-
-		}
-		else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
-
-			auto object = collisionInfo.collider->GetGameObject();
-
-			auto manager = BarrierBulletManager::GetInstance();
-
-			std::shared_ptr<BarrierBullet> bullet = manager->GetBullet(object);
-
-			if (!bullet->GetIsBarrier() && !bullet->GetIsDead()) {
+			//最大数になるまで吸収可能
+			if (energyCount_ < energyLimit_) {
 
 				energyCount_++;
 
-				bullet->transform.SetParent(gravityTransform_.get());
-				bullet->transform.translate = Vector3::zero;
-				bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
-				barrierBulletCount_++;
+				auto object = collisionInfo.collider->GetGameObject();
+
+				std::shared_ptr<SmallEnemy> enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+
+				enemy->transform.SetParent(gravityTransform_.get());
+				enemy->transform.translate = Vector3::zero;
+				enemy->SetIsAffectedGravity(true);
+				enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
 				if (energyCount_ >= gravityWideLine_) {
 					gravityLevel_ = kWide;
@@ -412,32 +386,70 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 				}
 
 			}
-			else {
-				return;
+
+		}
+		else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
+
+			auto object = collisionInfo.collider->GetGameObject();
+
+			auto manager = BarrierBulletManager::GetInstance();
+
+			std::shared_ptr<BarrierBullet> bullet = manager->GetBullet(object);
+
+			if (energyCount_ < energyLimit_) {
+
+				if (!bullet->GetIsBarrier() && !bullet->GetIsDead()) {
+
+					energyCount_++;
+
+					bullet->transform.SetParent(gravityTransform_.get());
+					bullet->transform.translate = Vector3::zero;
+					bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
+					barrierBulletCount_++;
+
+					if (energyCount_ >= gravityWideLine_) {
+						gravityLevel_ = kWide;
+					}
+					else if (energyCount_ >= gravityMediumLine_) {
+						gravityLevel_ = kMedium;
+					}
+					else {
+						gravityLevel_ = kSmall;
+					}
+
+				}
+				else {
+					return;
+				}
+
 			}
 
 		}
 		else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
 
-			energyCount_++;
+			if (energyCount_ < energyLimit_) {
 
-			auto object = collisionInfo.collider->GetGameObject();
+				energyCount_++;
 
-			std::shared_ptr<EnemyBullet> bullet = BulletManager::GetInstance()->GetBullet(object);
+				auto object = collisionInfo.collider->GetGameObject();
 
-			bullet->transform.SetParent(gravityTransform_.get());
-			bullet->transform.translate = Vector3::zero;
-			bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
-			
+				std::shared_ptr<EnemyBullet> bullet = BulletManager::GetInstance()->GetBullet(object);
 
-			if (energyCount_ >= gravityWideLine_) {
-				gravityLevel_ = kWide;
-			}
-			else if (energyCount_ >= gravityMediumLine_) {
-				gravityLevel_ = kMedium;
-			}
-			else {
-				gravityLevel_ = kSmall;
+				bullet->transform.SetParent(gravityTransform_.get());
+				bullet->transform.translate = Vector3::zero;
+				bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
+
+
+				if (energyCount_ >= gravityWideLine_) {
+					gravityLevel_ = kWide;
+				}
+				else if (energyCount_ >= gravityMediumLine_) {
+					gravityLevel_ = kMedium;
+				}
+				else {
+					gravityLevel_ = kSmall;
+				}
+
 			}
 
 		}

@@ -43,7 +43,7 @@ private:
 
     void BossSpawn();
 
-    bool CheckEnemiesFlag();
+    bool CheckEnemiesDead();
 
 private:
 
