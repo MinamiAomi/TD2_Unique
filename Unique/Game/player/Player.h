@@ -112,6 +112,8 @@ private:
 
     void ApplyGlobalVariables();
 
+    void DushUpdate();
+    
 private:
 
     Input* input_ = nullptr;
@@ -134,6 +136,26 @@ private:
         //ダッシュのスピード
         float speed_ = 2.0f;
     };
+    
+    struct DushAnimationParameter {
+        enum State {
+            kIdle,
+            kStart,
+            kDuring,
+            kEnd
+        } state = kIdle;
+        int32_t allFrame = 20;
+    } dushAnimationParameter_;
+
+    struct GuardAnimationParameter {
+        enum State {
+            kIdle,
+            kStart,
+            kDuring,
+            kEnd
+        } state = kIdle;
+        int32_t allFrame = 20;
+    } guardAnimationParameter_;
 
     float animationParameter_;
     PlayerModel::AnimationType currentAnimation_ = PlayerModel::kWait;
