@@ -1029,7 +1029,11 @@ void Player::DushUpdate() {
     // ゲームがスタートしているか
     if (!isStart_) { return; }
     // 飛ばす構えをしているか
-    if (isPoseShot_) { return; }
+    if (isPoseShot_) { 
+        //スピードを規定値に戻す
+        workDash_.speed_ = 1.0f - (weapon_->gravityDelay_ / 70.0f) - workGravity_.decel;
+        return;
+    }
 
     auto input = Input::GetInstance();
     auto& xinputState = input->GetXInputState();
