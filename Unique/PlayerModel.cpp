@@ -21,10 +21,14 @@ const std::array<std::string, PlayerModel::kNumParts> PlayerModel::kPartNames = 
 };
 
 const std::array<std::string, PlayerModel::kNumAnimationTypes> PlayerModel::kAnimationTypeNames = {
-    "Player_GuardStart",
+    "Player_Wait",
     "Player_Attack1",
     "Player_Attack2",
     "Player_Attack3",
+    "Player_DushStart",
+    "Player_DushEnd",
+    "Player_GuardStart",
+    "Player_GuardEnd",
 };
 
 void PlayerModel::Initialize(const Transform* baseTransform) {
