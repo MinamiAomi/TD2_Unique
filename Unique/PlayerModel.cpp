@@ -21,7 +21,7 @@ const std::array<std::string, PlayerModel::kNumParts> PlayerModel::kPartNames = 
 };
 
 const std::array<std::string, PlayerModel::kNumAnimationTypes> PlayerModel::kAnimationTypeNames = {
-    "Player_GuardEnd",
+    "Player_GuardStart",
     "Player_Attack1",
     "Player_Attack2",
     "Player_Attack3",
