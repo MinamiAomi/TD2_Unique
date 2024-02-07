@@ -36,7 +36,7 @@ public:
     LinearAllocatorPagePool& GetLinearAllocatorPagePool(LinearAllocatorType type) { return linearAllocatorPagePools_[type]; }
     ReleasedObjectTracker& GetReleasedObjectTracker() { return releasedObjectTracker_; }
 
-    RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
+    //RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
 
     bool IsDXRSupported() const { return dxrDevice_; }
 
@@ -78,7 +78,7 @@ private:
 
     LinearAllocatorPagePool linearAllocatorPagePools_[LinearAllocatorType::Count];
     
-    RootSignature dynamicResourcesRootSignature_;
+    //RootSignature dynamicResourcesRootSignature_;
 };
 
 inline Graphics::CommandSet& Graphics::GetCommandSet(D3D12_COMMAND_LIST_TYPE type) {
