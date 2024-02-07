@@ -1,0 +1,118 @@
+{
+    "wave3": {
+        "objectData": {
+            "Enemy": {
+                "position": [
+                    0.0,
+                    10.0,
+                    30.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy1": {
+                "position": [
+                    10.0,
+                    10.0,
+                    30.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy10": {
+                "position": [
+                    -10.0,
+                    10.0,
+                    -60.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy11": {
+                "position": [
+                    0.0,
+                    10.0,
+                    -60.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy2": {
+                "position": [
+                    -10.0,
+                    10.0,
+                    30.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy3": {
+                "position": [
+                    0.0,
+                    10.0,
+                    40.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy4": {
+                "position": [
+                    10.0,
+                    10.0,
+                    40.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy5": {
+                "position": [
+                    -10.0,
+                    10.0,
+                    40.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy6": {
+                "position": [
+                    0.0,
+                    10.0,
+                    -50.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy7": {
+                "position": [
+                    10.0,
+                    10.0,
+                    -50.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy8": {
+                "position": [
+                    -10.0,
+                    10.0,
+                    -50.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy9": {
+                "position": [
+                    10.0,
+                    10.0,
+                    -60.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            }
+        },
+        "tags": [
+            "Normal",
+            "Barrier"
+        ]
+    }
+}

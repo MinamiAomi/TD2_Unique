@@ -1,38 +1,47 @@
 {
-    "wave2": {
+    "wave4": {
         "objectData": {
             "Enemy": {
                 "position": [
                     -5.0,
                     10.0,
-                    35.0
+                    25.0
                 ],
-                "tag": "Normal",
-                "tagNumber": 0
+                "tag": "Barrier",
+                "tagNumber": 1
             },
             "Enemy1": {
                 "position": [
                     5.0,
                     10.0,
-                    35.0
+                    25.0
                 ],
-                "tag": "Normal",
-                "tagNumber": 0
+                "tag": "Barrier",
+                "tagNumber": 1
             },
             "Enemy2": {
                 "position": [
-                    30.0,
+                    0.0,
                     10.0,
-                    0.0
+                    35.0
                 ],
                 "tag": "Normal",
                 "tagNumber": 0
             },
             "Enemy3": {
                 "position": [
-                    -30.0,
+                    3.0,
                     10.0,
-                    0.0
+                    45.0
+                ],
+                "tag": "Normal",
+                "tagNumber": 0
+            },
+            "Enemy4": {
+                "position": [
+                    -3.0,
+                    10.0,
+                    45.0
                 ],
                 "tag": "Normal",
                 "tagNumber": 0
