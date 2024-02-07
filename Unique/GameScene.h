@@ -94,7 +94,7 @@ private:
 
     uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 3;
+    uint32_t kMaxWave_ = 4;
 
     NextScene nextScene_ = kInGame;
 
