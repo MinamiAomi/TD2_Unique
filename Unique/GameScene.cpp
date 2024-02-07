@@ -50,12 +50,36 @@ void GameScene::OnInitialize() {
     titleAlpha_ = 1.0f;
     titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleAlpha_ });
 
-    push_B_Tex_ = ResourceManager::GetInstance()->FindTexture("push_B");
-    push_B_Sprite_ = std::make_unique<Sprite>();
-    push_B_Sprite_->SetTexture(push_B_Tex_);
-    push_B_Sprite_->SetTexcoordRect({ 0.0f,0.0f }, { 256.0f, 64.0f });
-    push_B_Sprite_->SetPosition({ 640.0f,100.0f });
-    push_B_Sprite_->SetScale({ 256.0f,64.0f });
+    startTex_ = ResourceManager::GetInstance()->FindTexture("start");
+    startSprite_ = std::make_unique<Sprite>();
+    startSprite_->SetTexture(startTex_);
+    startSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 700.0f, 200.0f });
+    startSprite_->SetPosition({ 640.0f,100.0f });
+    startSprite_->SetScale({ 280.0f,80.0f });
+
+    toTitleTex_ = ResourceManager::GetInstance()->FindTexture("ToTitle");
+    toTitleSprite_ = std::make_unique<Sprite>();
+    toTitleSprite_->SetTexture(toTitleTex_);
+    toTitleSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 800.0f, 200.0f });
+    toTitleSprite_->SetPosition({ 640.0f,100.0f });
+    toTitleSprite_->SetScale({ 320.0f,80.0f });
+    toTitleSprite_->SetIsActive(false);
+
+    gameOverTex_ = ResourceManager::GetInstance()->FindTexture("GameOver");
+    gameOverSprite_ = std::make_unique<Sprite>();
+    gameOverSprite_->SetTexture(gameOverTex_);
+    gameOverSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 1208.0f, 581.0f });
+    gameOverSprite_->SetPosition({ 640.0f,600.0f });
+    gameOverSprite_->SetScale({ 604.0f,290.5f });
+    gameOverSprite_->SetIsActive(false);
+
+    clearTex_ = ResourceManager::GetInstance()->FindTexture("GameClear");
+    clearSprite_ = std::make_unique<Sprite>();
+    clearSprite_->SetTexture(clearTex_);
+    clearSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 1208.0f, 581.0f });
+    clearSprite_->SetPosition({ 640.0f,600.0f });
+    clearSprite_->SetScale({ 604.0f,290.5f });
+    clearSprite_->SetIsActive(false);
 
     EnemyCoreManager::GetInstance()->Clear();
 
@@ -84,7 +108,7 @@ void GameScene::OnInitialize() {
 
     enemyBGM_ = audio_->SoundLoadWave("./Resources/sound/zakoBGM.wav");
     bossBGM_ = audio_->SoundLoadWave("./Resources/sound/bossBGM.wav");
-    titleBGM_ = audio_->SoundLoadWave("./Resources/sound/zakoBGM.wav");
+    titleBGM_ = audio_->SoundLoadWave("./Resources/sound/titleBGM.wav");
     selectSE_ = audio_->SoundLoadWave("./Resources/sound/startselect.wav");
 
 #ifdef _DEBUG
@@ -131,8 +155,8 @@ void GameScene::FadeInOut() {
 
 void GameScene::ResetTitle() {
 
-    audio_->StopSound(bossBGMHandle_);
-    audio_->StopSound(enemyBGMHandle_);
+    audio_->SoundPlayLoopEnd(bossBGMHandle_);
+    audio_->SoundPlayLoopEnd(enemyBGMHandle_);
 
     isBossBattle_ = false;
     player_->Initialize();
@@ -154,8 +178,8 @@ void GameScene::ResetTitle() {
 
 void GameScene::ResetInGame() {
 
-    audio_->StopSound(bossBGMHandle_);
-    audio_->StopSound(enemyBGMHandle_);
+    audio_->SoundPlayLoopEnd(bossBGMHandle_);
+    audio_->SoundPlayLoopEnd(enemyBGMHandle_);
 
     isBossBattle_ = false;
     player_->Initialize();
@@ -167,7 +191,7 @@ void GameScene::ResetInGame() {
     BarrierBulletManager::GetInstance()->Clear();
     BulletManager::GetInstance()->Clear();
     enemy_.reset();
-    stage_->Initialize();
+    /*stage_->Initialize();*/
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
     waveNumber_ = 1;
@@ -297,15 +321,22 @@ void GameScene::OnUpdate() {
     }
     else if (isTitle_) {
 
+        if (!audio_->IsValidPlayHandle(titleBGMHandle_)) {
+            titleBGMHandle_ = audio_->SoundPlayLoopStart(titleBGM_);
+            audio_->SetValume(titleBGMHandle_, 0.5f);
+        }
 
-
-        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
-            !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+            !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
             ResetInGame();
+            audio_->SoundPlayLoopEnd(titleBGMHandle_);
+            titleBGMHandle_ = UNUSED_PLAY_HANDLE;
             isTitle_ = false;
         }
 
         player_->Update();
+
+        stage_->Update();
 
     }
     else {
@@ -356,12 +387,6 @@ void GameScene::OnUpdate() {
                     fadeIn_ = true;
                     isFade_ = true;
                 }
-                else if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
-                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
-                    nextScene_ = kInGame;
-                    fadeIn_ = true;
-                    isFade_ = true;
-                }
 
             }
             //敵を倒した場合
@@ -369,8 +394,8 @@ void GameScene::OnUpdate() {
 
                 whiteSprite_->SetColor({ 1.0f,1.0f,1.0f,fadeAlpha_ });
 
-                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) &&
-                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+                    !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                     nextScene_ = kTitle;
                     fadeIn_ = true;
                     isFade_ = true;
@@ -410,24 +435,35 @@ void GameScene::OnUpdate() {
 
     if (isTitle_) {
         titleSprite_->SetIsActive(true);
-        push_B_Sprite_->SetIsActive(true);
+        startSprite_->SetIsActive(true);
+        toTitleSprite_->SetIsActive(false);
     }
     else if (player_->GetIsDead() || (enemy_ && enemy_->GetIsDead())) {
         titleSprite_->SetIsActive(false);
-        push_B_Sprite_->SetIsActive(true);
+        startSprite_->SetIsActive(false);
+        toTitleSprite_->SetIsActive(true);
     }
     else {
         titleSprite_->SetIsActive(false);
-        push_B_Sprite_->SetIsActive(false);
+        startSprite_->SetIsActive(false);
+        toTitleSprite_->SetIsActive(false);
     }
 
     if ((enemy_ && enemy_->GetIsDead())) {
         whiteSprite_->SetIsActive(true);
+        clearSprite_->SetIsActive(true);
     }
     else {
         whiteSprite_->SetIsActive(false);
+        clearSprite_->SetIsActive(false);
     }
 
+    if (player_->GetIsDead()) {
+        gameOverSprite_->SetIsActive(true);
+    }
+    else {
+        gameOverSprite_->SetIsActive(false);
+    }
     if ((isFade_ || player_->GetIsDead())) {
         blackSprite_->SetIsActive(true);
     }

@@ -94,7 +94,7 @@ private:
 
     uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 3;
+    uint32_t kMaxWave_ = 4;
 
     NextScene nextScene_ = kInGame;
 
@@ -108,16 +108,19 @@ private:
     bool fadeOut_ = false;
 
     std::unique_ptr<Sprite> blackSprite_;
-
     std::unique_ptr<Sprite> whiteSprite_;
-
     std::shared_ptr<Texture> titleTex_;
-
     std::unique_ptr<Sprite> titleSprite_;
-
-    std::shared_ptr<Texture> push_B_Tex_;
-
-    std::unique_ptr<Sprite> push_B_Sprite_;
+    std::shared_ptr<Texture> startTex_;
+    std::unique_ptr<Sprite> startSprite_;
+    std::shared_ptr<Texture> clearTex_;
+    std::unique_ptr<Sprite> clearSprite_;
+    std::shared_ptr<Texture> gameOverTex_;
+    std::unique_ptr<Sprite> gameOverSprite_;
+    std::shared_ptr<Texture> toTitleTex_;
+    std::unique_ptr<Sprite> toTitleSprite_;
+    /*std::shared_ptr<Texture> startTex_;
+    std::unique_ptr<Sprite> startSprite_;*/
 
     Vector2 titleScale_{};
 
@@ -126,11 +129,11 @@ private:
     float fadeAlpha_ = 0.0f;
 
     size_t enemyBGM_;
-    size_t enemyBGMHandle_;
+    size_t enemyBGMHandle_ = UNUSED_PLAY_HANDLE;
     size_t bossBGM_;
-    size_t bossBGMHandle_;
+    size_t bossBGMHandle_ = UNUSED_PLAY_HANDLE;
     size_t titleBGM_;
-    size_t titleBGMHandle_;
+    size_t titleBGMHandle_ = UNUSED_PLAY_HANDLE;
     size_t selectSE_;
 
 };

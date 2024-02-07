@@ -395,7 +395,7 @@ void SmallEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackVelocity_.y = 0.0f;
 
-	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * 0.5f;
 
 	knockBackCount_ = kKnockBackTime_;
 
@@ -827,7 +827,7 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 
 	knockBackVelocity_.y = 0.0f;
 
-	knockBackVelocity_ = knockBackVelocity_.Normalized() * (1.0f + float(val / 2.0f));
+	knockBackVelocity_ = knockBackVelocity_.Normalized() * 0.5f;
 
 	knockBackCount_ = kKnockBackTime_;
 
