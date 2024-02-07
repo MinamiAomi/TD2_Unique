@@ -96,9 +96,9 @@ void Enemy::Initialize() {
 	bullets_.clear();
 	bigBullets_.clear();
 
-	groundAttackSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/boss_groundAttack.wav");
-	shotSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/boss_shot.wav");
-	deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/disolve.wav");
+	groundAttackSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/boss_groundAttack.wav");
+	shotSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/boss_shot.wav");
+	deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/disolve.wav");
 
 }
 
@@ -341,20 +341,20 @@ void Enemy::AddBullet() {
 	for (uint32_t i = 0; i < workShot_.shotCount; i++) {
 
 		
-
-		if (i < 5) {
-			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
-			newBullet->Initialize(transform.translate + Vector3{(i - 5.0f) * 5.0f,
-				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
-			BulletManager::GetInstance()->AddBullet(newBullet);
-			bullets_.push_back(newBullet);
-		}
-		else {
+		//最大数十個まで
+		if (i < 5 && barrierBullets_.size() < 10) {
 			std::shared_ptr<BarrierBullet> newBullet = std::make_shared<BarrierBullet>();
 			newBullet->Initialize(transform.translate + Vector3{ (i - 5.0f) * 5.0f,
 				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
 			BarrierBulletManager::GetInstance()->AddBullet(newBullet);
 			barrierBullets_.push_back(newBullet);
+		}
+		else {
+			std::shared_ptr<EnemyBullet> newBullet = std::make_shared<EnemyBullet>();
+			newBullet->Initialize(transform.translate + Vector3{ (i - 5.0f) * 5.0f,
+				randomNumberGenerator.NextFloatRange(-5.0f,5.0f), randomNumberGenerator.NextFloatRange(-5.0f,5.0f) });
+			BulletManager::GetInstance()->AddBullet(newBullet);
+			bullets_.push_back(newBullet);
 		}
 
 		

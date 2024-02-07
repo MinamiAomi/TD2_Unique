@@ -52,6 +52,7 @@ void BarrierBullet::Initialize(const Vector3& position) {
 	collider_->SetOrientation(transform.rotate);
 	transform.UpdateMatrix();
 	model_->SetWorldMatrix(transform.worldMatrix);
+	model_->SetColor({ 1.0f,0.0f,0.0f });
 	barrierModel_->SetWorldMatrix(transform.worldMatrix);
 
 	barrierBreakSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/barrierBreak.wav");
@@ -85,6 +86,14 @@ void BarrierBullet::Update() {
 	else if(isShot_ && isActiveBarrier_){
 
 		if (--liveTime_ <= 0) {
+			isDead_ = true;
+		}
+
+	}
+	//バリアが破壊されてからしばらく放置で消える
+	else if (!isActiveBarrier_) {
+
+		if (--barrierBreakLiveTime_ <= 0) {
 			isDead_ = true;
 		}
 

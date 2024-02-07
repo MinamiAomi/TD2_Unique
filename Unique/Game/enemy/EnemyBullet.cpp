@@ -41,12 +41,13 @@ void EnemyBullet::Initialize(const Vector3& position) {
 	collider_->SetOrientation(transform.rotate);
 	transform.UpdateMatrix();
 	model_->SetWorldMatrix(transform.worldMatrix);
+	model_->SetColor({1.0f,0.0f,0.0f});
 
 }
 
 void EnemyBullet::Update() {
 
-	if (transform.scale.x < 1.0f) {
+	if (transform.scale.x < 2.0f) {
 
 		transform.scale.x += 0.1f;
 		transform.scale.y += 0.1f;

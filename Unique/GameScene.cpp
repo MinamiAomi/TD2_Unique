@@ -326,7 +326,8 @@ void GameScene::OnUpdate() {
             audio_->SetValume(titleBGMHandle_, 0.5f);
         }
 
-        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+        if (!titleMove_.isSceneChange_ && 
+            (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
             !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
             audio_->SoundPlayLoopEnd(titleBGMHandle_);
             titleBGMHandle_ = UNUSED_PLAY_HANDLE;
@@ -392,7 +393,7 @@ void GameScene::OnUpdate() {
                 fadeAlpha_ = 0.3f;
                 blackSprite_->SetColor({ 0.0f,0.0f,0.0f,fadeAlpha_ });
 
-                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+                if (!isFade_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                     nextScene_ = kTitle;
                     audio_->SoundPlayWave(selectSE_);
@@ -406,7 +407,7 @@ void GameScene::OnUpdate() {
 
                 whiteSprite_->SetColor({ 1.0f,1.0f,1.0f,fadeAlpha_ });
 
-                if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+                if (!isFade_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                     nextScene_ = kTitle;
                     audio_->SoundPlayWave(selectSE_);

@@ -67,7 +67,7 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	collider_->SetCollisionMask(0x00000002);
 	model_->SetIsActive(true);
 	model_->SetWorldMatrix(transform.worldMatrix);
-	model_->SetColor({ 0.5f,0.0f,0.5f });
+	model_->SetColor({ 0.6f,0.0f,0.0f });
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Boss"));
 
 }
@@ -129,10 +129,10 @@ void EnemyCore::Update() {
 		else {
 
 			if (stanTimer_ % 60 < 30) {
-				transform.rotate = Quaternion::MakeForXAxis(0.01f) * transform.rotate;
+				transform.rotate = Quaternion::MakeForXAxis(0.02f) * transform.rotate;
 			}
 			else {
-				transform.rotate = Quaternion::MakeForXAxis(-0.01f) * transform.rotate;
+				transform.rotate = Quaternion::MakeForXAxis(-0.02f) * transform.rotate;
 			}
 
 			transform.rotate = Quaternion::MakeForYAxis(0.03f) * transform.rotate;
@@ -157,7 +157,7 @@ void EnemyCore::Update() {
 
 	for (int32_t i = 0; i < 3; i++) {
 
-		if (barrierHp_ > i) {
+		if (barrierHp_ > i && hp_ > 0) {
 			shieldModels_[i]->SetIsActive(true);
 		}
 		else {

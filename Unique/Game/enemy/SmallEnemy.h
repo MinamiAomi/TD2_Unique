@@ -124,6 +124,13 @@ protected:
 
 	Direction direction_ = kUp;
 
+	//スポーン中かどうか
+	bool isSpawn_ = true;
+
+	int32_t maxSpawnTime_ = 60;
+
+	int32_t spawnTimer_ = maxSpawnTime_;
+
 };
 
 class BarrierEnemy : public SmallEnemy

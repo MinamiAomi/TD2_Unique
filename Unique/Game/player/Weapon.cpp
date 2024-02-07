@@ -123,6 +123,7 @@ void Weapon::Initialize() {
 	gravityShotSE_ = audio_->SoundLoadWave("./Resources/sound/gravityAttack.wav");
 	gravityBreakSE_ = audio_->SoundLoadWave("./Resources/sound/gravityExplosion.wav");
 	gravitySE_ = audio_->SoundLoadWave("./Resources/sound/gravityGuard.wav");
+	affectSE_ = audio_->SoundLoadWave("./Resources/sound/affect.wav");
 
 }
 
@@ -375,6 +376,8 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 				enemy->SetIsAffectedGravity(true);
 				enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
+				audio_->SoundPlayWave(affectSE_);
+
 				if (energyCount_ >= gravityWideLine_) {
 					gravityLevel_ = kWide;
 				}
@@ -406,6 +409,8 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 					bullet->transform.translate = Vector3::zero;
 					bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
 					barrierBulletCount_++;
+
+					audio_->SoundPlayWave(affectSE_);
 
 					if (energyCount_ >= gravityWideLine_) {
 						gravityLevel_ = kWide;
@@ -439,6 +444,7 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 				bullet->transform.translate = Vector3::zero;
 				bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
 
+				audio_->SoundPlayWave(affectSE_);
 
 				if (energyCount_ >= gravityWideLine_) {
 					gravityLevel_ = kWide;

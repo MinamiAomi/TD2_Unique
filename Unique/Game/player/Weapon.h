@@ -36,6 +36,8 @@ public:
 
 	std::shared_ptr<ModelInstance> GetModel() { return model_; }
 
+	std::shared_ptr<ModelInstance> GetModelBody() { return modelBody_; }
+
 	void SetPlayer(Player* player) { player_ = player; }
 
 	void Shot(const Vector3& velocity);
@@ -147,5 +149,6 @@ private:
 	size_t gravityBreakSE_;
 	size_t gravitySE_;
 	size_t gravitySEHandle_ = UNUSED_PLAY_HANDLE;
+	size_t affectSE_;
 
 };

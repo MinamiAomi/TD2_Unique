@@ -56,6 +56,10 @@ private:
 
 	uint32_t maxLiveTime_ = 1000;
 
+	int32_t maxBarrierBreakLiveTime_ = 2000;
+
+	int32_t barrierBreakLiveTime_ = maxBarrierBreakLiveTime_;
+
 	//当たり判定
 	std::unique_ptr<BoxCollider> collider_;
 

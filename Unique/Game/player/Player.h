@@ -353,6 +353,7 @@ private:
     size_t shootSE_;
     size_t crashSE_;
     size_t attackSE_;
+    size_t damageSE_;
 
     //構えるときのポジション
     Vector3 thrustPos_{ 0.0f,1.0f,0.0f };

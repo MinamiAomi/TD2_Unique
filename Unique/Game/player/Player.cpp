@@ -161,13 +161,18 @@ void Player::Initialize() {
     guardSprite_->SetScale({ 2.0f * (120 - workGravity_.overHeatTimer), 48.0f });
     guardSprite_->SetAnchor({ 0.0f,0.5f });
 
-    dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/dash.wav");
-    deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/disolve.wav");
-    shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/shoot.wav");
-    crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
+    dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/dash.wav");
+    deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/disolve.wav");
+    shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/shoot.wav");
+    crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/crash.wav");
     attackSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerAttack.wav");
+    damageSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/damage.wav");
 
     RegisterGlobalVariables();
+
+    dushAnimationParameter_.state = DushAnimationParameter::kIdle;
+    guardAnimationParameter_.state = GuardAnimationParameter::kIdle;
+
 
     currentAnimation_ = PlayerModel::kWait;
     animationParameter_ = 0.0f;
@@ -288,8 +293,10 @@ void Player::Update() {
 
     if (!isDead_) {
         weapon_->GetModel()->SetIsActive(true);
+        weapon_->GetModel()->SetIsActive(true);
     }
     else {
+        weapon_->GetModel()->SetIsActive(false);
         weapon_->GetModel()->SetIsActive(false);
     }
 
@@ -432,9 +439,10 @@ void Player::BehaviorRootUpdate() {
 
     // 攻撃に遷移
     // 重力波発射中と突き出し中は遷移不可
-    if (isStart_ && ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
+    if (isStart_ && !isKnockBack_ && ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
         !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) &&
-        !weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_ && guardAnimationParameter_.state == GuardAnimationParameter::kIdle) {
+        !weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_ &&
+        guardAnimationParameter_.state == GuardAnimationParameter::kIdle) {
 
 
         attack_.attackType = kHorizontal_1;
@@ -933,6 +941,7 @@ void Player::Damage(uint32_t val, const Vector3& affectPosition) {
 
     if (!workInvincible_.isInvincible) {
         hp_ -= val;
+        Audio::GetInstance()->SoundPlayWave(damageSE_);
         workInvincible_.invincibleTimer = 120;
         workInvincible_.isInvincible = true;
         KnockBack(affectPosition);

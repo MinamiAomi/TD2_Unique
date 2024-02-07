@@ -42,7 +42,7 @@ void SmallEnemy::Initialize(const Vector3& startPosition, const MovePattern& mov
 	SetName("Small_Enemy");
 
 	transform.translate = startPosition;
-	transform.scale = Vector3::one * 2.0f;
+	transform.scale = Vector3::zero * 2.0f;
 	transform.rotate = Quaternion::identity;
 
 	/*model_->SetColor({ 1.0f,0.0f,0.0f });*/
@@ -90,6 +90,31 @@ void SmallEnemy::Initialize(const Vector3& startPosition, const MovePattern& mov
 }
 
 void SmallEnemy::Update() {
+
+	//スポーン時の演出処理
+	if (isSpawn_) {
+
+		collider_->SetIsActive(false);
+
+		if (transform.scale.x < 2.0f) {
+			transform.scale += Vector3::one / 30.0f;
+		}
+
+		transform.rotate = Quaternion::MakeForYAxis(0.1f) * transform.rotate;
+
+		if (--spawnTimer_ <= 0) {
+			transform.scale = Vector3::one * 2.0f;
+			transform.rotate = Quaternion::identity;
+			collider_->SetIsActive(true);
+			isSpawn_ = false;
+		}
+
+		transform.UpdateMatrix();
+		model_->SetWorldMatrix(transform.worldMatrix);
+
+		return;
+
+	}
 
 	if (hitEffectCount_ > 0) {
 
@@ -495,6 +520,31 @@ void BarrierEnemy::Initialize(const Vector3& startPosition, const MovePattern& m
 
 void BarrierEnemy::Update() {
 
+	//スポーン時の演出処理
+	if (isSpawn_) {
+
+		collider_->SetIsActive(false);
+
+		if (transform.scale.x < 2.0f) {
+			transform.scale += Vector3::one / 30.0f;
+		}
+
+		transform.rotate = Quaternion::MakeForYAxis(0.1f) * transform.rotate;
+
+		if (--spawnTimer_ <= 0) {
+			transform.scale = Vector3::one * 2.0f;
+			transform.rotate = Quaternion::identity;
+			collider_->SetIsActive(true);
+			isSpawn_ = false;
+		}
+
+		transform.UpdateMatrix();
+		model_->SetWorldMatrix(transform.worldMatrix);
+
+		return;
+
+	}
+
 	if (hitEffectCount_ > 0) {
 
 		effectSprite_->SetTexcoordRect({ 256.0f * float((30 - hitEffectCount_) % 4),
@@ -808,7 +858,6 @@ void BarrierEnemy::Damage(uint32_t val, const Vector3& affectPosition) {
 	}
 
 	if (barrierHp_ <= 0 && isActiveBarrier_) {
-		model_->SetColor({ 1.0f,0.0f,0.0f });
 		barrierModel_->SetIsActive(false);
 		isActiveBarrier_ = false;
 		Audio::GetInstance()->SoundPlayWave(barrierBreakSE_);
@@ -866,7 +915,6 @@ void BarrierEnemy::BounceAndGather(const Vector3& goalPosition) {
 	}
 
 	if (barrierHp_ <= 0 && isActiveBarrier_) {
-		model_->SetColor({ 1.0f,0.0f,0.0f });
 		barrierModel_->SetIsActive(false);
 		isActiveBarrier_ = false;
 		Audio::GetInstance()->SoundPlayWave(barrierBreakSE_);
