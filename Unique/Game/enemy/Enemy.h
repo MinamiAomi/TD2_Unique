@@ -123,7 +123,7 @@ private:
 	//速度
 	Vector3 velocity_{};
 
-	uint32_t kMaxHp_ = 40;
+	uint32_t kMaxHp_ = 20;
 
 	int32_t hp_ = kMaxHp_;
 
@@ -138,8 +138,9 @@ private:
 	Vector3 movePosition_{};
 
 	std::shared_ptr<Texture> hpTex_;
-
 	std::unique_ptr<Sprite> hpSprite_;
+	std::shared_ptr<Texture> hpOverTex_;
+	std::unique_ptr<Sprite> hpOverSprite_;
 
 	size_t groundAttackSE_;
 	size_t shotSE_;

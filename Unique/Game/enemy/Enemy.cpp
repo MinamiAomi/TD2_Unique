@@ -17,27 +17,12 @@ Enemy::Enemy()
 	enemyCore_ = std::make_shared<EnemyCore>();
 
 	hpTex_ = ResourceManager::GetInstance()->FindTexture("enemy_hp");
+	hpOverTex_ = ResourceManager::GetInstance()->FindTexture("enemy_hp_over");
 
 	hpSprite_ = std::make_unique<Sprite>();
 	hpSprite_->SetTexture(hpTex_);
-
-	/*collider_ = std::make_unique<BoxCollider>();*/
-
-	/*crossAttack_.models_[0] = std::make_shared<ModelInstance>();
-	crossAttack_.models_[0]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
-	crossAttack_.models_[0]->SetIsActive(false);
-	crossAttack_.models_[1] = std::make_shared<ModelInstance>();
-	crossAttack_.models_[1]->SetModel(ResourceManager::GetInstance()->FindModel("Cube"));
-	crossAttack_.models_[1]->SetIsActive(false);
-
-	crossAttack_.colliders_[0] = std::make_unique<BoxCollider>();
-	crossAttack_.colliders_[0]->SetName("Enemy_Bullet");
-	crossAttack_.colliders_[0]->SetIsActive(false);
-	crossAttack_.colliders_[1] = std::make_unique<BoxCollider>();
-	crossAttack_.colliders_[1]->SetName("Enemy_Bullet");
-	crossAttack_.colliders_[1]->SetIsActive(false);*/
-
-	
+	hpOverSprite_ = std::make_unique<Sprite>();
+	hpOverSprite_->SetTexture(hpOverTex_);
 
 }
 
@@ -102,6 +87,11 @@ void Enemy::Initialize() {
 	hpSprite_->SetPosition({ 0.0f,688.0f });
 	hpSprite_->SetScale({ hpWidth_ * hp_, 64.0f });
 	hpSprite_->SetAnchor({ 0.0f,0.5f });
+	hpSprite_->SetDrawOrder(19);
+	hpOverSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 1280.0f,64.0f });
+	hpOverSprite_->SetPosition({ 640.0f,688.0f });
+	hpOverSprite_->SetScale({ 1280.0f, 64.0f });
+	hpOverSprite_->SetDrawOrder(20);
 
 	bullets_.clear();
 	bigBullets_.clear();

@@ -243,7 +243,7 @@ void Player::Update() {
 
         }
 
-        if (hp_ <= 0) {
+        if (isStart_ && hp_ <= 0) {
             isDead_ = true;
             Audio::GetInstance()->SoundPlayWave(deathSE_);
         }
@@ -521,8 +521,12 @@ void Player::BehaviorRootUpdate() {
 
 			if (!isKnockBack_) {
 				move = transform.rotate.Conjugate() * move;
-				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-				transform.rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff) * transform.rotate;
+
+                if (fabsf(Vector3::Dot(Vector3::unitZ, move)) != 0.0f) {
+                    Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+                    transform.rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff) * transform.rotate;
+                }
+
 			}
             
 

@@ -73,8 +73,12 @@ void Unique::OnInitialize() {
 	resourceManager->AddTexture("indicator", enemyIndicatorTex);
 
 	std::shared_ptr<Texture> enemyHpTex = std::make_shared<Texture>();
-	enemyHpTex->Load("./Resources/UI/e_life.png");
+	enemyHpTex->Load("./Resources/UI/Enemy_HPbar_gage.png");
 	resourceManager->AddTexture("enemy_hp", enemyHpTex);
+
+	std::shared_ptr<Texture> enemyHpOverTex = std::make_shared<Texture>();
+	enemyHpOverTex->Load("./Resources/UI/Enemy_HPbar.png");
+	resourceManager->AddTexture("enemy_hp_over", enemyHpOverTex);
 
 	std::shared_ptr<Texture> reticle = std::make_shared<Texture>();
 	reticle->Load("./Resources/UI/reticle.png");
@@ -108,9 +112,21 @@ void Unique::OnInitialize() {
 	title->Load("./Resources/UI/title.png");
 	resourceManager->AddTexture("title", title);
 
-	std::shared_ptr<Texture> pushB = std::make_shared<Texture>();
-	pushB->Load("./Resources/UI/push_b.png");
-	resourceManager->AddTexture("push_B", pushB);
+	std::shared_ptr<Texture> start = std::make_shared<Texture>();
+	start->Load("./Resources/UI/start.png");
+	resourceManager->AddTexture("start", start);
+
+	std::shared_ptr<Texture> toTitle = std::make_shared<Texture>();
+	toTitle->Load("./Resources/UI/gototitle.png");
+	resourceManager->AddTexture("ToTitle", toTitle);
+
+	std::shared_ptr<Texture> gameOver = std::make_shared<Texture>();
+	gameOver->Load("./Resources/UI/gameover.png");
+	resourceManager->AddTexture("GameOver", gameOver);
+
+	std::shared_ptr<Texture> gameClear = std::make_shared<Texture>();
+	gameClear->Load("./Resources/UI/gameclear.png");
+	resourceManager->AddTexture("GameClear", gameClear);
 
 	//エフェクト画像読み込み
 	std::shared_ptr<Texture> hitEffect = std::make_shared<Texture>();
