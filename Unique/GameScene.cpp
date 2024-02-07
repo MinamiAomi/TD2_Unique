@@ -205,7 +205,7 @@ void GameScene::SetEnemy(const std::string& tag, const Vector3& position) {
     if (tag == "Normal") {
 
         std::shared_ptr<SmallEnemy> newEnemy = std::make_shared<SmallEnemy>();
-        newEnemy->Initialize(position, SmallEnemy::kLineRight);
+        newEnemy->Initialize(position, SmallEnemy::kHoming);
         newEnemy->SetPlayer(player_.get());
         SmallEnemyManager::GetInstance()->AddEnemy(newEnemy);
         enemies_.push_back(newEnemy);

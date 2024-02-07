@@ -112,7 +112,7 @@ void SmallEnemy::Update() {
 			velocity_ = player_->GetPosition() - transform.translate;
 			velocity_.y = 0.0f;
 			velocity_ = velocity_.Normalized();
-			velocity_ /= 3.0f;
+			velocity_ /= 2.0f;
 			coolTimer_--;
 
 			//規定フレームで移動に移行
@@ -511,7 +511,7 @@ void BarrierEnemy::Update() {
 		velocity_ = player_->GetPosition() - transform.translate;
 		velocity_.y = 0.0f;
 		velocity_ = velocity_.Normalized();
-		velocity_ /= 3.0f;
+		velocity_ /= 2.0f;
 		coolTimer_--;
 
 		//規定フレームで移動に移行
