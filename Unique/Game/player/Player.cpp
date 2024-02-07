@@ -449,11 +449,11 @@ void Player::BehaviorRootUpdate() {
 		workGravity_.gravityTimer <= 0 && !isPoseShot_) {
 		
 		//ディレイの値に応じてスピード調整
-		workDash_.speed_ = 2.0f - (weapon_->GetDelay() / 20.0f) - workGravity_.decel;
+		workDash_.speed_ = 2.0f - (weapon_->gravityDelay_ / 50.0f) - workGravity_.decel;
 
 	}
 	else {
-		workDash_.speed_ = 1.0f - (weapon_->GetDelay() / 40.0f) - workGravity_.decel;
+		workDash_.speed_ = 1.0f - (weapon_->gravityDelay_ / 70.0f) - workGravity_.decel;
 	}
 
 	Vector3 move{};
@@ -810,10 +810,6 @@ void Player::BehaviorShotUpdate() {
 
     if (workShot_.shotTimer < 15) {
 
-        //武器を持っている腕を動かす
-      //  playerTransforms_[kRightUpperArm]->rotate = Quaternion::Slerp(1.0f / 15.0f, Quaternion::identity,
-      //      Quaternion::MakeFromAngleAxis(workShot_.shotRotate, Vector3{ 1.0f,0.0f,0.0f }.Normalized())) * playerTransforms_[kRightUpperArm]->rotate;
-
     }
     //else if (workShot_.shotTimer > 45) {
 
@@ -824,8 +820,6 @@ void Player::BehaviorShotUpdate() {
     //}
 
     if (++workShot_.shotTimer >= workShot_.maxShotFrame) {
-
-        // playerTransforms_[kRightUpperArm]->rotate = Quaternion::identity;
 
         workShot_.shotTimer = 0;
 
@@ -936,6 +930,10 @@ void Player::ApplyGlobalVariables() {
         workAttack_01_.allFrame = group["Attack_01 Frame"].Get<int32_t>();
         workAttack_02_.allFrame = group["Attack_02 Frame"].Get<int32_t>();
         workAttack_03_.allFrame = group["Attack_03 Frame"].Get<int32_t>();
+
+        workAttack_01_.allFrame = workAttack_01_.allFrame + weapon_->gravityDelay_;
+        workAttack_02_.allFrame = workAttack_02_.allFrame + weapon_->gravityDelay_;
+        workAttack_03_.allFrame = workAttack_03_.allFrame + weapon_->gravityDelay_;
 
     }
 
