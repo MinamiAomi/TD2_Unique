@@ -51,6 +51,7 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Enemy_Barrier", Model::Load("./Resources/Enemy/EnemyBarrier.obj"));
 	resourceManager->AddModel("Boss", Model::Load("./Resources/BossEnemy/bossEnemy.obj"));
 	resourceManager->AddModel("BarrierBullet", Model::Load("./Resources/BossEnemy/barrierBullet.obj"));
+	resourceManager->AddModel("Shield", Model::Load("./Resources/BossEnemy/enemyShield.obj"));
 	//UI読み込み
 	std::shared_ptr<Texture> guradTex = std::make_shared<Texture>();
 	guradTex->Load("./Resources/UI/Guard.png");

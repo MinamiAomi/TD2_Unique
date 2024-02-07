@@ -3,6 +3,7 @@
 #include "Collision/Collider.h"
 #include "Collision/GameObject.h"
 #include "Game/player/Player.h"
+#include <array>
 
 class EnemyCore : public GameObject
 {
@@ -56,6 +57,12 @@ private:
 
 	std::shared_ptr<ModelInstance> model_;
 	/*std::shared_ptr<ModelInstance> barrierModel_;*/
+
+	std::array<std::shared_ptr<ModelInstance>, 3> shieldModels_;
+
+	std::array<std::unique_ptr<Transform>, 3> shieldTransforms_;
+
+	std::unique_ptr<Transform> shieldRotateTransform_;
 
 	std::unique_ptr<BoxCollider> collider_;
 

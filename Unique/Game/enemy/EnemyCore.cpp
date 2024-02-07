@@ -9,14 +9,18 @@ EnemyCore::EnemyCore()
 	/*barrierModel_ = std::make_shared<ModelInstance>();
 	barrierModel_->SetModel(ResourceManager::GetInstance()->FindModel("Enemy_Barrier"));*/
 	collider_ = std::make_unique<BoxCollider>();
-	/*barrierCollider_ = std::make_unique<SphereCollider>();
-	barrierTransform_ = std::make_unique<Transform>();*/
+	for (uint32_t i = 0; i < 3; i++) {
+		shieldModels_[i] = std::make_shared<ModelInstance>();
+		shieldModels_[i]->SetModel(ResourceManager::GetInstance()->FindModel("Shield"));
+		shieldTransforms_[i] = std::make_unique<Transform>();
+	}
+	shieldRotateTransform_ = std::make_unique<Transform>();
 
 }
 
 EnemyCore::~EnemyCore()
 {
-	model_;
+	
 }
 
 void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
@@ -31,16 +35,26 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	startPosition_ = transform.translate;
 	endPosition_ = transform.translate;
 
-	/*barrierTransform_->SetParent(&transform);
-	barrierTransform_->scale = { 3.0f,3.0f,3.0f };
+	shieldRotateTransform_->translate = newTransform.translate;
+	shieldRotateTransform_->scale = Vector3::one * 5.0f;
+	shieldRotateTransform_->rotate = Quaternion::identity;
+	shieldRotateTransform_->UpdateMatrix();
 
-	barrierCollider_->SetCenter(barrierTransform_->worldMatrix.GetTranslate());
-	barrierCollider_->SetRadius(3.0f);
-	barrierCollider_->SetName("BossBarrier");
-	barrierCollider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollisionBarrier(collisionInfo); });
-	barrierCollider_->SetCollisionAttribute(0xfffffffd);
-	barrierCollider_->SetCollisionMask(0x00000002);
-	barrierCollider_->SetIsActive(false);*/
+	for (uint32_t i = 0; i < 3; i++) {
+		shieldTransforms_[i]->SetParent(shieldRotateTransform_.get());
+		shieldTransforms_[i]->scale = Vector3::one * 1.0f;
+		shieldTransforms_[i]->rotate = Quaternion::MakeForYAxis(i * Math::ToRadian * 120.0f);
+	}
+
+	shieldTransforms_[0]->translate = Vector3::unitZ * 2.0f;
+	shieldTransforms_[1]->translate = { 2.0f,0.0f,-2.0f };
+	shieldTransforms_[2]->translate = { -2.0f,0.0f,-2.0f };
+
+	for (uint32_t i = 0; i < 3; i++) {
+		shieldTransforms_[i]->UpdateMatrix();
+		shieldModels_[i]->SetWorldMatrix(shieldTransforms_[i]->worldMatrix);
+		shieldModels_[i]->SetColor({ 0.0f,1.0f,1.0f });
+	}
 
 	collider_->SetName("Enemy_Core");
 	collider_->SetCenter(transform.translate);
@@ -98,6 +112,7 @@ void EnemyCore::Update() {
 	}
 
 	transform.translate = Vector3::Slerp(lerpT_, startPosition_, endPosition_);
+	shieldRotateTransform_->translate = Vector3::Slerp(lerpT_, startPosition_, endPosition_);
 
 	if (player_) {
 
@@ -113,7 +128,14 @@ void EnemyCore::Update() {
 		}
 		else {
 
+			if (stanTimer_ % 60 < 30) {
+				transform.rotate = Quaternion::MakeForXAxis(0.01f) * transform.rotate;
+			}
+			else {
+				transform.rotate = Quaternion::MakeForXAxis(-0.01f) * transform.rotate;
+			}
 
+			transform.rotate = Quaternion::MakeForYAxis(0.03f) * transform.rotate;
 
 		}	
 
@@ -129,6 +151,22 @@ void EnemyCore::Update() {
 
 	transform.UpdateMatrix();
 	/*barrierTransform_->UpdateMatrix();*/
+
+	shieldRotateTransform_->rotate = Quaternion::MakeForYAxis(0.02f) * shieldRotateTransform_->rotate;
+	shieldRotateTransform_->UpdateMatrix();
+
+	for (int32_t i = 0; i < 3; i++) {
+
+		if (barrierHp_ > i) {
+			shieldModels_[i]->SetIsActive(true);
+		}
+		else {
+			shieldModels_[i]->SetIsActive(false);
+		}
+
+		shieldTransforms_[i]->UpdateMatrix();
+		shieldModels_[i]->SetWorldMatrix(shieldTransforms_[i]->worldMatrix);
+	}
 
 	collider_->SetCenter(transform.translate);
 	collider_->SetSize(transform.scale * 2.0f);

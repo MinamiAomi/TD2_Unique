@@ -66,6 +66,21 @@ private:
         uint32_t spawnCount = 5;
     };
 
+    //タイトルの処理関連纏め
+    struct TitleMove {
+        //シーンチェンジにかかる時間
+        int32_t maxChangeTime_ = 120;
+        //シーンチェンジに使用する変数
+        int32_t sceneChangeTimer_ = maxChangeTime_;
+        //タイトルのサイズ
+        Vector2 titleScale_{};
+        //タイトルの透明度
+        float titleAlpha_ = 1.0f;
+        //タイトル遷移フラグ
+        bool isSceneChange_ = false;
+
+    };
+
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
@@ -94,7 +109,7 @@ private:
 
     uint32_t waveNumber_ = 1;
 
-    uint32_t kMaxWave_ = 4;
+    uint32_t kMaxWave_ = 0;
 
     NextScene nextScene_ = kInGame;
 
@@ -119,12 +134,8 @@ private:
     std::unique_ptr<Sprite> gameOverSprite_;
     std::shared_ptr<Texture> toTitleTex_;
     std::unique_ptr<Sprite> toTitleSprite_;
-    /*std::shared_ptr<Texture> startTex_;
-    std::unique_ptr<Sprite> startSprite_;*/
 
-    Vector2 titleScale_{};
-
-    float titleAlpha_ = 1.0f;
+    TitleMove titleMove_;
 
     float fadeAlpha_ = 0.0f;
 

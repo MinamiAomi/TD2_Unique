@@ -45,10 +45,10 @@ void GameScene::OnInitialize() {
     titleSprite_->SetTexcoordRect({ 0.0f,0.0f, }, { 3072.0f,512.0f });
     titleSprite_->SetPosition({ 640.0f,600.0f });
     
-    titleScale_ = { 768.0f,128.0f };
-    titleSprite_->SetScale(titleScale_);
-    titleAlpha_ = 1.0f;
-    titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleAlpha_ });
+    titleMove_.titleScale_ = { 768.0f,128.0f };
+    titleSprite_->SetScale(titleMove_.titleScale_);
+    titleMove_.titleAlpha_ = 1.0f;
+    titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleMove_.titleAlpha_ });
 
     startTex_ = ResourceManager::GetInstance()->FindTexture("start");
     startSprite_ = std::make_unique<Sprite>();
@@ -321,17 +321,28 @@ void GameScene::OnUpdate() {
     }
     else if (isTitle_) {
 
-        if (!audio_->IsValidPlayHandle(titleBGMHandle_)) {
+        if (!titleMove_.isSceneChange_ && !audio_->IsValidPlayHandle(titleBGMHandle_)) {
             titleBGMHandle_ = audio_->SoundPlayLoopStart(titleBGM_);
             audio_->SetValume(titleBGMHandle_, 0.5f);
         }
 
         if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
             !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
-            ResetInGame();
             audio_->SoundPlayLoopEnd(titleBGMHandle_);
             titleBGMHandle_ = UNUSED_PLAY_HANDLE;
+            audio_->SoundPlayWave(selectSE_);
+            titleMove_.sceneChangeTimer_ = titleMove_.maxChangeTime_;
+            titleMove_.isSceneChange_ = true;
+        }
+
+        if (titleMove_.isSceneChange_) {
+            titleMove_.sceneChangeTimer_--;
+        }
+
+        if (titleMove_.isSceneChange_ && titleMove_.sceneChangeTimer_ <= 0) {
+            ResetInGame();
             isTitle_ = false;
+            titleMove_.isSceneChange_ = false;
         }
 
         player_->Update();
@@ -384,6 +395,7 @@ void GameScene::OnUpdate() {
                 if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                     nextScene_ = kTitle;
+                    audio_->SoundPlayWave(selectSE_);
                     fadeIn_ = true;
                     isFade_ = true;
                 }
@@ -397,6 +409,7 @@ void GameScene::OnUpdate() {
                 if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                     nextScene_ = kTitle;
+                    audio_->SoundPlayWave(selectSE_);
                     fadeIn_ = true;
                     isFade_ = true;
                 }
