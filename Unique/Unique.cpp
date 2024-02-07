@@ -14,12 +14,17 @@ void Unique::OnInitialize() {
 	SceneManager* sceneManager = SceneManager::GetInstance();
 
 	auto resourceManager = ResourceManager::GetInstance();
+	//ステージオブジェクト
 	resourceManager->AddModel("Cube", Model::Load("./Resources/cube/cube.obj"));
 	resourceManager->AddModel("Cube2", Model::Load("./Resources/cube/cube2.obj"));
 	resourceManager->AddModel("Sphere", Model::Load("./Resources/gravity/gravity.obj"));
 	resourceManager->AddModel("Gravity", Model::Load("./Resources/gravity/gravity.obj"));
 	resourceManager->AddModel("Plane", Model::Load("./Resources/plane/plane.obj"));
 	resourceManager->AddModel("border", Model::Load("./Resources/border/border.obj"));
+	resourceManager->AddModel("Crystal", Model::Load("./Resources/StageObject/crystal.obj"));
+	resourceManager->AddModel("Crystal2", Model::Load("./Resources/StageObject/crystal2.obj"));
+	resourceManager->AddModel("Torus", Model::Load("./Resources/StageObject/torus2.obj"));
+	resourceManager->AddModel("Cage", Model::Load("./Resources/StageObject/cage.obj"));
 	//天球
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み
