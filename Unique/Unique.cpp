@@ -122,6 +122,10 @@ void Unique::OnInitialize() {
 	resourceManager->AddHierarchicalAnimation("Player_Attack1", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack1.gltf"));
 	resourceManager->AddHierarchicalAnimation("Player_Attack2", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack2.gltf"));
 	resourceManager->AddHierarchicalAnimation("Player_Attack3", HierarchicalAnimation::Load("./Resources/PlayerAnimation/Attack3.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_DushStart", HierarchicalAnimation::Load("./Resources/PlayerAnimation/DushStart.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_DushEnd", HierarchicalAnimation::Load("./Resources/PlayerAnimation/DushEnd.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_GuardStart", HierarchicalAnimation::Load("./Resources/PlayerAnimation/GuardStart.gltf"));
+	resourceManager->AddHierarchicalAnimation("Player_GuardEnd", HierarchicalAnimation::Load("./Resources/PlayerAnimation/GuardEnd.gltf"));
 
 	//シーン設定
 	sceneManager->ChangeScene<GameScene>();

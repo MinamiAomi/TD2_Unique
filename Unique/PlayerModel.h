@@ -36,6 +36,10 @@ public:
         kAttack1,
         kAttack2,
         kAttack3,
+        kDushStart,
+        kDushEnd,
+        kGuardStart,
+        kGuardEnd,
 
         kNumAnimationTypes
     };
