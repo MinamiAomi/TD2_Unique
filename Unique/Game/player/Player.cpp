@@ -35,7 +35,7 @@ Player::Player() {
 
     guardSprite_ = std::make_unique<Sprite>();
     guardSprite_->SetTexture(guardTex_);
-    guardSprite_->SetPosition({ 938.0f,50.0f });
+    guardSprite_->SetPosition({ 1038.0f,50.0f });
 
     ui_A_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_A");
     ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
@@ -46,26 +46,26 @@ Player::Player() {
 
     ui_A_ = std::make_unique<Sprite>();
     ui_A_->SetTexture(ui_A_Tex_);
-    ui_A_->SetPosition({ 1180.0f,150.0f });
+    ui_A_->SetPosition({ 1190.0f,150.0f });
     ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
     ui_A_->SetScale({ 192.0f,48.0f });
 
     ui_RB_ = std::make_unique<Sprite>();
     ui_RB_->SetTexture(ui_RB_Tex_);
-    ui_RB_->SetPosition({ 1130.0f,50.0f });
+    ui_RB_->SetPosition({ 1205.0f,50.0f });
     ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
     ui_RB_->SetScale({ 384.0f,48.0f });
 
     ui_LB_ = std::make_unique<Sprite>();
     ui_LB_->SetTexture(ui_LB_Tex_);
-    ui_LB_->SetPosition({ 1170.0f,200.0f });
+    ui_LB_->SetPosition({ 1190.0f,200.0f });
     ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
     ui_LB_->SetScale({ 192.0f,48.0f });
 
     ui_RT_ = std::make_unique<Sprite>();
     ui_RT_->SetTexture(ui_RT_Tex_);
     ui_RT_->SetPosition({ 1180.0f,100.0f });
-    ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+    ui_RT_->SetTexcoordRect({ 0.0f,0.0f }, { 280.0f,64.0f });
     ui_RT_->SetScale({ 192.0f,48.0f });
 
     ui_RS_ = std::make_unique<Sprite>();
@@ -76,7 +76,7 @@ Player::Player() {
 
     ui_LS_ = std::make_unique<Sprite>();
     ui_LS_->SetTexture(ui_LS_Tex_);
-    ui_LS_->SetPosition({ 1100.0f,300.0f });
+    ui_LS_->SetPosition({ 1160.0f,300.0f });
     ui_LS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
     ui_LS_->SetScale({ 384.0f,48.0f });
 
@@ -154,13 +154,11 @@ void Player::Initialize() {
     hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
     hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
     hpSprite_->SetAnchor({ 0.0f,0.5f });
-    guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 
     hpOverSprite_->SetScale({ 257.0f, 161.0f });
-
     hpUnderSprite_->SetScale({ 257.0f, 161.0f });
 
-    guardSprite_->SetScale({ 3.2f * (120 - workGravity_.overHeatTimer), 48.0f });
+    guardSprite_->SetScale({ 2.0f * (120 - workGravity_.overHeatTimer), 48.0f });
     guardSprite_->SetAnchor({ 0.0f,0.5f });
 
     dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/dash.wav");
@@ -251,7 +249,7 @@ void Player::Update() {
 
     hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
     hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
-    guardSprite_->SetScale({ 2.8f * (120 - workGravity_.overHeatTimer), 48.0f });
+    guardSprite_->SetScale({ 2.0f * (120 - workGravity_.overHeatTimer), 48.0f });
 
     if (transform.translate.x > 200.0f) {
         transform.translate.x = 200.0f;
