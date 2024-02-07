@@ -863,7 +863,7 @@ void Player::BehaviorAttackInitialize() {
 
         attack_.playerRotate = transform.rotate;
 
-        weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
+       // weapon_->modelBodyTransform_->translate = { 0.0f,0.0f,0.0f };
 
         currentAnimation_ = PlayerModel::kAttack1;
         weapon_->SetIsAttack(true);
