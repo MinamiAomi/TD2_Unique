@@ -43,6 +43,8 @@ private:
 
     void BossSpawn();
 
+    bool CheckEnemiesFlag();
+
 private:
 
     Audio* audio_ = nullptr;

@@ -6,6 +6,8 @@
 #include <fstream>
 #include <vector>
 
+#define UNUSED_PLAY_HANDLE ((size_t)-1)
+
 class Audio {
 public:
     static const size_t kMaxNumPlayHandles = 128;

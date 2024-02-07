@@ -485,6 +485,17 @@ void GameScene::EditorCameraMove() {
 
 }
 
+bool GameScene::CheckEnemiesFlag() {
+
+   /* for (auto& enemy : enemies_) {
+
+
+
+    }*/
+
+    return true;
+
+}
 
 void GameScene::LoadEnemyPopData(uint32_t waveNumber) {
 

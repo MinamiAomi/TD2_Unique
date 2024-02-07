@@ -178,11 +178,16 @@ void Weapon::Update() {
 
 	if (isThrust_) {
 		
-		/*gravitySEHandle_ = Audio::GetInstance()->SoundPlayLoopStart(gravitySE_);*/
+		if (!Audio::GetInstance()->IsValidPlayHandle(gravitySEHandle_)) {
+			gravitySEHandle_ = Audio::GetInstance()->SoundPlayLoopStart(gravitySE_);
+		}
 
 		collider_->SetIsActive(false);
 	}
 	else {
+
+		Audio::GetInstance()->SoundPlayLoopEnd(gravitySEHandle_);
+		gravitySEHandle_ = UNUSED_PLAY_HANDLE;
 
 	}
 

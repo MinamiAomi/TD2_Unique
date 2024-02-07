@@ -60,7 +60,7 @@ public:
 
 	//衝撃波発動中か
 	bool isShockWave_ = false;
-
+	
 	std::shared_ptr<Transform> modelBodyTransform_;
 
 	//武器の初期SRTへ戻す
@@ -143,6 +143,6 @@ private:
 	size_t gravityShotSE_;
 	size_t gravityBreakSE_;
 	size_t gravitySE_;
-	size_t gravitySEHandle_;
+	size_t gravitySEHandle_ = UNUSED_PLAY_HANDLE;
 
 };
