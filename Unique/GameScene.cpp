@@ -158,6 +158,9 @@ void GameScene::ResetTitle() {
     audio_->SoundPlayLoopEnd(bossBGMHandle_);
     audio_->SoundPlayLoopEnd(enemyBGMHandle_);
 
+    titleSprite_->SetScale(titleMove_.titleScale_);
+    titleSprite_->SetColor({ 1.0f,1.0f,1.0f,titleMove_.titleAlpha_ });
+
     isBossBattle_ = false;
     player_->Initialize();
     player_->SetIsStart(false);
@@ -172,6 +175,8 @@ void GameScene::ResetTitle() {
     SmallEnemyManager::GetInstance()->Clear();
     enemies_.clear();
     waveNumber_ = 1;
+    titleMove_.sceneChangeTimer_ = titleMove_.maxChangeTime_;
+    titleMove_.isSceneChange_ = false;
     isTitle_ = true;
 
 }
@@ -313,6 +318,10 @@ void GameScene::OnUpdate() {
 
 #endif // _DEBUG
 
+    if (++frameTimer_ >= 120) {
+        frameTimer_ = 0;
+    }
+
     //ヒットストップしていない時に更新
     if (isFade_) {
 
@@ -338,9 +347,18 @@ void GameScene::OnUpdate() {
 
         if (titleMove_.isSceneChange_) {
             titleMove_.sceneChangeTimer_--;
+
+            if (titleMove_.sceneChangeTimer_ >= 110) {
+                Vector2 lerp = Vector2::Slerp(1.0f - float((titleMove_.sceneChangeTimer_ - 110) / 10.0f),
+                    titleMove_.titleScale_, titleMove_.titleScaleAfter_);
+
+                titleSprite_->SetScale(lerp);
+            }
+            
         }
 
         if (titleMove_.isSceneChange_ && titleMove_.sceneChangeTimer_ <= 0) {
+            titleSprite_->SetScale({ 0.0f,0.0f });
             ResetInGame();
             isTitle_ = false;
             titleMove_.isSceneChange_ = false;
@@ -390,6 +408,8 @@ void GameScene::OnUpdate() {
             //プレイヤーが死んだ場合
             if (player_->GetIsDead()) {
 
+                player_->SetIsStart(false);
+
                 fadeAlpha_ = 0.3f;
                 blackSprite_->SetColor({ 0.0f,0.0f,0.0f,fadeAlpha_ });
 
@@ -406,6 +426,7 @@ void GameScene::OnUpdate() {
             else if (enemy_ && enemy_->GetIsDead()) {
 
                 whiteSprite_->SetColor({ 1.0f,1.0f,1.0f,fadeAlpha_ });
+                player_->SetIsStart(false);
 
                 if (!isFade_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
                     !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
@@ -416,20 +437,21 @@ void GameScene::OnUpdate() {
                 }
 
             }
-            else {
 
-                player_->Update();
+            player_->Update();
+
+            if (!player_->GetIsDead()) {
 
                 followCamera_->Update();
 
-            }
+                for (auto& enemy : enemies_) {
+                    enemy->Update();
+                }
 
-            for (auto& enemy : enemies_) {
-                enemy->Update();
-            }
+                if (enemy_) {
+                    enemy_->Update();
+                }
 
-            if (enemy_) {
-                enemy_->Update();
             }
 
             stage_->Update();
@@ -445,6 +467,30 @@ void GameScene::OnUpdate() {
 
         }
 
+    }
+
+    if (titleMove_.isSceneChange_ && titleMove_.sceneChangeTimer_ > 80) {
+
+        if (frameTimer_ % 2 == 0) {
+            startSprite_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+        }
+        else {
+            startSprite_->SetColor({ 1.0f,1.0f,1.0f,0.0f });
+        }
+
+    }
+    else if (titleMove_.isSceneChange_) {
+        startSprite_->SetColor({ 1.0f,1.0f,1.0f,1.0f });
+    }
+    else if (frameTimer_ % 120 < 30) {
+        float alpha = (30.0f - float(frameTimer_ % 120)) / 30.0f;
+        startSprite_->SetColor({ 1.0f,1.0f,1.0f, alpha });
+        toTitleSprite_->SetColor({ 1.0f,1.0f,1.0f, alpha });
+    }
+    else if (frameTimer_ % 120 < 60) {
+        float alpha = (float(frameTimer_ % 120) - 30.0f) / 30.0f;
+        startSprite_->SetColor({ 1.0f,1.0f,1.0f, alpha });
+        toTitleSprite_->SetColor({ 1.0f,1.0f,1.0f, alpha });
     }
 
     if (isTitle_) {
@@ -463,7 +509,7 @@ void GameScene::OnUpdate() {
         toTitleSprite_->SetIsActive(false);
     }
 
-    if ((enemy_ && enemy_->GetIsDead())) {
+    if ((enemy_ && enemy_->GetIsDead()) && !player_->GetIsDead()) {
         whiteSprite_->SetIsActive(true);
         clearSprite_->SetIsActive(true);
     }

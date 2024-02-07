@@ -182,6 +182,11 @@ void Player::Initialize() {
 
 void Player::Update() {
 
+    //死亡時にコライダーを非アクティブ化
+    if (isDead_ || !isStart_) {
+        collider_->SetIsActive(false);
+    }
+
     //#ifdef _DEBUG
     //
     //    ImGui::Begin("pos");
@@ -293,11 +298,11 @@ void Player::Update() {
 
     if (!isDead_) {
         weapon_->GetModel()->SetIsActive(true);
-        weapon_->GetModel()->SetIsActive(true);
+        weapon_->GetModelBody()->SetIsActive(true);
     }
     else {
         weapon_->GetModel()->SetIsActive(false);
-        weapon_->GetModel()->SetIsActive(false);
+        weapon_->GetModelBody()->SetIsActive(false);
     }
 
     //状態に応じてUIの表示を変更

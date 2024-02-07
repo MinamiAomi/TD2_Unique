@@ -70,7 +70,7 @@ void EnemyBullet::Update() {
 
 	transform.UpdateMatrix();
 
-	collider_->SetCenter(transform.translate);
+	collider_->SetCenter(transform.worldMatrix.GetTranslate());
 	//コライダーのサイズを二倍にすると、Cubeモデルの見た目と合致するので二倍にしている
 	collider_->SetSize(transform.scale * 2.0f);
 	collider_->SetOrientation(transform.rotate);

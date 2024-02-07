@@ -72,10 +72,14 @@ private:
         int32_t maxChangeTime_ = 120;
         //シーンチェンジに使用する変数
         int32_t sceneChangeTimer_ = maxChangeTime_;
-        //タイトルのサイズ
-        Vector2 titleScale_{};
+        //タイトルのサイズ通常時
+        Vector2 titleScale_{ 768.0f,128.0f };
+        //タイトルのサイズ遷移後
+        Vector2 titleScaleAfter_{ 768.0f,0.0f };
         //タイトルの透明度
         float titleAlpha_ = 1.0f;
+        //タイトルの透明度遷移後
+        float titleAlphaAfter_ = 0.0f;
         //タイトル遷移フラグ
         bool isSceneChange_ = false;
 
@@ -146,5 +150,8 @@ private:
     size_t titleBGM_;
     size_t titleBGMHandle_ = UNUSED_PLAY_HANDLE;
     size_t selectSE_;
+
+    //スプライトのアルファ値をいじったりするときに使う変数
+    int32_t frameTimer_ = 0;
 
 };

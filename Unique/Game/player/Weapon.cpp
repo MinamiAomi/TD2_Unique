@@ -332,6 +332,15 @@ void Weapon::OnCollision(const CollisionInfo& collisionInfo) {
 
 		core->Damage(1);
 
+		audio_->SoundPlayWave(hitRightSE_);
+
+		if (core->GetHp() <= 0) {
+			core->SetDeadMotion(player_->GetPosition());
+		}
+
+		//ヒットストップ
+		HitStopManager::GetInstance()->StopFrame(10);
+
 		isHit_ = true;
 
 	}
@@ -534,6 +543,8 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			core->BarrierDamage(barrierBulletCount_);
 
+			audio_->SoundPlayWave(hitHeavySE_);
+
 			barrierBulletCount_ = 0;
 
 			//ヒットストップ
@@ -547,6 +558,12 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
 
 			core->Damage(1);
+
+			audio_->SoundPlayWave(hitRightSE_);
+
+			if (core->GetHp() <= 0) {
+				core->SetDeadMotion(player_->GetPosition());
+			}
 
 			barrierBulletCount_ = 0;
 
@@ -585,6 +602,12 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 
 			core->Damage(1);
 
+			audio_->SoundPlayWave(hitRightSE_);
+
+			if (core->GetHp() <= 0) {
+				core->SetDeadMotion(player_->GetPosition());
+			}
+
 			isHit_ = true;
 
 			//ヒットストップ
@@ -599,6 +622,12 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			std::shared_ptr<EnemyCore> core = EnemyCoreManager::GetInstance()->GetCore(object);
 
 			core->Damage(1);
+
+			audio_->SoundPlayWave(hitRightSE_);
+
+			if (core->GetHp() <= 0) {
+				core->SetDeadMotion(player_->GetPosition());
+			}
 
 			isHit_ = true;
 

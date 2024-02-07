@@ -1,5 +1,7 @@
 #include "EnemyCore.h"
 #include "Graphics/ResourceManager.h"
+#include "Game/HitStop/HitStopManager.h"
+#include "Audio/Audio.h"
 
 EnemyCore::EnemyCore()
 {
@@ -70,9 +72,39 @@ void EnemyCore::Initialize(const Transform& newTransform, uint32_t number) {
 	model_->SetColor({ 0.6f,0.0f,0.0f });
 	model_->SetModel(ResourceManager::GetInstance()->FindModel("Boss"));
 
+	hitHeavySE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerHitHeavy.wav");
+	deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/bossDead.wav");
+
 }
 
 void EnemyCore::Update() {
+
+	//万が一吹っ飛び処理がされていない時の対策
+	if (hp_ <= 0 && !isStartKnockBack_) {
+		SetDeadMotion(player_->GetPosition());
+	}
+
+	//倒した時の演出
+	if (isStartKnockBack_ && !isDead_) {
+
+		transform.translate += knockBackVelocity_;
+		
+		transform.scale -= Vector3::one / 10.0f;
+
+		transform.rotate = Quaternion::MakeForYAxis(0.3f) * transform.rotate;
+
+		transform.UpdateMatrix();
+		model_->SetWorldMatrix(transform.worldMatrix);
+
+		if (transform.scale.x <= 0.0f) {
+			player_->GetCamera()->ShakeStart(30);
+			Audio::GetInstance()->SoundPlayWave(deathSE_);
+			isDead_ = true;
+		}
+
+		return;
+
+	}
 
 	//線形補間の媒介変数更新
 	if (lerpT_ < 1.0f) {
@@ -176,7 +208,7 @@ void EnemyCore::Update() {
 
 	model_->SetWorldMatrix(transform.worldMatrix);
 
-	if (hitCoolTime_ % 2 == 0) {
+	if (hitCoolTime_ % 2 == 0 || isStartKnockBack_) {
 		model_->SetIsActive(true);
 	}
 	else {
@@ -293,6 +325,21 @@ void EnemyCore::BarrierDamage(int32_t val) {
 
 		collider_->SetName("Enemy_Core_Damage");
 
+	}
+
+}
+
+void EnemyCore::SetDeadMotion(const Vector3& position) {
+
+	if (!isStartKnockBack_) {
+		knockBackVelocity_ = transform.translate - position;
+		knockBackVelocity_.y = 0.0f;
+		knockBackVelocity_ = knockBackVelocity_.Normalized() * 3.0f;
+		isStartKnockBack_ = true;
+
+		HitStopManager::GetInstance()->StopFrame(30);
+
+		Audio::GetInstance()->SoundPlayWave(hitHeavySE_);
 	}
 
 }

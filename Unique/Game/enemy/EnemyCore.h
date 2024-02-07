@@ -27,6 +27,10 @@ public:
 
 	bool GetIsStan() const { return isStan_; }
 
+	bool GetIsDead()const { return isDead_; }
+
+	void SetDeadMotion(const Vector3& position);
+
 	//移動開始前のポジション
 	Vector3 startPosition_;
 
@@ -94,5 +98,14 @@ private:
 	int32_t stanTimer_ = 0;
 
 	bool isStan_ = false;
+
+	bool isStartKnockBack_ = false;
+
+	bool isDead_ = false;
+
+	Vector3 knockBackVelocity_{};
+
+	size_t hitHeavySE_;
+	size_t deathSE_;
 
 };

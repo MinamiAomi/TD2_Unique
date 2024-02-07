@@ -197,7 +197,7 @@ void Enemy::Update() {
 
 		hp_ = CalcAllHp();
 
-		if (hp_ <= 0) {
+		if (hp_ <= 0 && enemyCore_->GetIsDead()) {
 			isDead_ = true;
 
 			enemyCore_->SetIsActiveModel(false);
