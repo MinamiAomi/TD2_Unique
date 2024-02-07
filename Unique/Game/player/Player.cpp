@@ -21,68 +21,68 @@ Player::Player() {
     hpSprite_->SetPosition({ 156.0f - 104.0f,78.0f - 27.0f });
     hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
     hpSprite_->SetDrawOrder(2);
-	hpOverSprite_ = std::make_unique<Sprite>();
-	hpOverSprite_->SetTexture(hpOverTex_);
-	hpOverSprite_->SetPosition({ 156.0f,78.0f });
-	hpOverSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
-	hpOverSprite_->SetDrawOrder(3);
+    hpOverSprite_ = std::make_unique<Sprite>();
+    hpOverSprite_->SetTexture(hpOverTex_);
+    hpOverSprite_->SetPosition({ 156.0f,78.0f });
+    hpOverSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
+    hpOverSprite_->SetDrawOrder(3);
 
-	hpUnderSprite_ = std::make_unique<Sprite>();
-	hpUnderSprite_->SetTexture(hpUnderTex_);
-	hpUnderSprite_->SetPosition({ 156.0f,78.0f });
-	hpUnderSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
-	hpUnderSprite_->SetDrawOrder(1);
+    hpUnderSprite_ = std::make_unique<Sprite>();
+    hpUnderSprite_->SetTexture(hpUnderTex_);
+    hpUnderSprite_->SetPosition({ 156.0f,78.0f });
+    hpUnderSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 514.0f,322.0f });
+    hpUnderSprite_->SetDrawOrder(1);
 
-	guardSprite_ = std::make_unique<Sprite>();
-	guardSprite_->SetTexture(guardTex_);
-	guardSprite_->SetPosition({ 938.0f,50.0f });
+    guardSprite_ = std::make_unique<Sprite>();
+    guardSprite_->SetTexture(guardTex_);
+    guardSprite_->SetPosition({ 938.0f,50.0f });
 
-	ui_A_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_A");
-	ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
-	ui_LB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LB");
-	ui_RT_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RT");
-	ui_RS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RS");
-	ui_LS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LS");
+    ui_A_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_A");
+    ui_RB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RB");
+    ui_LB_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LB");
+    ui_RT_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RT");
+    ui_RS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_RS");
+    ui_LS_Tex_ = ResourceManager::GetInstance()->FindTexture("UI_LS");
 
-	ui_A_ = std::make_unique<Sprite>();
-	ui_A_->SetTexture(ui_A_Tex_);
-	ui_A_->SetPosition({ 1180.0f,150.0f });
-	ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_A_->SetScale({ 192.0f,48.0f });
+    ui_A_ = std::make_unique<Sprite>();
+    ui_A_->SetTexture(ui_A_Tex_);
+    ui_A_->SetPosition({ 1180.0f,150.0f });
+    ui_A_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+    ui_A_->SetScale({ 192.0f,48.0f });
 
-	ui_RB_ = std::make_unique<Sprite>();
-	ui_RB_->SetTexture(ui_RB_Tex_);
-	ui_RB_->SetPosition({ 1130.0f,50.0f });
-	ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
-	ui_RB_->SetScale({ 384.0f,48.0f });
+    ui_RB_ = std::make_unique<Sprite>();
+    ui_RB_->SetTexture(ui_RB_Tex_);
+    ui_RB_->SetPosition({ 1130.0f,50.0f });
+    ui_RB_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+    ui_RB_->SetScale({ 384.0f,48.0f });
 
-	ui_LB_ = std::make_unique<Sprite>();
-	ui_LB_->SetTexture(ui_LB_Tex_);
-	ui_LB_->SetPosition({ 1170.0f,200.0f });
-	ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_LB_->SetScale({ 192.0f,48.0f });
+    ui_LB_ = std::make_unique<Sprite>();
+    ui_LB_->SetTexture(ui_LB_Tex_);
+    ui_LB_->SetPosition({ 1170.0f,200.0f });
+    ui_LB_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+    ui_LB_->SetScale({ 192.0f,48.0f });
 
-	ui_RT_ = std::make_unique<Sprite>();
-	ui_RT_->SetTexture(ui_RT_Tex_);
-	ui_RT_->SetPosition({ 1180.0f,100.0f });
-	ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
-	ui_RT_->SetScale({ 192.0f,48.0f });
+    ui_RT_ = std::make_unique<Sprite>();
+    ui_RT_->SetTexture(ui_RT_Tex_);
+    ui_RT_->SetPosition({ 1180.0f,100.0f });
+    ui_RT_->SetTexcoordRect({ 256.0f,64.0f }, { 256.0f,64.0f });
+    ui_RT_->SetScale({ 192.0f,48.0f });
 
-	ui_RS_ = std::make_unique<Sprite>();
-	ui_RS_->SetTexture(ui_RS_Tex_);
-	ui_RS_->SetPosition({ 1100.0f,250.0f });
-	ui_RS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
-	ui_RS_->SetScale({ 384.0f,48.0f });
+    ui_RS_ = std::make_unique<Sprite>();
+    ui_RS_->SetTexture(ui_RS_Tex_);
+    ui_RS_->SetPosition({ 1100.0f,250.0f });
+    ui_RS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+    ui_RS_->SetScale({ 384.0f,48.0f });
 
-	ui_LS_ = std::make_unique<Sprite>();
-	ui_LS_->SetTexture(ui_LS_Tex_);
-	ui_LS_->SetPosition({ 1100.0f,300.0f });
-	ui_LS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
-	ui_LS_->SetScale({ 384.0f,48.0f });
+    ui_LS_ = std::make_unique<Sprite>();
+    ui_LS_->SetTexture(ui_LS_Tex_);
+    ui_LS_->SetPosition({ 1100.0f,300.0f });
+    ui_LS_->SetTexcoordRect({ 512.0f,64.0f }, { 512.0f,64.0f });
+    ui_LS_->SetScale({ 384.0f,48.0f });
 
     collider_ = std::make_unique<BoxCollider>();
 
-	weapon_ = std::make_unique<Weapon>();
+    weapon_ = std::make_unique<Weapon>();
 
     reticle_ = std::make_shared<Reticle3D>();
 
@@ -132,13 +132,13 @@ void Player::Initialize() {
     collider_->SetCollisionAttribute(0xfffffffe);
     collider_->SetCollisionMask(0x00000001);
 
-	velocity_ = { 0.0f,0.0f,1.0f };
-	knockBackVelocity_ = Vector3::zero;
-	isKnockBack_ = false;
+    velocity_ = { 0.0f,0.0f,1.0f };
+    knockBackVelocity_ = Vector3::zero;
+    isKnockBack_ = false;
 
-	diff_ = Quaternion::identity;
+    diff_ = Quaternion::identity;
 
-	behavior_ = Behavior::kRoot;
+    behavior_ = Behavior::kRoot;
 
     workDash_.speed_ = 2.0f;
 
@@ -151,22 +151,22 @@ void Player::Initialize() {
     workInvincible_.invincibleTimer = 0;
     workInvincible_.isInvincible = false;
 
-	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
-	hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
-	hpSprite_->SetAnchor({ 0.0f,0.5f });
-	guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
+    hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
+    hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
+    hpSprite_->SetAnchor({ 0.0f,0.5f });
+    guardSprite_->SetScale({ 1.0f * (120 - workGravity_.overHeatTimer), 64.0f });
 
-	hpOverSprite_->SetScale({ 257.0f, 161.0f });
+    hpOverSprite_->SetScale({ 257.0f, 161.0f });
 
-	hpUnderSprite_->SetScale({ 257.0f, 161.0f });
-	
-	guardSprite_->SetScale({ 3.2f * (120 - workGravity_.overHeatTimer), 48.0f });
-	guardSprite_->SetAnchor({ 0.0f,0.5f });
+    hpUnderSprite_->SetScale({ 257.0f, 161.0f });
 
-	dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/dash.wav");
-	deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/disolve.wav");
-	shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/shoot.wav");
-	crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
+    guardSprite_->SetScale({ 3.2f * (120 - workGravity_.overHeatTimer), 48.0f });
+    guardSprite_->SetAnchor({ 0.0f,0.5f });
+
+    dashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/dash.wav");
+    deathSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/disolve.wav");
+    shootSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/shoot.wav");
+    crashSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/proto_sound/crash.wav");
     attackSE_ = Audio::GetInstance()->SoundLoadWave("./Resources/sound/hammerAttack.wav");
 
     RegisterGlobalVariables();
@@ -179,13 +179,13 @@ void Player::Initialize() {
 
 void Player::Update() {
 
-//#ifdef _DEBUG
-//
-//    ImGui::Begin("pos");
-//    ImGui::DragFloat3("pos", &thrustPos_.x, 0.05f);
-//    ImGui::End();
-//
-//#endif // _DEBUG
+    //#ifdef _DEBUG
+    //
+    //    ImGui::Begin("pos");
+    //    ImGui::DragFloat3("pos", &thrustPos_.x, 0.05f);
+    //    ImGui::End();
+    //
+    //#endif // _DEBUG
 
     ApplyGlobalVariables();
 
@@ -249,30 +249,30 @@ void Player::Update() {
         }
     }
 
-	hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
-	hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
-	guardSprite_->SetScale({ 2.8f * (120 - workGravity_.overHeatTimer), 48.0f });
+    hpSprite_->SetTexcoordRect({ 0.0f,0.0f }, { 38.4f * hp_, 128.0f });
+    hpSprite_->SetScale({ 19.2f * hp_, 64.0f });
+    guardSprite_->SetScale({ 2.8f * (120 - workGravity_.overHeatTimer), 48.0f });
 
-	if (transform.translate.x > 200.0f) {
+    if (transform.translate.x > 200.0f) {
         transform.translate.x = 200.0f;
-	}
+    }
 
-	if (transform.translate.x < -200.0f) {
+    if (transform.translate.x < -200.0f) {
         transform.translate.x = -200.0f;
-	}
+    }
 
-	if (transform.translate.z > 200.0f) {
+    if (transform.translate.z > 200.0f) {
         transform.translate.z = 200.0f;
-	}
+    }
 
-	if (transform.translate.z < -200.0f) {
+    if (transform.translate.z < -200.0f) {
         transform.translate.z = -200.0f;
-	}
+    }
 
-	/*for (uint32_t i = 0; i < kMaxParts; i++) {
-		playerTransforms_[i]->UpdateMatrix();
-		playerModels_[i]->SetWorldMatrix(playerTransforms_[i]->worldMatrix);
-	}*/
+    /*for (uint32_t i = 0; i < kMaxParts; i++) {
+        playerTransforms_[i]->UpdateMatrix();
+        playerModels_[i]->SetWorldMatrix(playerTransforms_[i]->worldMatrix);
+    }*/
 
     reticle_->Update();
 
@@ -295,35 +295,35 @@ void Player::Update() {
         weapon_->GetModel()->SetIsActive(false);
     }
 
-	//状態に応じてUIの表示を変更
-	if (!isStart_) {
-		ui_A_->SetIsActive(false);
-		ui_RB_->SetIsActive(false);
-		ui_LB_->SetIsActive(false);
-		ui_LS_->SetIsActive(false);
-		ui_RS_->SetIsActive(false);
-		ui_RT_->SetIsActive(false);
-		hpOverSprite_->SetIsActive(false);
-		hpUnderSprite_->SetIsActive(false);
-		hpSprite_->SetIsActive(false);
-		guardSprite_->SetIsActive(false);
-		reticle_->SetIsActive(false);
-	}
-	else {
-		ui_A_->SetIsActive(true);
-		ui_RB_->SetIsActive(true);
-		ui_LB_->SetIsActive(true);
-		ui_LS_->SetIsActive(true);
-		ui_RS_->SetIsActive(true);
-		ui_RT_->SetIsActive(true);
-		hpOverSprite_->SetIsActive(true);
-		hpUnderSprite_->SetIsActive(true);
-		hpSprite_->SetIsActive(true);
-		guardSprite_->SetIsActive(true);
-		reticle_->SetIsActive(true);
-	}
+    //状態に応じてUIの表示を変更
+    if (!isStart_) {
+        ui_A_->SetIsActive(false);
+        ui_RB_->SetIsActive(false);
+        ui_LB_->SetIsActive(false);
+        ui_LS_->SetIsActive(false);
+        ui_RS_->SetIsActive(false);
+        ui_RT_->SetIsActive(false);
+        hpOverSprite_->SetIsActive(false);
+        hpUnderSprite_->SetIsActive(false);
+        hpSprite_->SetIsActive(false);
+        guardSprite_->SetIsActive(false);
+        reticle_->SetIsActive(false);
+    }
+    else {
+        ui_A_->SetIsActive(true);
+        ui_RB_->SetIsActive(true);
+        ui_LB_->SetIsActive(true);
+        ui_LS_->SetIsActive(true);
+        ui_RS_->SetIsActive(true);
+        ui_RT_->SetIsActive(true);
+        hpOverSprite_->SetIsActive(true);
+        hpUnderSprite_->SetIsActive(true);
+        hpSprite_->SetIsActive(true);
+        guardSprite_->SetIsActive(true);
+        reticle_->SetIsActive(true);
+    }
 
-	if (behavior_ != Behavior::kRoot) {
+    if (behavior_ != Behavior::kRoot) {
 
         ui_LB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
         ui_RB_->SetColor({ 1.0f,1.0f,1.0f,0.5f });
@@ -393,13 +393,13 @@ void Player::Update() {
 
 void Player::BehaviorRootUpdate() {
 
-	//ゲーム開始していない時は動かせないようにする
-	/*if (!isStart_) {
-		return;
-	}*/
+    //ゲーム開始していない時は動かせないようにする
+    /*if (!isStart_) {
+        return;
+    }*/
 
-	auto& camera = camera_->GetCamera();
-	auto input = Input::GetInstance();
+    auto& camera = camera_->GetCamera();
+    auto input = Input::GetInstance();
 
     auto& xinputState = input->GetXInputState();
 
@@ -436,70 +436,61 @@ void Player::BehaviorRootUpdate() {
     // 重力波発射中と突き出し中は遷移不可
     if (isStart_ && ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A) &&
         !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) &&
-        !weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_) {
+        !weapon_->GetIsShot() && workGravity_.gravityTimer <= 0 && !isPoseShot_ && guardAnimationParameter_.state == GuardAnimationParameter::kIdle) {
 
 
         attack_.attackType = kHorizontal_1;
 
         behaviorRequest_ = Behavior::kAttack;
 
-	}
-	// ダッシュ
-	if (isStart_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) &&
-		workGravity_.gravityTimer <= 0 && !isPoseShot_) {
-		
-		//ディレイの値に応じてスピード調整
-		workDash_.speed_ = 2.0f - (weapon_->gravityDelay_ / 50.0f) - workGravity_.decel;
+    }
 
-	}
-	else {
-		workDash_.speed_ = 1.0f - (weapon_->gravityDelay_ / 70.0f) - workGravity_.decel;
-	}
+    DushUpdate();
 
-	Vector3 move{};
-	// Gamepad入力(ノックバックしていない時)
-	if (isStart_ && !isKnockBack_) {
+    Vector3 move{};
+    // Gamepad入力(ノックバックしていない時)
+    if (isStart_ && !isKnockBack_) {
 
-		const float margin = 0.8f;
-		const float shortMaxReci = 1.0f / float(SHRT_MAX);
-		move = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
-		move *= shortMaxReci;
-		if (move.Length() < margin) {
-			move = Vector3::zero;
-		}
+        const float margin = 0.8f;
+        const float shortMaxReci = 1.0f / float(SHRT_MAX);
+        move = { float(xinputState.Gamepad.sThumbLX), 0.0f, float(xinputState.Gamepad.sThumbLY) };
+        move *= shortMaxReci;
+        if (move.Length() < margin) {
+            move = Vector3::zero;
+        }
 
-	}
+    }
     //ノックバックしている時
-	else if(isKnockBack_) {
+    else if (isKnockBack_) {
 
-		move = knockBackVelocity_;
-		
-		//徐々に速度を減らす
-		knockBackVelocity_ /= 1.06f;
+        move = knockBackVelocity_;
 
-		//既定の速度以下でノックバック終了
-		if (knockBackVelocity_.Length() < 0.1f) {
-			knockBackVelocity_ = Vector3::zero;
-			isKnockBack_ = false;
-		}
+        //徐々に速度を減らす
+        knockBackVelocity_ /= 1.06f;
 
-	}
+        //既定の速度以下でノックバック終了
+        if (knockBackVelocity_.Length() < 0.1f) {
+            knockBackVelocity_ = Vector3::zero;
+            isKnockBack_ = false;
+        }
 
-	// 移動、回転処理
-	{
-		if (move != Vector3::zero) {
-			
+    }
 
-			if (!isKnockBack_) {
-				move = move.Normalized();
-				// 地面に水平なカメラの回転
-				move = camera->GetRotate() * move;
-				move.y = 0.0f;
-				move = move.Normalized() * (0.7f * workDash_.speed_);
-			}
-			/*else {
-				
-			}*/
+    // 移動、回転処理
+    {
+        if (move != Vector3::zero) {
+
+
+            if (!isKnockBack_) {
+                move = move.Normalized();
+                // 地面に水平なカメラの回転
+                move = camera->GetRotate() * move;
+                move.y = 0.0f;
+                move = move.Normalized() * (0.7f * workDash_.speed_);
+            }
+            /*else {
+
+            }*/
 
             // 親がいる場合親の空間にする
             const Transform* parent = transform.GetParent();
@@ -517,21 +508,25 @@ void Player::BehaviorRootUpdate() {
             }
             else {
 
-			}
+            }
 
-			if (!isKnockBack_) {
-				move = transform.rotate.Conjugate() * move;
-				Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
-				transform.rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff) * transform.rotate;
-			}
-            
+            if (!isKnockBack_) {
+                move = transform.rotate.Conjugate() * move;
+                Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+                transform.rotate = Quaternion::Slerp(0.7f, Quaternion::identity, diff) * transform.rotate;
+            }
+
 
         }
     }
 
-    animationParameter_ += 1.0f / waitAnimationParameter_.allFrame;
-    if (animationParameter_ > 1.0f) {
-        animationParameter_ -= static_cast<float>(static_cast<int>(animationParameter_));
+    if (dushAnimationParameter_.state == DushAnimationParameter::kIdle
+        && guardAnimationParameter_.state == GuardAnimationParameter::kIdle) {
+        animationParameter_ += 1.0f / waitAnimationParameter_.allFrame;
+        if (animationParameter_ > 1.0f) {
+            animationParameter_ -= static_cast<float>(static_cast<int>(animationParameter_));
+        }
+        currentAnimation_ = PlayerModel::kWait;
     }
 
     /*if (input_->TriggerButton(XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
@@ -553,82 +548,12 @@ void Player::Thrust() {
 
     auto& xinputState = input->GetXInputState();
 
-    //重力波が発射されていない時、オーバーヒートしていない時
-    if (!weapon_->GetIsShot() && !workGravity_.isOverHeat) {
 
-        //重力を付けるまでに若干のラグを設ける
-        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
-            !weapon_->GetIsShot() && !isPoseShot_) {
-
-            if (workGravity_.gravityTimer < workGravity_.gravityFrame) {
-                workGravity_.gravityTimer++;
-            }
-
-        }
-        else {
-
-            if (workGravity_.gravityTimer > 0) {
-                workGravity_.gravityTimer--;
-
-                if (workGravity_.gravityTimer <= 0) {
-                    weapon_->SetDefault();
-                }
-
-            }
-
-        }
-
-        //重力機能がオンになった状態
-        if (workGravity_.gravityTimer >= workGravity_.gravityFrame) {
-
-            //重力が付与されていなかったら重力付与
-            if (!weapon_->GetIsGravity()) {
-                weapon_->AddGravity();
-            }
-
-            weapon_->modelBodyTransform_->translate = thrustPos_;
-            weapon_->modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -100.0f);
-			weapon_->isThrust_ = true;
-			workGravity_.decel = workGravity_.decelVal;
-
-            //規定時間以上重力を続けると一定時間強制的に使えなくなる
-            if (workGravity_.overHeatTimer < workGravity_.keepTime) {
-
-                workGravity_.overHeatTimer++;
-
-                if (workGravity_.overHeatTimer >= workGravity_.keepTime) {
-                    workGravity_.isOverHeat = true;
-                    workGravity_.gravityTimer = 0;
-                    weapon_->SetDefault();
-                }
-
-            }
-
-        }
-        else {
-
-            //持続していない間は重力時間を回復
-            if (workGravity_.overHeatTimer > 0) {
-                workGravity_.overHeatTimer--;
-
-            }
-
-			weapon_->isThrust_ = false;
-			workGravity_.decel = 0.0f;
-
-		}
-
-    }
-    else {
-        weapon_->isThrust_ = false;
-    }
-
-    //オーバーヒート中はタイマーを回復
-    if (workGravity_.isOverHeat) {
+    switch (guardAnimationParameter_.state) {
+    case GuardAnimationParameter::kIdle: {
 
         //規定時間到達で解除
         if (workGravity_.overHeatTimer > 0) {
-
             workGravity_.overHeatTimer--;
 
             if (workGravity_.overHeatTimer <= 0) {
@@ -637,7 +562,164 @@ void Player::Thrust() {
 
         }
 
+        weapon_->isThrust_ = false;
+        workGravity_.decel = 0.0f;
+
+        if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+            !weapon_->GetIsShot() && !workGravity_.isOverHeat) {
+            animationParameter_ = 0.0f;
+            currentAnimation_ = PlayerModel::kGuardStart;
+            guardAnimationParameter_.state = GuardAnimationParameter::kStart;
+        }
+        break;
     }
+    case GuardAnimationParameter::kStart: {
+        animationParameter_ += 1.0f / guardAnimationParameter_.allFrame;
+        if (animationParameter_ >= 1.0f) {
+            guardAnimationParameter_.state = GuardAnimationParameter::kDuring;
+            animationParameter_ = 1.0f;
+        }
+        if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+            guardAnimationParameter_.state = GuardAnimationParameter::kEnd;
+            animationParameter_ = 1.0f;
+        }
+
+        currentAnimation_ = PlayerModel::kGuardStart;
+        break;
+    }
+    case GuardAnimationParameter::kDuring: {
+        currentAnimation_ = PlayerModel::kGuardEnd;
+        animationParameter_ = 0.0f;
+
+        //重力が付与されていなかったら重力付与
+        if (!weapon_->GetIsGravity()) {
+            weapon_->AddGravity();
+        }
+
+        weapon_->modelBodyTransform_->translate = thrustPos_;
+        weapon_->modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -100.0f);
+        weapon_->isThrust_ = true;
+        workGravity_.decel = workGravity_.decelVal;
+
+        //規定時間以上重力を続けると一定時間強制的に使えなくなる
+        if (workGravity_.overHeatTimer < workGravity_.keepTime) {
+
+            workGravity_.overHeatTimer++;
+
+            if (workGravity_.overHeatTimer >= workGravity_.keepTime) {
+                workGravity_.isOverHeat = true;
+                workGravity_.gravityTimer = 0;
+            }
+
+        }
+
+        if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ||
+            workGravity_.isOverHeat) {
+            guardAnimationParameter_.state = GuardAnimationParameter::kEnd;
+        }
+
+        break;
+    }
+    case GuardAnimationParameter::kEnd: {
+        currentAnimation_ = PlayerModel::kGuardEnd;
+        animationParameter_ += 1.0f / guardAnimationParameter_.allFrame;
+        if (animationParameter_ >= 1.0f) {
+            weapon_->SetDefault();
+            guardAnimationParameter_.state = GuardAnimationParameter::kIdle;
+            animationParameter_ = 1.0f;
+        }
+
+        break;
+    }
+    }
+
+
+
+    ////重力波が発射されていない時、オーバーヒートしていない時
+    //if (!weapon_->GetIsShot() && !workGravity_.isOverHeat) {
+
+    //    //重力を付けるまでに若干のラグを設ける
+    //    if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) &&
+    //        !weapon_->GetIsShot() && !isPoseShot_) {
+
+    //        if (workGravity_.gravityTimer < workGravity_.gravityFrame) {
+    //            workGravity_.gravityTimer++;
+    //        }
+
+    //    }
+    //    else {
+
+    //        if (workGravity_.gravityTimer > 0) {
+    //            workGravity_.gravityTimer--;
+
+    //            if (workGravity_.gravityTimer <= 0) {
+    //                weapon_->SetDefault();
+    //            }
+
+    //        }
+
+    //    }
+
+    //    //重力機能がオンになった状態
+    //    if (workGravity_.gravityTimer >= workGravity_.gravityFrame) {
+
+    //        //重力が付与されていなかったら重力付与
+    //        if (!weapon_->GetIsGravity()) {
+    //            weapon_->AddGravity();
+    //        }
+
+    //        weapon_->modelBodyTransform_->translate = thrustPos_;
+    //        weapon_->modelBodyTransform_->rotate = Quaternion::MakeForXAxis(Math::ToRadian * -100.0f);
+    //        weapon_->isThrust_ = true;
+    //        workGravity_.decel = workGravity_.decelVal;
+
+    //        //規定時間以上重力を続けると一定時間強制的に使えなくなる
+    //        if (workGravity_.overHeatTimer < workGravity_.keepTime) {
+
+    //            workGravity_.overHeatTimer++;
+
+    //            if (workGravity_.overHeatTimer >= workGravity_.keepTime) {
+    //                workGravity_.isOverHeat = true;
+    //                workGravity_.gravityTimer = 0;
+    //                weapon_->SetDefault();
+    //            }
+
+    //        }
+
+    //    }
+    //    else {
+
+    //        //持続していない間は重力時間を回復
+    //        if (workGravity_.overHeatTimer > 0) {
+    //            workGravity_.overHeatTimer--;
+
+    //        }
+
+    //        weapon_->isThrust_ = false;
+    //        workGravity_.decel = 0.0f;
+
+    //    }
+
+    //}
+    //else {
+    //    weapon_->isThrust_ = false;
+    //}
+
+    ////オーバーヒート中はタイマーを回復
+    //if (workGravity_.isOverHeat) {
+
+    //    //規定時間到達で解除
+    //    if (workGravity_.overHeatTimer > 0) {
+
+    //        workGravity_.overHeatTimer--;
+
+    //        if (workGravity_.overHeatTimer <= 0) {
+    //            workGravity_.isOverHeat = false;
+    //        }
+
+    //    }
+
+    //}
 
 }
 
@@ -837,63 +919,63 @@ void Player::BehaviorShotInitialize() {
 
 void Player::KnockBack(const Vector3& affectPosition) {
 
-	knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
-	knockBackVelocity_.y = 0.0f;
-	knockBackVelocity_ = knockBackVelocity_.Normalized();
+    knockBackVelocity_ = transform.worldMatrix.GetTranslate() - affectPosition;
+    knockBackVelocity_.y = 0.0f;
+    knockBackVelocity_ = knockBackVelocity_.Normalized();
 
-	isKnockBack_ = true;
+    isKnockBack_ = true;
 
 }
 
 void Player::Damage(uint32_t val, const Vector3& affectPosition) {
 
-	if (!workInvincible_.isInvincible) {
-		hp_ -= val;
-		workInvincible_.invincibleTimer = 120;
-		workInvincible_.isInvincible = true;
-		KnockBack(affectPosition);
-	}
+    if (!workInvincible_.isInvincible) {
+        hp_ -= val;
+        workInvincible_.invincibleTimer = 120;
+        workInvincible_.isInvincible = true;
+        KnockBack(affectPosition);
+    }
 
 }
 
 void Player::OnCollision(const CollisionInfo& collisionInfo) {
 
-	if (collisionInfo.collider->GetName() == "Small_Enemy") {
+    if (collisionInfo.collider->GetName() == "Small_Enemy") {
 
-		auto object = collisionInfo.collider->GetGameObject();
+        auto object = collisionInfo.collider->GetGameObject();
 
-		auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+        auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		Damage(1, enemy->transform.worldMatrix.GetTranslate());
+        Damage(1, enemy->transform.worldMatrix.GetTranslate());
 
-	}
-	else if (collisionInfo.collider->GetName() == "Barrier_Enemy") {
+    }
+    else if (collisionInfo.collider->GetName() == "Barrier_Enemy") {
 
-		auto object = collisionInfo.collider->GetGameObject();
+        auto object = collisionInfo.collider->GetGameObject();
 
-		auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
+        auto enemy = SmallEnemyManager::GetInstance()->GetEnemy(object);
 
-		Damage(1, enemy->transform.worldMatrix.GetTranslate());
+        Damage(1, enemy->transform.worldMatrix.GetTranslate());
 
-	}
-	else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
+    }
+    else if (collisionInfo.collider->GetName() == "Enemy_Bullet") {
 
-		auto object = collisionInfo.collider->GetGameObject();
+        auto object = collisionInfo.collider->GetGameObject();
 
-		auto bullet = BulletManager::GetInstance()->GetBullet(object);
+        auto bullet = BulletManager::GetInstance()->GetBullet(object);
 
-		Damage(1, bullet->transform.worldMatrix.GetTranslate());
+        Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
         bullet->SetIsDead(true);
 
-	}
-	else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
+    }
+    else if (collisionInfo.collider->GetName() == "Barrier_Bullet") {
 
-		auto object = collisionInfo.collider->GetGameObject();
+        auto object = collisionInfo.collider->GetGameObject();
 
-		auto bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
+        auto bullet = BarrierBulletManager::GetInstance()->GetBullet(object);
 
-		Damage(1, bullet->transform.worldMatrix.GetTranslate());
+        Damage(1, bullet->transform.worldMatrix.GetTranslate());
 
         bullet->SetIsDead(true);
 
@@ -935,6 +1017,62 @@ void Player::ApplyGlobalVariables() {
         workAttack_02_.allFrame = workAttack_02_.allFrame + weapon_->gravityDelay_;
         workAttack_03_.allFrame = workAttack_03_.allFrame + weapon_->gravityDelay_;
 
+    }
+
+}
+
+void Player::DushUpdate() {
+    // ゲームがスタートしているか
+    if (!isStart_) { return; }
+    // 飛ばす構えをしているか
+    if (isPoseShot_) { return; }
+
+    auto input = Input::GetInstance();
+    auto& xinputState = input->GetXInputState();
+    //    auto& preXInputState = input->GetPreXInputState();
+
+    switch (dushAnimationParameter_.state) {
+    case DushAnimationParameter::kIdle: {
+        workDash_.speed_ = 1.0f - (weapon_->gravityDelay_ / 70.0f) - workGravity_.decel;
+        if (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER && guardAnimationParameter_.state == GuardAnimationParameter::kIdle) {
+            dushAnimationParameter_.state = DushAnimationParameter::kStart;
+            animationParameter_ = 0.0f;
+            currentAnimation_ = PlayerModel::kDushStart;
+        }
+        break;
+    }
+    case DushAnimationParameter::kStart: {
+        workDash_.speed_ = 2.0f - (weapon_->gravityDelay_ / 50.0f) - workGravity_.decel;
+        animationParameter_ += 1.0f / dushAnimationParameter_.allFrame;
+        if (animationParameter_ >= 1.0f) {
+            dushAnimationParameter_.state = DushAnimationParameter::kDuring;
+            animationParameter_ = 1.0f;
+        }
+        if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+            dushAnimationParameter_.state = DushAnimationParameter::kEnd;
+            animationParameter_ = 1.0f - animationParameter_;
+            currentAnimation_ = PlayerModel::kDushEnd;
+        }
+        break;
+    }
+    case DushAnimationParameter::kDuring: {
+        workDash_.speed_ = 2.0f - (weapon_->gravityDelay_ / 50.0f) - workGravity_.decel;
+        if (!(xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+            dushAnimationParameter_.state = DushAnimationParameter::kEnd;
+        }
+        currentAnimation_ = PlayerModel::kDushEnd;
+        animationParameter_ = 0.0f;
+        break;
+    }
+    case DushAnimationParameter::kEnd: {
+        workDash_.speed_ = 1.0f - (weapon_->gravityDelay_ / 70.0f) - workGravity_.decel;
+        animationParameter_ += 1.0f / dushAnimationParameter_.allFrame;
+        if (animationParameter_ >= 1.0f) {
+            dushAnimationParameter_.state = DushAnimationParameter::kIdle;
+            currentAnimation_ = PlayerModel::kWait;
+        }
+        break;
+    }
     }
 
 }

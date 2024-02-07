@@ -50,6 +50,7 @@ void Graphics::Initialize() {
     if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &featureShaderModel, sizeof(featureShaderModel)))) {
         if (featureShaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_6) {
             // HLSL 6.6に対応してない
+            MessageBoxA(nullptr, "Unsupported HLSL6.6!!", "Error", S_OK);
             assert(false);
         }
 
@@ -60,6 +61,9 @@ void Graphics::Initialize() {
         if (options5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED) {
             ASSERT_IF_FAILED(device_.As(&dxrDevice_));
             OutputDebugStringA("DXR supported!!\n");
+        }
+        else {
+            MessageBoxA(nullptr, "Unsupported DirectX Raytracing!!", "Error", S_OK);
         }
     }
 
