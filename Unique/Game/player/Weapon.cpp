@@ -225,7 +225,7 @@ void Weapon::Update() {
 
 	//重力をまとっている間
 	if (isGravity_ && !isShot_) {
-		gravityDelay_ = int32_t(gravityLevel_ * 5) + 5;
+		gravityDelay_ = int32_t(gravityLevel_ * 10) + 5;
 	}
 	else {
 		gravityDelay_ = 0;
@@ -371,10 +371,10 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			enemy->transform.translate = Vector3::zero;
 			enemy->GetCollider()->SetName("Small_Enemy_Affected");
 
-			if (energyCount_ >= 20) {
+			if (energyCount_ >= gravityWideLine_) {
 				gravityLevel_ = kWide;
 			}
-			else if (energyCount_ >= 10) {
+			else if (energyCount_ >= gravityMediumLine_) {
 				gravityLevel_ = kMedium;
 			}
 			else {
@@ -401,10 +401,10 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 				bullet->GetCollider()->SetName("Barrier_Bullet_Affected");
 				barrierBulletCount_++;
 
-				if (energyCount_ >= 20) {
+				if (energyCount_ >= gravityWideLine_) {
 					gravityLevel_ = kWide;
 				}
-				else if (energyCount_ >= 10) {
+				else if (energyCount_ >= gravityMediumLine_) {
 					gravityLevel_ = kMedium;
 				}
 				else {
@@ -430,10 +430,10 @@ void Weapon::GravityOnCollision(const CollisionInfo& collisionInfo) {
 			bullet->GetCollider()->SetName("Enemy_Bullet_Affected");
 			
 
-			if (energyCount_ >= 20) {
+			if (energyCount_ >= gravityWideLine_) {
 				gravityLevel_ = kWide;
 			}
-			else if (energyCount_ >= 10) {
+			else if (energyCount_ >= gravityMediumLine_) {
 				gravityLevel_ = kMedium;
 			}
 			else {

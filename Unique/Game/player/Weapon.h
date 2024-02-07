@@ -49,9 +49,6 @@ public:
 	//重力付与
 	void AddGravity();
 
-	//遅延量取得
-	const int32_t& GetDelay() { return gravityDelay_; }
-
 	const GravityLevel& GetLevel() const { return gravityLevel_; }
 
 	bool isThrust_ = false;
@@ -73,6 +70,9 @@ public:
 
 	//ウェポンの衝撃波当たり判定。三撃目の最後に発動
 	std::unique_ptr<SphereCollider> shockWaveCollider_;
+
+	//重力による振りの遅延量
+	int32_t gravityDelay_ = 5;
 
 private:
 
@@ -118,9 +118,6 @@ private:
 	//重力の強さ
 	GravityLevel gravityLevel_;
 
-	//重力による振りの遅延量
-	int32_t gravityDelay_ = 5;
-
 	//重力を付与しているかどうか
 	bool isGravity_ = false;
 
@@ -129,6 +126,10 @@ private:
 	uint32_t kMaxShotTime_ = 30;
 
 	int32_t shotTimer_ = kMaxShotTime_;
+
+	uint32_t gravityMediumLine_ = 3;
+
+	uint32_t gravityWideLine_ = 5;
 
 	bool isBreak_ = false;
 

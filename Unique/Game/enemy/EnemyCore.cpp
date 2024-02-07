@@ -97,7 +97,7 @@ void EnemyCore::Update() {
 		endPosition_ = { 0.0f,30.0f,0.0f };
 	}
 
-	transform.translate = endPosition_;
+	transform.translate = Vector3::Slerp(lerpT_, startPosition_, endPosition_);
 
 	if (player_) {
 
