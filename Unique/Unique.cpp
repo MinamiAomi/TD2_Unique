@@ -25,6 +25,7 @@ void Unique::OnInitialize() {
 	resourceManager->AddModel("Crystal2", Model::Load("./Resources/StageObject/crystal2.obj"));
 	resourceManager->AddModel("Torus", Model::Load("./Resources/StageObject/torus2.obj"));
 	resourceManager->AddModel("Cage", Model::Load("./Resources/StageObject/cage.obj"));
+	resourceManager->AddModel("Pillar", Model::Load("./Resources/StageObject/pillar.obj"));
 	//天球
 	resourceManager->AddModel("Skydome", Model::Load("./Resources/skydome/skydome.obj"));
 	//武器モデル読み込み

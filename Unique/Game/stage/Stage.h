@@ -28,6 +28,14 @@ private:
 
 	std::array<std::unique_ptr<Transform>, 4> borderTransforms_;
 
+	std::array<std::shared_ptr<ModelInstance>, 4> pillars_;
+
+	std::array<std::unique_ptr<Transform>, 4> pillarTransforms_;
+
+	std::array<std::shared_ptr<ModelInstance>, 10> objects_;
+
+	std::array<std::unique_ptr<Transform>, 10> objectTransforms_;
+
 	std::shared_ptr<ModelInstance> skydome_;
 
 	std::unique_ptr<BoxCollider> collider_;
