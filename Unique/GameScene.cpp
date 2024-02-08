@@ -91,6 +91,7 @@ void GameScene::OnInitialize() {
 
     RenderManager::GetInstance()->SetCamera(followCamera_->GetCamera());
     sunLight_ = std::make_shared<DirectionalLight>();
+    sunLight_->direction = Vector3(0.01f, -1.0f, 0.01f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
     //セット

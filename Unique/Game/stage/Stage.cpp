@@ -19,6 +19,7 @@ Stage::Stage()
 		borderTransforms_[i] = std::make_unique<Transform>();
 		pillars_[i] = std::make_shared<ModelInstance>();
 		pillars_[i]->SetModel(ResourceManager::GetInstance()->FindModel("Pillar"));
+		pillars_[i]->SetCastShadow(false);
 		pillarTransforms_[i] = std::make_unique<Transform>();
 	}
 
